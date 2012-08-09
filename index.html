@@ -1,0 +1,490 @@
+<!DOCTYPE html><html><head><title>Ace</title><style>body {background:black} canvas {display:block;margin:auto}</style></head><body><canvas id="c" width=640 height=480></canvas><script>
+var l='length',p='prototype'
+
+V=function(x,y,z){ //Vector3
+this.x=x,this.y=y,this.z=z
+}
+V[p].se=function(x,y,z){ //set
+	this.x=x;this.y=y;this.z=z;
+	return this;
+}
+V[p].c=function(){ //clone
+	return new V(this.x,this.y,this.z)
+}
+V[p].s=function(v){ //subSelf
+	this.x-=v.x;this.y-=v.y;this.z-=v.z
+	return this
+}
+V[p].cr=function(v){
+	var x = this.x,y = this.y,z = this.z
+	this.x=y*v.z-z*v.y
+	this.y=z*v.x-x*v.z
+	this.z=x*v.y-y*v.x	
+	return this
+}
+V[p].n=function(){ //normalize
+	var l = Math.sqrt(this.x*this.x+this.y*this.y+this.z*this.z)
+	this.x/=l
+	this.y/=l
+	this.z/=l
+	return this
+}
+V[p].l=function(){ //length
+	return Math.sqrt(this.ls())
+}
+V[p].ls=function(){ //lengthSq
+	return this.x*this.x+this.y*this.y+this.z*this.z
+}
+V[p].co=function(v){ //copy
+	this.x=v.x;this.y=v.y;this.z=v.z
+}
+
+M=function(e){ //Matrix4
+this.e=e||[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]
+}
+M[p].gi=function(m){ //getInverse
+	var te = this.e,
+		me = m.e,
+
+		n11 = me[0], n12 = me[4], n13 = me[8], n14 = me[12],
+		n21 = me[1], n22 = me[5], n23 = me[9], n24 = me[13],
+		n31 = me[2], n32 = me[6], n33 = me[10], n34 = me[14],
+		n41 = me[3], n42 = me[7], n43 = me[11], n44 = me[15];
+
+	te[0] = n23*n34*n42 - n24*n33*n42 + n24*n32*n43 - n22*n34*n43 - n23*n32*n44 + n22*n33*n44;
+	te[4] = n14*n33*n42 - n13*n34*n42 - n14*n32*n43 + n12*n34*n43 + n13*n32*n44 - n12*n33*n44;
+	te[8] = n13*n24*n42 - n14*n23*n42 + n14*n22*n43 - n12*n24*n43 - n13*n22*n44 + n12*n23*n44;
+	te[12] = n14*n23*n32 - n13*n24*n32 - n14*n22*n33 + n12*n24*n33 + n13*n22*n34 - n12*n23*n34;
+	te[1] = n24*n33*n41 - n23*n34*n41 - n24*n31*n43 + n21*n34*n43 + n23*n31*n44 - n21*n33*n44;
+	te[5] = n13*n34*n41 - n14*n33*n41 + n14*n31*n43 - n11*n34*n43 - n13*n31*n44 + n11*n33*n44;
+	te[9] = n14*n23*n41 - n13*n24*n41 - n14*n21*n43 + n11*n24*n43 + n13*n21*n44 - n11*n23*n44;
+	te[13] = n13*n24*n31 - n14*n23*n31 + n14*n21*n33 - n11*n24*n33 - n13*n21*n34 + n11*n23*n34;
+	te[2] = n22*n34*n41 - n24*n32*n41 + n24*n31*n42 - n21*n34*n42 - n22*n31*n44 + n21*n32*n44;
+	te[6] = n14*n32*n41 - n12*n34*n41 - n14*n31*n42 + n11*n34*n42 + n12*n31*n44 - n11*n32*n44;
+	te[10] = n12*n24*n41 - n14*n22*n41 + n14*n21*n42 - n11*n24*n42 - n12*n21*n44 + n11*n22*n44;
+	te[14] = n14*n22*n31 - n12*n24*n31 - n14*n21*n32 + n11*n24*n32 + n12*n21*n34 - n11*n22*n34;
+	te[3] = n23*n32*n41 - n22*n33*n41 - n23*n31*n42 + n21*n33*n42 + n22*n31*n43 - n21*n32*n43;
+	te[7] = n12*n33*n41 - n13*n32*n41 + n13*n31*n42 - n11*n33*n42 - n12*n31*n43 + n11*n32*n43;
+	te[11] = n13*n22*n41 - n12*n23*n41 - n13*n21*n42 + n11*n23*n42 + n12*n21*n43 - n11*n22*n43;
+	te[15] = n12*n23*n31 - n13*n22*n31 + n13*n21*n32 - n11*n23*n32 - n12*n21*n33 + n11*n22*n33;
+	this.ms( 1 / m.d() )
+
+	return this
+}
+M[p].ms=function(s){ //multiplyScalar
+	var te = this.e
+
+	te[0] *= s; te[4] *= s; te[8] *= s; te[12] *= s
+	te[1] *= s; te[5] *= s; te[9] *= s; te[13] *= s
+	te[2] *= s; te[6] *= s; te[10] *= s; te[14] *= s
+	te[3] *= s; te[7] *= s; te[11] *= s; te[15] *= s
+
+	return this
+}
+M[p].d=function(){ //determinant
+	var te = this.e,
+
+		n11 = te[0], n12 = te[4], n13 = te[8], n14 = te[12],
+		n21 = te[1], n22 = te[5], n23 = te[9], n24 = te[13],
+		n31 = te[2], n32 = te[6], n33 = te[10], n34 = te[14],
+		n41 = te[3], n42 = te[7], n43 = te[11], n44 = te[15];
+
+	//TODO: make this more efficient
+	//( based on http://www.euclideanspace.com/maths/algebra/matrix/functions/inverse/fourD/index.htm )
+
+	return (
+		n14 * n23 * n32 * n41-
+		n13 * n24 * n32 * n41-
+		n14 * n22 * n33 * n41+
+		n12 * n24 * n33 * n41+
+
+		n13 * n22 * n34 * n41-
+		n12 * n23 * n34 * n41-
+		n14 * n23 * n31 * n42+
+		n13 * n24 * n31 * n42+
+
+		n14 * n21 * n33 * n42-
+		n11 * n24 * n33 * n42-
+		n13 * n21 * n34 * n42+
+		n11 * n23 * n34 * n42+
+
+		n14 * n22 * n31 * n43-
+		n12 * n24 * n31 * n43-
+		n14 * n21 * n32 * n43+
+		n11 * n24 * n32 * n43+
+
+		n12 * n21 * n34 * n43-
+		n11 * n22 * n34 * n43-
+		n13 * n22 * n31 * n44+
+		n12 * n23 * n31 * n44+
+
+		n13 * n21 * n32 * n44-
+		n11 * n23 * n32 * n44-
+		n12 * n21 * n33 * n44+
+		n11 * n22 * n33 * n44
+	)
+}
+M[p].m=function(a,b){ //multiply
+	var ae = a.e,
+		be = b.e,
+		te = this.e,
+
+		a11 = ae[0], a12 = ae[4], a13 = ae[8], a14 = ae[12],
+		a21 = ae[1], a22 = ae[5], a23 = ae[9], a24 = ae[13],
+		a31 = ae[2], a32 = ae[6], a33 = ae[10], a34 = ae[14],
+		a41 = ae[3], a42 = ae[7], a43 = ae[11], a44 = ae[15],
+
+		b11 = be[0], b12 = be[4], b13 = be[8], b14 = be[12],
+		b21 = be[1], b22 = be[5], b23 = be[9], b24 = be[13],
+		b31 = be[2], b32 = be[6], b33 = be[10], b34 = be[14],
+		b41 = be[3], b42 = be[7], b43 = be[11], b44 = be[15]
+
+	te[0] = a11 * b11 + a12 * b21 + a13 * b31 + a14 * b41
+	te[4] = a11 * b12 + a12 * b22 + a13 * b32 + a14 * b42
+	te[8] = a11 * b13 + a12 * b23 + a13 * b33 + a14 * b43
+	te[12] = a11 * b14 + a12 * b24 + a13 * b34 + a14 * b44
+
+	te[1] = a21 * b11 + a22 * b21 + a23 * b31 + a24 * b41
+	te[5] = a21 * b12 + a22 * b22 + a23 * b32 + a24 * b42
+	te[9] = a21 * b13 + a22 * b23 + a23 * b33 + a24 * b43
+	te[13] = a21 * b14 + a22 * b24 + a23 * b34 + a24 * b44
+
+	te[2] = a31 * b11 + a32 * b21 + a33 * b31 + a34 * b41
+	te[6] = a31 * b12 + a32 * b22 + a33 * b32 + a34 * b42
+	te[10] = a31 * b13 + a32 * b23 + a33 * b33 + a34 * b43
+	te[14] = a31 * b14 + a32 * b24 + a33 * b34 + a34 * b44
+
+	te[3] = a41 * b11 + a42 * b21 + a43 * b31 + a44 * b41
+	te[7] = a41 * b12 + a42 * b22 + a43 * b32 + a44 * b42
+	te[11] = a41 * b13 + a42 * b23 + a43 * b33 + a44 * b43
+	te[15] = a41 * b14 + a42 * b24 + a43 * b34 + a44 * b44
+
+	return this
+}
+M[p].gms=function(){ //getMaxScaleOnAxis
+	var te = this.e
+
+	var tx =  te[0] * te[0] + te[1] * te[1] + te[2] * te[2];
+	var ty =  te[4] * te[4] + te[5] * te[5] + te[6] * te[6];
+	var tz =  te[8] * te[8] + te[9] * te[9] + te[10] * te[10];
+
+	return Math.sqrt( Math.max( tx, Math.max( ty, tz ) ) );
+}
+var _gp1=new V
+M[p].gp=function(){ //getPosition
+	var te = this.e;
+	return _gp1.se(te[12],te[13],te[14])
+}
+M[p].mv3=function(v){ //multiplyVector3
+	var te = this.e;
+
+	var vx = v.x, vy = v.y, vz = v.z;
+	var d = 1 / ( te[3] * vx + te[7] * vy + te[11] * vz + te[15] );
+
+	v.x = ( te[0] * vx + te[4] * vy + te[8] * vz + te[12] ) * d;
+	v.y = ( te[1] * vx + te[5] * vy + te[9] * vz + te[13] ) * d;
+	v.z = ( te[2] * vx + te[6] * vy + te[10] * vz + te[14] ) * d;
+
+	return v;
+}
+M[p].mv4=function(v){ //multiplyVector4
+	var te = this.e;
+	var vx = v.x, vy = v.y, vz = v.z, vw = v.w;
+
+	v.x = te[0] * vx + te[4] * vy + te[8] * vz + te[12] * vw;
+	v.y = te[1] * vx + te[5] * vy + te[9] * vz + te[13] * vw;
+	v.z = te[2] * vx + te[6] * vy + te[10] * vz + te[14] * vw;
+	v.w = te[3] * vx + te[7] * vy + te[11] * vz + te[15] * vw;
+
+	return v;
+}
+M[p].sp=function(v){ //setPosition
+	var te = this.e;
+
+	te[12] = v.x;
+	te[13] = v.y;
+	te[14] = v.z;
+
+	return this;
+}
+M[p].er=function(m){ //extractRotation
+	var te = this.e;
+	var me = m.e;
+
+	var vector = v1;
+
+	var scaleX = 1 / vector.se( me[0], me[1], me[2] ).l();
+	var scaleY = 1 / vector.se( me[4], me[5], me[6] ).l();
+	var scaleZ = 1 / vector.se( me[8], me[9], me[10] ).l();
+
+	te[0] = me[0] * scaleX;
+	te[1] = me[1] * scaleX;
+	te[2] = me[2] * scaleX;
+
+	te[4] = me[4] * scaleY;
+	te[5] = me[5] * scaleY;
+	te[6] = me[6] * scaleY;
+
+	te[8] = me[8] * scaleZ;
+	te[9] = me[9] * scaleZ;
+	te[10] = me[10] * scaleZ;
+
+	return this;
+}
+
+V4=function(x,y,z,w){
+	this.x=x;this.y=y;this.z=z;this.w=w
+}
+V4[p].se=function(x,y,z,w){ //set
+	this.x=x;this.y=y;this.z=z;this.w=w
+	return this
+}
+V4[p].ds=function(s){ //divideScalar
+	if (s) {
+		this.x/=s
+		this.y/=s
+		this.z/=s
+		this.w/=s
+	} else {
+		this.x=0
+		this.y=0
+		this.z=0
+		this.w=1
+	}
+	return this
+}
+V4[p].co=function(v){ //copy
+	this.x = v.x;
+	this.y = v.y;
+	this.z = v.z;
+	this.w = ( v.w !== undefined ) ? v.w : 1;
+
+	return this;
+}
+V4[p].c=function(v){ //clone
+	return new V4(this.x,this.y,this.z,this.w)
+}
+
+
+F=function(){this.p=[new V4,new V4,new V4,new V4,new V4,new V4]} //frustum
+F[p].sfm=function(m){ //setFromMatrix
+	t1, t2 = this.p
+	var	me = m.e,
+		me0 = me[0], me1 = me[1], me2 = me[2], me3 = me[3],
+		me4 = me[4], me5 = me[5], me6 = me[6], me7 = me[7],
+		me8 = me[8], me9 = me[9], me10 = me[10], me11 = me[11],
+		me12 = me[12], me13 = me[13], me14 = me[14], me15 = me[15];
+
+	t2[ 0 ].se( me3 - me0, me7 - me4, me11 - me8, me15 - me12 );
+	t2[ 1 ].se( me3 + me0, me7 + me4, me11 + me8, me15 + me12 );
+	t2[ 2 ].se( me3 + me1, me7 + me5, me11 + me9, me15 + me13 );
+	t2[ 3 ].se( me3 - me1, me7 - me5, me11 - me9, me15 - me13 );
+	t2[ 4 ].se( me3 - me2, me7 - me6, me11 - me10, me15 - me14 );
+	t2[ 5 ].se( me3 + me2, me7 + me6, me11 + me10, me15 + me14 );
+
+	for (i1=0;i1<6;i1++){
+		t1 = t2[i1];
+		t1.ds( Math.sqrt( t1.x * t1.x + t1.y * t1.y + t1.z * t1.z ) );
+	}
+}
+F[p].c=function(o){ //contains
+	t2 = this.p
+	t3 = o.m.e
+
+	for ( var i2 = 0; i2 < 6; i2 ++ ) {
+		t1 = t2[ i2 ].x * t3[12] + t2[ i2 ].y * t3[13] + t2[ i2 ].z * t3[14] + t2[ i2 ].w;
+		if ( t1 <= - o.bs * o.m.gms() ) return false;
+	}
+
+	return true;
+}
+
+F3=function(v,m,n){ //Face3
+this.v=v;
+this.m=m;
+this.n = n || v[1].c().s( v[0] ).cr(
+			v[2].c().s( v[0] )
+		).n();
+}
+F3[p].c=function(){
+	return new F3(
+		[this.v[0].c(),this.v[1].c(),this.v[2].c()],
+		this.c,
+		this.n.c()
+	)
+}
+
+O=function(f){ //Object / Model
+this.f=f //faces
+this.m=new M //matrix
+this.cbs()
+}
+O[p].cbs=function(){ //compute bounding sphere
+	var f, v, radius, maxRadius = 0;
+
+	for(f=0;f<this.f[l];f++){
+		for ( v = 0; v < this.f[f].v[l]; v++ ) {
+
+			radius = this.f[f].v[v].l();
+			if ( radius > maxRadius ) maxRadius = radius;
+
+		}
+	}
+	this.bs = maxRadius
+}
+
+var c=document.getElementById('c').getContext('2d'),
+b=640,e=480, //canvas width, height
+w=window,
+raf='equestAnimationFrame',
+a=window['r'+raf]||window['mozR'+raf]||window['webkitR'+raf]||window['oR'+raf]||window['msR'+raf],
+
+camera={
+	p:new M([1.6083801984786987,0,0,0,0,2.1445069313049316,0,0,0,0,-1.0002000331878662,-1,0,0,-2.000200033187866,0]), //perspective
+	m:new M([1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]), //matrix
+	i:new M([1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]), //matrix world inverse
+	near: 1,
+	far: 10000
+},
+
+tri=new O([new F3(
+	[
+		new V(2.5, -2.5, 0),
+		new V(2.5, 2.5, -5),
+		new V(-2.5, 2.5, 0)
+	],
+	'red'
+)]),
+
+so=[ //scene objects
+	tri
+],
+sr=[], //scene renderables
+sf=[], //scene faces
+se=[], //scene elements
+
+i1,i2,
+t1,t2,t3,
+v1=new V,v2=new V,v3=new V,
+v4_1=new V4,v4_2=new V4,v4_3=new V4,
+m1=new M,
+af=function(){r();/*a(af)*/}, //animation function
+rf=function(){ //render faces
+	for(i1=0;i1<sf[l];i1++){
+		t1=sf[i1]
+		c.fillStyle=t1.c
+		c.beginPath()
+		c.moveTo(t1.v[0].x,t1.v[0].y)
+		c.lineTo(t1.v[1].x,t1.v[1].y)
+		c.lineTo(t1.v[2].x,t1.v[2].y)
+		c.lineTo(t1.v[0].x,t1.v[0].y)
+		c.closePath()
+		c.fill()
+	}
+},
+pg=function(){ //projectGraph
+	sr.length=0;
+	var o;
+	for(i1=0;i1<so[l];i1++){ //loop over all scene objects
+		o = so[i1];
+		if(f.c(o)){
+			v1.co(o.m.gp());
+			psm.mv3(v1);
+			o.d=v1.z;
+			sr.push( o );
+		}
+	}
+},
+ds=function(){ //drawScene
+	se[l]=0
+	for(i1=0,t1=sr[l];i1<t1;i1++){
+		t2=sr[i1]
+		m1.er(t2.m)
+		
+		var _vertices = [],
+			visible;
+		for (i2=0;i2<t2.f[l];i2++)
+		{
+			// Move vertex to world position
+			v1.co(t2.f[i2].v[0])
+			v2.co(t2.f[i2].v[1])
+			v3.co(t2.f[i2].v[2])
+			
+			t2.m.mv3(v1)
+			t2.m.mv3(v2)
+			t2.m.mv3(v3)
+
+			// Compute screen position
+			v4_1.co(v1)
+			v4_2.co(v2)
+			v4_3.co(v3)
+
+			psm.mv4(v4_1)
+			psm.mv4(v4_2)
+			psm.mv4(v4_3)
+
+			v4_1.x /= v4_1.w
+			v4_1.y /= v4_1.w
+			//v4_1.visible = v4_1.z > near && v4_1.z < far;
+			v4_2.x /= v4_2.w
+			v4_2.y /= v4_2.w
+			//v4_2.visible = v4_2.z > near && v4_2.z < far;
+			v4_3.x /= v4_3.w
+			v4_3.y /= v4_3.w
+			//v4_3.visible = v4_3.z > near && v4_3.z < far;
+
+			visible = ( ( v4_3.x - v4_1.x ) * ( v4_2.y - v4_1.y ) - ( v4_3.y - v4_1.y ) * ( v4_2.x - v4_1.x ) ) < 0;
+
+			if (!visible) continue
+
+			v1.co( t2.f[i2].n )
+			m1.mv3(v1)
+
+			se.push(new F3([v4_1,v4_2,v4_3],t2.f[i2].m,v1.c()))
+		}
+	}
+},
+re=function(){ //renderElements
+	for(i1=0,t1=se[l];i1<t1;i1++){
+		t2=se[i1]
+
+		t2.v[0].x *= 320; t2.v[0].y *= 240
+		t2.v[0].x += 320; t2.v[0].y += 240
+
+		t2.v[1].x *= 320; t2.v[1].y *= 240
+		t2.v[1].x += 320; t2.v[1].y += 240
+
+		t2.v[2].x *= 320; t2.v[2].y *= 240
+		t2.v[2].x += 320; t2.v[2].y += 240
+
+		//#todo: verify this face is at least partially on screen
+		// and add face sorting
+
+		c.fillStyle = t2.m
+		c.beginPath();
+		c.moveTo(t2.v[0].x,480-t2.v[0].y)
+		c.lineTo(t2.v[1].x,480-t2.v[1].y)
+		c.lineTo(t2.v[2].x,480-t2.v[2].y)
+		c.lineTo(t2.v[0].x,480-t2.v[0].y)
+		c.closePath()
+		c.fill()
+	}
+},
+f=new F, //frustum
+psm=new M(), //projection screen matrix
+ps=function(){ //prepare scene
+	camera.i.gi(camera.m)
+	psm.m(camera.p,camera.i)
+	f.sfm(psm)
+	pg()
+	ds()
+	re()
+},
+r=function(){ //render
+	c.fillStyle='#4477ff';c.fillRect(0,0,b,e) //clear screen
+	ps()
+	rf()
+}
+tri.m.sp(new V(0,0,-15));
+af(); //start everything
+</script></body></html>
