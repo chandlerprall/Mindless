@@ -1,12 +1,12 @@
 <!DOCTYPE html><html><head><title>Ace</title><style>body {background:black} canvas {display:block;margin:auto}</style></head><body><canvas id="c" width=640 height=480></canvas><script>
-var l='length',p='prototype'
+var l='length',p='prototype',sq=Math.sqrt
 
 V=function(x,y,z){ //Vector3
 this.x=x,this.y=y,this.z=z
 }
 V[p].se=function(x,y,z){ //set
-	this.x=x;this.y=y;this.z=z;
-	return this;
+	this.x=x;this.y=y;this.z=z
+	return this
 }
 V[p].c=function(){ //clone
 	return new V(this.x,this.y,this.z)
@@ -23,14 +23,14 @@ V[p].cr=function(v){
 	return this
 }
 V[p].n=function(){ //normalize
-	var l = Math.sqrt(this.x*this.x+this.y*this.y+this.z*this.z)
+	var l = sq(this.x*this.x+this.y*this.y+this.z*this.z)
 	this.x/=l
 	this.y/=l
 	this.z/=l
 	return this
 }
 V[p].l=function(){ //length
-	return Math.sqrt(this.ls())
+	return sq(this.ls())
 }
 V[p].ls=function(){ //lengthSq
 	return this.x*this.x+this.y*this.y+this.z*this.z
@@ -168,7 +168,7 @@ M[p].gms=function(){ //getMaxScaleOnAxis
 	var ty =  te[4] * te[4] + te[5] * te[5] + te[6] * te[6];
 	var tz =  te[8] * te[8] + te[9] * te[9] + te[10] * te[10];
 
-	return Math.sqrt( Math.max( tx, Math.max( ty, tz ) ) );
+	return sq( Math.max( tx, Math.max( ty, tz ) ) );
 }
 var _gp1=new V
 M[p].gp=function(){ //getPosition
@@ -284,7 +284,7 @@ F[p].sfm=function(m){ //setFromMatrix
 
 	for (i1=0;i1<6;i1++){
 		t1 = t2[i1];
-		t1.ds( Math.sqrt( t1.x * t1.x + t1.y * t1.y + t1.z * t1.z ) );
+		t1.ds( sq( t1.x * t1.x + t1.y * t1.y + t1.z * t1.z ) );
 	}
 }
 F[p].c=function(o){ //contains
@@ -306,12 +306,16 @@ this.n = n || v[1].c().s( v[0] ).cr(
 			v[2].c().s( v[0] )
 		).n();
 }
-F3[p].c=function(){
+F3[p].c=function(){ //clone
 	return new F3(
 		[this.v[0].c(),this.v[1].c(),this.v[2].c()],
 		this.c,
 		this.n.c()
 	)
+}
+F3[p].cw=function(){ //compute w
+	this.w=(this.v[0].w+this.v[1].w+this.v[2].w)/3
+	return this
 }
 
 O=function(f){ //Object / Model
@@ -350,17 +354,25 @@ camera={
 tri=new O([new F3(
 	[
 		new V(2.5, -2.5, 0),
-		new V(2.5, 2.5, -5),
+		new V(2.5, 2.5, 0),
 		new V(-2.5, 2.5, 0)
 	],
 	'red'
 )]),
+tri2=new O([new F3(
+	[
+		new V(2.3, -2.5, 1),
+		new V(2.3, 2.5, 1),
+		new V(-2.7, 2.5, 1)
+	],
+	'blue'
+)]),
 
 so=[ //scene objects
-	tri
+	tri,
+	tri2
 ],
 sr=[], //scene renderables
-sf=[], //scene faces
 se=[], //scene elements
 
 i1,i2,
@@ -368,20 +380,7 @@ t1,t2,t3,
 v1=new V,v2=new V,v3=new V,
 v4_1=new V4,v4_2=new V4,v4_3=new V4,
 m1=new M,
-af=function(){r();/*a(af)*/}, //animation function
-rf=function(){ //render faces
-	for(i1=0;i1<sf[l];i1++){
-		t1=sf[i1]
-		c.fillStyle=t1.c
-		c.beginPath()
-		c.moveTo(t1.v[0].x,t1.v[0].y)
-		c.lineTo(t1.v[1].x,t1.v[1].y)
-		c.lineTo(t1.v[2].x,t1.v[2].y)
-		c.lineTo(t1.v[0].x,t1.v[0].y)
-		c.closePath()
-		c.fill()
-	}
-},
+af=function(){r();a(af)}, //animation function
 pg=function(){ //projectGraph
 	sr.length=0;
 	var o;
@@ -439,12 +438,15 @@ ds=function(){ //drawScene
 
 			v1.co( t2.f[i2].n )
 			m1.mv3(v1)
-
-			se.push(new F3([v4_1,v4_2,v4_3],t2.f[i2].m,v1.c()))
+			se.push(new F3([v4_1.c(),v4_2.c(),v4_3.c()],t2.f[i2].m,v1.c()).cw())
 		}
 	}
 },
+res=function(a,b){
+	return a.w < b.w
+},
 re=function(){ //renderElements
+	se.sort(res);
 	for(i1=0,t1=se[l];i1<t1;i1++){
 		t2=se[i1]
 
@@ -483,8 +485,7 @@ ps=function(){ //prepare scene
 r=function(){ //render
 	c.fillStyle='#4477ff';c.fillRect(0,0,b,e) //clear screen
 	ps()
-	rf()
 }
-tri.m.sp(new V(0,0,-15));
+camera.m.sp(new V(0,0,30));
 af(); //start everything
 </script></body></html>
