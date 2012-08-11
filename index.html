@@ -357,7 +357,7 @@ tri=new O([new F3(
 		new V(2.5, 2.5, 0),
 		new V(-2.5, 2.5, 0)
 	],
-	'red'
+	new V4(255,0,0,1)
 )]),
 tri2=new O([new F3(
 	[
@@ -365,7 +365,7 @@ tri2=new O([new F3(
 		new V(2.3, 2.5, 1),
 		new V(-2.7, 2.5, 1)
 	],
-	'blue'
+	new V4(0,255,0,1)
 )]),
 
 so=[ //scene objects
@@ -460,9 +460,8 @@ re=function(){ //renderElements
 		t2.v[2].x += 320; t2.v[2].y += 240
 
 		//#todo: verify this face is at least partially on screen
-		// and add face sorting
 
-		c.fillStyle = t2.m
+		c.fillStyle = 'rgba(' + t2.m.x + ',' + t2.m.y + ',' + t2.m.z + ',' + t2.m.w + ')'
 		c.beginPath();
 		c.moveTo(t2.v[0].x,480-t2.v[0].y)
 		c.lineTo(t2.v[1].x,480-t2.v[1].y)
