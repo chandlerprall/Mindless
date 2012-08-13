@@ -22,6 +22,9 @@ V[p].cr=function(v){
 	this.z=x*v.y-y*v.x	
 	return this
 }
+V[p].d=function(v){ //dot
+	return this.x*v.x+this.y*v.y+this.z*v.z
+}
 V[p].n=function(){ //normalize
 	var l = sq(this.x*this.x+this.y*this.y+this.z*this.z)
 	this.x/=l
@@ -37,6 +40,30 @@ V[p].ls=function(){ //lengthSq
 }
 V[p].co=function(v){ //copy
 	this.x=v.x;this.y=v.y;this.z=v.z
+}
+V[p].gr=function(m){ //getRotationFromMatrix
+
+	var m11 = m.e[0], m12 = m.e[4], m13 = m.e[8];
+	var m21 = m.e[1], m22 = m.e[5], m23 = m.e[9];
+	var m33 = m.e[10];
+
+	this.y = Math.asin( m13 );
+
+	var cosY = Math.cos( this.y );
+
+	if ( Math.abs( cosY ) > 0.00001 ) {
+
+		this.x = Math.atan2( - m23 / cosY, m33 / cosY );
+		this.z = Math.atan2( - m12 / cosY, m11 / cosY );
+
+	} else {
+
+		this.x = 0;
+		this.z = Math.atan2( m21, m22 );
+
+	}
+
+	return this;
 }
 
 M=function(e){ //Matrix4
@@ -170,11 +197,6 @@ M[p].gms=function(){ //getMaxScaleOnAxis
 
 	return sq( Math.max( tx, Math.max( ty, tz ) ) );
 }
-var _gp1=new V
-M[p].gp=function(){ //getPosition
-	var te = this.e;
-	return _gp1.se(te[12],te[13],te[14])
-}
 M[p].mv3=function(v){ //multiplyVector3
 	var te = this.e;
 
@@ -206,6 +228,35 @@ M[p].sp=function(v){ //setPosition
 	te[14] = v.z;
 
 	return this;
+}
+var _gp1=new V
+M[p].gp=function(){ //getPosition
+	var te = this.e;
+	return _gp1.se(te[12],te[13],te[14])
+}
+M[p].sr=function(v){
+	var te = this.e;
+
+	var x = v.x, y = v.y, z = v.z;
+	var a = Math.cos( x ), b = Math.sin( x );
+	var c = Math.cos( y ), d = Math.sin( y );
+	var e = Math.cos( z ), f = Math.sin( z );
+
+	var ae = a * e, af = a * f, be = b * e, bf = b * f;
+
+	te[0] = c * e;
+	te[4] = - c * f;
+	te[8] = d;
+
+	te[1] = af + be * d;
+	te[5] = ae - bf * d;
+	te[9] = - b * c;
+
+	te[2] = bf - ae * d;
+	te[6] = be + af * d;
+	te[10] = a * c;
+
+	return this	
 }
 M[p].er=function(m){ //extractRotation
 	var te = this.e;
@@ -300,11 +351,9 @@ F[p].c=function(o){ //contains
 }
 
 F3=function(v,m,n){ //Face3
-this.v=v;
-this.m=m;
-this.n = n || v[1].c().s( v[0] ).cr(
-			v[2].c().s( v[0] )
-		).n();
+this.v=v
+this.m=m
+this.n=n
 }
 F3[p].c=function(){ //clone
 	return new F3(
@@ -318,10 +367,19 @@ F3[p].cw=function(){ //compute w
 	return this
 }
 
-O=function(f){ //Object / Model
+O=function(v,c,f){ //Object / Model
+this.v=v //vertices
+this.c=c //materials
 this.f=f //faces
 this.m=new M //matrix
 this.cbs()
+
+var i;
+for (i=0;i<f[l];i++){
+	f[i].n = v[f[i].v[1]].c().s( v[f[i].v[0]] ).cr(
+		v[f[i].v[2]].c().s( v[f[i].v[0]] )
+	).n()
+}
 }
 O[p].cbs=function(){ //compute bounding sphere
 	var f, v, radius, maxRadius = 0;
@@ -329,7 +387,7 @@ O[p].cbs=function(){ //compute bounding sphere
 	for(f=0;f<this.f[l];f++){
 		for ( v = 0; v < this.f[f].v[l]; v++ ) {
 
-			radius = this.f[f].v[v].l();
+			radius = this.v[this.f[f].v[v]].l();
 			if ( radius > maxRadius ) maxRadius = radius;
 
 		}
@@ -351,27 +409,7 @@ camera={
 	far: 10000
 },
 
-tri=new O([new F3(
-	[
-		new V(2.5, -2.5, 0),
-		new V(2.5, 2.5, 0),
-		new V(-2.5, 2.5, 0)
-	],
-	new V4(255,0,0,1)
-)]),
-tri2=new O([new F3(
-	[
-		new V(2.3, -2.5, 1),
-		new V(2.3, 2.5, 1),
-		new V(-2.7, 2.5, 1)
-	],
-	new V4(0,255,0,1)
-)]),
-
-so=[ //scene objects
-	tri,
-	tri2
-],
+so=[], //scene objects
 sr=[], //scene renderables
 se=[], //scene elements
 
@@ -386,7 +424,7 @@ pg=function(){ //projectGraph
 	var o;
 	for(i1=0;i1<so[l];i1++){ //loop over all scene objects
 		o = so[i1];
-		if(f.c(o)){
+		if(f.c(o)){ //if object in frustum
 			v1.co(o.m.gp());
 			psm.mv3(v1);
 			o.d=v1.z;
@@ -405,9 +443,9 @@ ds=function(){ //drawScene
 		for (i2=0;i2<t2.f[l];i2++)
 		{
 			// Move vertex to world position
-			v1.co(t2.f[i2].v[0])
-			v2.co(t2.f[i2].v[1])
-			v3.co(t2.f[i2].v[2])
+			v1.co(t2.v[t2.f[i2].v[0]])
+			v2.co(t2.v[t2.f[i2].v[1]])
+			v3.co(t2.v[t2.f[i2].v[2]])
 			
 			t2.m.mv3(v1)
 			t2.m.mv3(v2)
@@ -438,7 +476,7 @@ ds=function(){ //drawScene
 
 			v1.co( t2.f[i2].n )
 			m1.mv3(v1)
-			se.push(new F3([v4_1.c(),v4_2.c(),v4_3.c()],t2.f[i2].m,v1.c()).cw())
+			se.push(new F3([v4_1.c(),v4_2.c(),v4_3.c()],t2.c[t2.f[i2].m],v1.c()).cw())
 		}
 	}
 },
@@ -459,9 +497,10 @@ re=function(){ //renderElements
 		t2.v[2].x *= 320; t2.v[2].y *= 240
 		t2.v[2].x += 320; t2.v[2].y += 240
 
-		//#todo: verify this face is at least partially on screen
+		var light_normal = new V( 0,1,0 );
+		light_value = Math.min( Math.max( light_normal.d( t2.n), 0 ) + .3, 1 )
 
-		c.fillStyle = 'rgba(' + t2.m.x + ',' + t2.m.y + ',' + t2.m.z + ',' + t2.m.w + ')'
+		c.fillStyle = 'rgba(' + Math.round(t2.m.x*light_value) + ',' + Math.round(t2.m.y*light_value) + ',' + Math.round(t2.m.z*light_value) + ',' + t2.m.w + ')'
 		c.beginPath();
 		c.moveTo(t2.v[0].x,480-t2.v[0].y)
 		c.lineTo(t2.v[1].x,480-t2.v[1].y)
@@ -485,6 +524,24 @@ r=function(){ //render
 	c.fillStyle='#4477ff';c.fillRect(0,0,b,e) //clear screen
 	ps()
 }
+
+so.push(
+	new O(
+		[
+			new V( 2, -2, 0),
+			new V( 2, 2, 0 ),
+			new V( -2, 2, 0 )
+		],
+		[
+			new V4(0,255,0,1),
+			new V4(255,0,0,1)
+		],
+		[
+			new F3( [0,1,2],0 ),
+			new F3( [2,1,0],1 )
+		]
+	)
+)
 camera.m.sp(new V(0,0,30));
 af(); //start everything
 </script></body></html>
