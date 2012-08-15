@@ -1,11 +1,11 @@
-<!DOCTYPE html><html><head><title>Lab 13</title><style>body {background:#fff} canvas {display:block;margin:auto}</style></head><body><canvas id="c" width=640 height=480></canvas><script>
+<!DOCTYPE html><html><head><title>Lab 13</title><style>body {background:#222} canvas {display:block;margin:auto}</style></head><body><canvas id="c" width=640 height=480></canvas><script>
 var l='length',p='prototype',sq=Math.sqrt // shortcuts
 
 //Vector3
 V3 = function( x, y, z ) {
-	this.x = x;
-	this.y = y;
-	this.z = z;
+	this.x = x || 0;
+	this.y = y || 0;
+	this.z = z || 0;
 };
 V3[p].set = function( x, y, z ) {
 	this.x = x;
@@ -20,6 +20,12 @@ V3[p].sub = function( v ) {
 	this.x -= v.x;
 	this.y -= v.y;
 	this.z -= v.z;
+	return this;
+};
+V3[p].add = function( v ) {
+	this.x += v.x;
+	this.y += v.y;
+	this.z += v.z;
 	return this;
 };
 V3[p].cross = function( v ) {
@@ -81,6 +87,13 @@ V3[p].getRotationFromMatrix = function( m ) {
 
 	}
 	
+	return this;
+};
+V3[p].multiplyScalar = function( s ) {
+	this.x *= s;
+	this.y *= s;
+	this.z *= s;
+
 	return this;
 };
 
@@ -397,7 +410,9 @@ Model = function( v, c, f ) {
 	this.v = v; //vertices
 	this.c = c; //materials
 	this.f = f; //Fs
-	this.m = new M4 //matrix
+	this.m = new M4; //matrix
+	this.p = new V3; //position
+	this.r = new V3; //rotation
 	this.computeBoundingSphere();
 
 	var i;
@@ -419,16 +434,18 @@ Model[p].computeBoundingSphere = function() {
 	this.boundingSphere = maxRadius;
 }
 
-var c = document.getElementById('c').getContext('2d'),
+var ca = document.getElementById('c'), c = ca.getContext('2d'),
 b = 640, e = 480, //canvas width, height
 w = window,
 raf = 'equestAnimationFrame',
 a = window['r'+raf] || window['mozR'+raf] || window['webkitR'+raf] || window['oR'+raf] || window['msR'+raf],
 
 cam = {
-	p: new M4( [1.6083801984786987,0,0,0,0,2.1445069313049316,0,0,0,0,-1.0002000331878662,-1,0,0,-2.000200033187866,0] ), //perspective matrix
+	p: new M4( [1.6083801984786987,0,0,0,0,2.1445069313049316,0,0,0,0,-1.0002000331878662,-1,0,0,-2.000200033187866,0] ), //projection matrix
 	m: new M4( [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1] ), //world matrix
 	i: new M4( [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1] ), //matrix world inverse
+	po: new V3( 0, 0, 0 ), //position
+	r: new V3( 0, 0, 0 ), //rotation
 	near: 1,
 	far: 10000
 },
@@ -437,6 +454,12 @@ scene_objects=[],
 scene_renderables=[],
 scene_elements=[],
 
+map = [],
+mapsize = 49, // map is 49x49
+
+players = [],
+player,
+
 // Temporary variables
 i1,i2,
 t1,t2,t3,
@@ -444,15 +467,39 @@ v1 = new V3, v2 = new V3, v3 = new V3,
 v4_1 = new V4, v4_2 = new V4, v4_3 = new V4,
 m1 = new M4,
 
-animation_function = function() {
+run = function() {
+	ca.addEventListener(
+		'click',
+		function( ev ) {
+			var vector = new V3( ( ev.offsetX / b ) * 2 - 1, - ( ev.offsetY / e ) * 2 + 1, .5 );
+
+			//var _projScreenMatrix = new M4;
+			//_projScreenMatrix.multiply( cam.p, cam.i );
+			//_projScreenMatrix.multiplyV3( vector );
+
+			var test = new M4().getInverse( cam.p );
+			var test2 = new M4().multiply( new M4().extractRotation( cam.m ), test );
+			test2.multiplyV3( vector );
+			vector.normalize();
+
+			vector.multiplyScalar( -cam.m.getPosition().y / vector.y );
+			vector.add( cam.m.getPosition().clone() );
+			player.p.set( vector.x, 0, vector.z );
+		}
+	);
+	anim();
+},
+anim = function() {
 	render();
-	a( animation_function ); // rAF loop
+	a( anim ); // rAF loop
 },
 projectGraph = function() {
 	scene_renderables[l] = 0;
 	var o;
 	for ( i1 = 0; i1 < scene_objects[l]; i1++ ){ //loop over all scene objects
 		o = scene_objects[i1];
+		o.m.setPosition( o.p );
+		o.m.setRotation( o.r );
 		if( FR.contains( o ) ) {
 			v1.copy( o.m.getPosition() );
 			projectionScreenMatrix.multiplyV3( v1 );
@@ -567,104 +614,88 @@ renderElements = function() {
 FR = new FR,
 projectionScreenMatrix = new M4, //projection screen matrix
 prepareScene = function() {
+	cam.m.setPosition( cam.po );
+	cam.m.setRotation( cam.r );
 	cam.i.getInverse( cam.m );
 	projectionScreenMatrix.multiply( cam.p, cam.i );
 	FR.setFromMatrix( projectionScreenMatrix );
 	projectGraph();
 },
 render = function() {
-	for ( i1 = 0; i1 < scene_objects.length; i1++ ) {
-		v1.getRotationFromMatrix( scene_objects[i1].m );
-		v1.z += Math.random() * .02;
-		v1.x  += Math.random() * .02;
-		scene_objects[i1].m.setRotation( v1 );
-	}
-	
 	// clear the screen
-	c.fillStyle = '#fff';
+	c.fillStyle = '#000';
 	c.fillRect(0,0,b,e);
 	prepareScene();
 	drawScene();
 	renderElements();
+},
+title = function() {
+	c.fillStyle = '#000';
+	c.fillRect(0,0,b,e);
+	c.font = '72pt Comic Sans';
+	c.fillStyle = '#44dd77';
+	c.fillText( 'Lab 13', 25, 100 );
+
+	// Generate map array
+	for ( i1 = 0; i1 < mapsize; i1++ ) {
+		for ( i2 = 0; i2 < mapsize; i2++ ) {
+			map[ i1 * mapsize + i2 ] = 0;
+		}
+	}
+
+	// Ground
+	scene_objects.push(
+		new Model(
+			[
+				new V3( 0, 0, 0 ),
+				new V3( 0, 0, mapsize ),
+				new V3( mapsize, 0, mapsize ),
+				new V3( mapsize, 0, 0 )
+			],
+			[
+				new V4( 50, 50, 50, 1 )
+			],
+			[
+				new F( [0, 1, 2], 0 ),
+				new F( [2, 3, 0], 0 )
+			]
+		)
+	);
+
+	// Player's character
+	player = new Model(
+		[
+			new V3( -.3, 0, -.3 ),
+			new V3( -.3, 0, .3 ),
+			new V3( .3, 0, .3 ),
+			new V3( .3, 0, -.3 )
+		],
+		[
+			new V4( 255, 0, 0, 1 )
+		],
+		[
+			new F( [0, 1, 2], 0 ),
+			new F( [2, 3, 0], 0 )
+		]
+	);
+	player.p.set( mapsize / 2, 0, mapsize / 2 );
+	players.push( player );
+	scene_objects.push( player );
+
+
+	c.font = '14pt Comic Sans';
+	c.fillText( 'Press any key', 200, 200 );
+	document.addEventListener(
+		'keydown',
+		function() {
+			run();
+		}
+	);
 };
 
-var vertices = [
-	// Front Face
-	new V3( 2, -2, 2),
-	new V3( 2, 2, 2 ),
-	new V3( -2, 2, 2 ),
-	new V3( -2, -2, 2 ),
-	
-	// Right Face
-	new V3( 2, -2, -2),
-	new V3( 2, 2, -2 ),
-	new V3( 2, 2, 2 ),
-	new V3( 2, -2, 2 ),
-	
-	// Back Face
-	new V3( 2, -2, -2),
-	new V3( 2, 2, -2 ),
-	new V3( -2, 2, -2 ),
-	new V3( -2, -2, -2 ),
-	
-	// Left Face
-	new V3( -2, -2, -2),
-	new V3( -2, 2, -2 ),
-	new V3( -2, 2, 2 ),
-	new V3( -2, -2, 2 ),
-	
-	// Top Face
-	new V3( 2, 2, 2),
-	new V3( 2, 2, -2 ),
-	new V3( -2, 2, -2 ),
-	new V3( -2, 2, 2 ),
-	
-	// Bottom Face
-	new V3( 2, -2, 2),
-	new V3( 2, -2, -2 ),
-	new V3( -2, -2, -2 ),
-	new V3( -2, -2, 2 ),
-];
-
-var materials = [
-	new V4(0,255,0,1),
-	new V4(255,0,0,1),
-	new V4(0,0,255,1),
-	new V4(255,255,0,1),
-	new V4(255,0,255,1),
-	new V4(0,255,255,1)
-];
-
-var faces = [
-	new F( [0,1,2],0 ),
-	new F( [0,2,3],0 ),
-	
-	new F( [4,5,6],1 ),
-	new F( [4,6,7],1 ),
-	
-	new F( [10,9,8],2 ),
-	new F( [11,10,8],2 ),
-	
-	new F( [14,13,12],3 ),
-	new F( [15,14,12],3 ),
-	
-	new F( [16,17,18],4 ),
-	new F( [16,18,19],4 ),
-	
-	new F( [22,21,20],5 ),
-	new F( [23,22,20],5 ),
-];
-
-
-
-for ( i1 = -5; i1 <= 5; i1++ ) {
-	for ( i2 = -3; i2 <= 4; i2++ ) {
-		var box = new Model( vertices, materials, faces );
-		box.m.setPosition( new V3( i1 * 5, i2 * 5, 0 ) );
-		scene_objects.push( box );
-	}
-}
-
-cam.m.setPosition( new V3(0,10,30) );
-animation_function(); //start everything
+//cam.m.setPosition( new V3(mapsize / 2,30,mapsize/2) );
+//cam.m.setRotation( new V3(Math.PI / -2, 0, 0) );
+cam.po.set( mapsize / 2, 30, mapsize/2 );
+cam.r.set( Math.PI / -2, 0, 0 )
+title(); //start everything
 </script></body></html>
