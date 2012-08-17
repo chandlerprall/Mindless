@@ -460,9 +460,24 @@ F[p].computeW = function() {
 };
 
 Model = function( v, c, f ) {
-	this.v = v; //vertices
-	this.c = c; //materials
-	this.f = f; //Fs
+	// vertices
+	this.v = [];
+	for ( i1 = 0; i1 < v[l]; i1 += 3 ) {
+		this.v.push( new V3( v[i1], v[i1+1], v[i1+2] ) );
+	}
+
+	// materials
+	this.c = [];
+	for ( i1 = 0; i1 < c[l]; i1 += 4 ) {
+		this.c.push( new V4( c[i1], c[i1+1], c[i1+2], c[i1+3] ) );
+	}
+
+	// faces
+	this.f = [];
+	for ( i1 = 0; i1 < f[l]; i1 += 4 ) {
+		this.f.push( new F( [f[i1], f[i1+1], f[i1+2]], f[i1+3] ) );
+	}
+
 	this.m = new M4; //matrix
 	this.p = new V3; //position
 	this.r = new V3; //rotation
@@ -473,9 +488,9 @@ Model = function( v, c, f ) {
 	this.computeBoundingSphere();
 
 	var i;
-	for ( i = 0; i < f[l]; i++ ) {
-		f[i].n = v[f[i].v[1]].clone().sub( v[f[i].v[0]] ).cross(
-			v[f[i].v[2]].clone().sub( v[f[i].v[0]] )
+	for ( i = 0; i < this.f[l]; i++ ) {
+		this.f[i].n = this.v[this.f[i].v[1]].clone().sub( this.v[this.f[i].v[0]] ).cross(
+			this.v[this.f[i].v[2]].clone().sub( this.v[this.f[i].v[0]] )
 		).normalize();
 	}
 };
@@ -518,7 +533,7 @@ player,
 // Temporary variables
 i1,i2,i3,
 t1,t2,t3,
-v1 = new V3, v2 = new V3, v3 = new V3,
+v1 = new V3, v2 = new V3, v3 = new V3, v4 = new V3,
 v4_1 = new V4, v4_2 = new V4, v4_3 = new V4,
 m1 = new M4,
 
@@ -603,9 +618,26 @@ readyFaces = function() {
 			
 			// Apply animations
 			for ( i3 = 0; i3 < t2.a[l]; i3++ ) {
-				v1.add( t2.a[i3][ t2.f[i2].v[0] ].clone().multiplyScalar( t2.ap ) );
-				v2.add( t2.a[i3][ t2.f[i2].v[1] ].clone().multiplyScalar( t2.ap ) );
-				v3.add( t2.a[i3][ t2.f[i2].v[2] ].clone().multiplyScalar( t2.ap ) );
+				v4.set(
+					t2.v[ t2.f[i2].v[0] ].x,
+					t2.v[ t2.f[i2].v[0] ].y,
+					t2.v[ t2.f[i2].v[0] ].z
+				);
+				v1.add( v4.multiplyScalar( t2.ap[i3] ) );
+
+				v4.set(
+					t2.v[ t2.f[i2].v[1] ].x,
+					t2.v[ t2.f[i2].v[1] ].y,
+					t2.v[ t2.f[i2].v[1] ].z
+				);
+				v2.add( v4.multiplyScalar( t2.ap[i3] ) );
+
+				v4.set(
+					t2.v[ t2.f[i2].v[2] ].x,
+					t2.v[ t2.f[i2].v[2] ].y,
+					t2.v[ t2.f[i2].v[2] ].z
+				);
+				v3.add( v4.multiplyScalar( t2.ap[i3] ) );
 			}
 			
 			t2.m.multiplyV3( v1 );
@@ -731,17 +763,17 @@ title = function() {
 	scene_objects.push(
 		new Model(
 			[
-				new V3( 0, 0, 0 ),
-				new V3( 0, 0, mapsize ),
-				new V3( mapsize, 0, mapsize ),
-				new V3( mapsize, 0, 0 )
+				0, 0, 0,
+				0, 0, mapsize,
+				mapsize, 0, mapsize,
+				mapsize, 0, 0 
 			],
 			[
-				new V4( 50, 50, 50, 1 )
+				50, 50, 50, 1
 			],
 			[
-				new F( [0, 1, 2], 0 ),
-				new F( [2, 3, 0], 0 )
+				0, 1, 2, 0,
+				2, 3, 0, 0
 			]
 		)
 	);
@@ -749,24 +781,24 @@ title = function() {
 	// Player's character
 	player = new Model(
 		[
-			new V3( -.3, .1, -.3 ),
-			new V3( -.3, .1, .3 ),
-			new V3( .3, .1, .3 ),
-			new V3( .3, .1, -.3 )
+			-.3, .1, -.3,
+			-.3, .1, .3,
+			.3, .1, .3,
+			.3, .1, -.3
 		],
 		[
-			new V4( 255, 0, 0, 1 )
+			255, 0, 0, 1
 		],
 		[
-			new F( [0, 1, 2], 0 ),
-			new F( [2, 3, 0], 0 )
+			0, 1, 2, 0,
+			2, 3, 0, 0
 		]
 	);
 	player.a.push([
-		new V3( -.2, 0, -.2 ),
-		new V3( -.2, 0, .2 ),
-		new V3( .2, 0, .2 ),
-		new V3( .2, 0, -.2 )
+		-.2, 0, -.2,
+		-.2, 0, .2,
+		.2, 0, .2,
+		.2, 0, -.2
 	]);
 	player.ap.push(0);
 	player.p.set( mapsize / 2, 0, mapsize / 2 );
@@ -775,11 +807,12 @@ title = function() {
 	scene_objects.push( player );
 
 
-	c.font = '14pt Comic Sans';
-	c.fillText( 'Press any key', 200, 200 );
+	c.font = '14pt Monospace';
+	c.fillText( 'Click to start', 200, 200 );
 	document.addEventListener(
-		'keydown',
-		function() {
+		'click',
+		function startGame() {
+			document.removeEventListener( 'click', startGame );
 			run();
 		}
 	);
