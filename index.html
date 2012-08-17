@@ -618,25 +618,13 @@ readyFaces = function() {
 			
 			// Apply animations
 			for ( i3 = 0; i3 < t2.a[l]; i3++ ) {
-				v4.set(
-					t2.v[ t2.f[i2].v[0] ].x,
-					t2.v[ t2.f[i2].v[0] ].y,
-					t2.v[ t2.f[i2].v[0] ].z
-				);
+				v4.copy( t2.v[ t2.f[i2].v[0] ] );
 				v1.add( v4.multiplyScalar( t2.ap[i3] ) );
 
-				v4.set(
-					t2.v[ t2.f[i2].v[1] ].x,
-					t2.v[ t2.f[i2].v[1] ].y,
-					t2.v[ t2.f[i2].v[1] ].z
-				);
+				v4.copy( t2.v[ t2.f[i2].v[1] ] );
 				v2.add( v4.multiplyScalar( t2.ap[i3] ) );
 
-				v4.set(
-					t2.v[ t2.f[i2].v[2] ].x,
-					t2.v[ t2.f[i2].v[2] ].y,
-					t2.v[ t2.f[i2].v[2] ].z
-				);
+				v4.copy( t2.v[ t2.f[i2].v[2] ] );
 				v3.add( v4.multiplyScalar( t2.ap[i3] ) );
 			}
 			
