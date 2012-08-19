@@ -530,16 +530,21 @@ scene_renderables=[],
 scene_elements=[],
 
 map = [
-	[ 1, 1, 1, 0, 0, 0, 1 ],
-	[ 1, 1, 1, 1, 0, 0, 1 ],
-	[ 1, 1, 1, 1, 1, 0, 1 ],
-	[ 1, 1, 1, 1, 1, 0, 1 ],
-	[ 1, 1, 1, 1, 1, 1, 1 ]
+	[ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ],
+	[ 1, 1, 1, 1, 0, 0, 1, 1, 1, 1 ],
+	[ 1, 1, 1, 1, 0, 0, 1, 1, 1, 1 ],
+	[ 1, 1, 1, 1, 0, 0, 1, 1, 1, 1 ],
+	[ 1, 1, 1, 1, 0, 0, 1, 1, 1, 1 ]
 ],
 
-materials = [
-	50, 30, 20, 1 // grey floor
-],
+materials = {
+	floor_0: [ 35, 30, 25, 1 ],
+	floor_1: [ 40, 35, 30, 1 ],
+	floor_2: [ 35, 30, 35, 1 ],
+	wall_0: [ 80, 70, 70, 1 ],
+	wall_1: [ 85, 75, 70, 1 ],
+	wall_2: [ 80, 75, 75, 1 ]
+},
 
 models = {
 	person: new Geometry(
@@ -548,10 +553,22 @@ models = {
 	),
 	tile: new Geometry(
 			[
-				-.45,0,-.45,
-				.45,0,-.45,
-				.45,0,.45,
-				-.45,0,.45
+				-.47,0,-.47,
+				.47,0,-.47,
+				.47,0,.47,
+				-.47,0,.47
+			],
+			[
+				2,1,0,0,
+				3,2,0,0
+			]
+		),
+	wall: new Geometry(
+			[
+				-.5,1,-.5,
+				.5,1,-.5,
+				.5,0,-.5,
+				-.5,0,-.5
 			],
 			[
 				2,1,0,0,
@@ -770,7 +787,7 @@ renderElements = function() {
 		t2.v[2].x *= 320; t2.v[2].y *= 240;
 		t2.v[2].x += 320; t2.v[2].y += 240;
 
-		var light_normal = new V3( 0,1,0 );
+		var light_normal = new V3( .2,.8,.6 ).normalize();
 		var ambient_term = .3;
 		light_value = Math.min( Math.max( light_normal.dot( t2.n ), 0 ) + ambient_term, 1 );
 		
@@ -817,12 +834,48 @@ title = function() {
 	// Generate map
 	for ( i1 = 0; i1 < map[0][l]; i1++ ) {
 		for ( i2 = 0; i2 < map[l]; i2++ ) {
+			// Floor
 			switch ( map[i2][i1] ) {
 				case 1:
-					t1 = new Model( models.tile, materials );
+					var test = 
+					t1 = new Model( models.tile, materials['floor_' + Math.floor( Math.random() * 3 ) ] );
 					t1.p.set( i1, 0, i2 );
 					scene_objects.push( t1 );
 					break;
+			}
+
+			// Wall
+			if ( map[i2][i1] !== 0 ) {
+				if ( map[i2 - 1] === undefined || map[i2 - 1][i1] === 0 ) {
+					// Need a wall on top
+					t1 = new Model( models.wall, materials['wall_' + Math.floor( Math.random() * 3 ) ] );
+					t1.p.set( i1, 0, i2 );
+					scene_objects.push( t1 );
+				}
+
+				if ( map[i2 + 1] === undefined || map[i2 + 1][i1] === 0 ) {
+					// Need a wall on bottom
+					t1 = new Model( models.wall, materials['wall_' + Math.floor( Math.random() * 3 ) ] );
+					t1.p.set( i1, 0, i2 );
+					t1.r.set( 0, Math.PI, 0 )
+					scene_objects.push( t1 );
+				}
+				
+				if ( map[i2][i1 - 1] === undefined || map[i2][i1 - 1] === 0 ) {
+					// Need a wall on left
+					t1 = new Model( models.wall, materials['wall_' + Math.floor( Math.random() * 3 ) ] );
+					t1.p.set( i1, 0, i2 );
+					t1.r.set( 0, Math.PI / 2, 0 )
+					scene_objects.push( t1 );
+				}
+				
+				if ( map[i2][i1 + 1] === undefined || map[i2][i1 + 1] === 0 ) {
+					// Need a wall on right
+					t1 = new Model( models.wall, materials['wall_' + Math.floor( Math.random() * 3 ) ] );
+					t1.p.set( i1, 0, i2 );
+					t1.r.set( 0, Math.PI / -2, 0 )
+					scene_objects.push( t1 );
+				}
 			}
 		}
 	}
@@ -839,7 +892,7 @@ title = function() {
 		player.a[0][i1 * 3 + 1] -= player.g.v[i1].y;
 		player.a[0][i1 * 3 + 2] -= player.g.v[i1].z;
 	}
-	player.p.set( map[0][l] / 2, 0, map[l] / 2 );
+	player.p.set( 3, 0, 3 );
 	player.t.copy( player.p );
 	players.push( player );
 	scene_objects.push( player );
