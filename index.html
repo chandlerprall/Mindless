@@ -529,13 +529,7 @@ scene_objects=[],
 scene_renderables=[],
 scene_elements=[],
 
-map = [
-	[ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ],
-	[ 1, 1, 1, 1, 0, 0, 1, 1, 1, 1 ],
-	[ 1, 1, 1, 1, 0, 0, 1, 1, 1, 1 ],
-	[ 1, 1, 1, 1, 0, 0, 1, 1, 1, 1 ],
-	[ 1, 1, 1, 1, 0, 0, 1, 1, 1, 1 ]
-],
+map = [],
 
 materials = {
 	floor_0: [ 35, 30, 25, 1 ],
@@ -620,7 +614,7 @@ anim = function() {
 			if (
 				v2.x < 0 || v2.z < 0 || v2.x > map[0][l] - 1 || v2.z > map[l] - 1 // Map edges
 				||
-				map[Math.floor( v2.z )][Math.floor( v2.x )] === 0
+				map[Math.round( v2.z )][Math.round( v2.x )] === 0
 			) {
 				continue;
 			}
@@ -642,7 +636,7 @@ anim = function() {
 	
 
 	// set camera position
-	v1.copy( player.p ).add( v2.set( 5, 5, 7 ) );
+	v1.copy( player.p ).add( v2.set( 3, 7, 9 ) );
 	cam.m.setPosition( v1 );
 	cam.m.lookAt( player.p );
 	render();
@@ -683,6 +677,8 @@ readyFaces = function() {
 		t2 = scene_renderables[i1];
 		m1.extractRotation(t2.m);
 		
+		if ( !isVisible( player.p, t2.p ) ) continue;
+
 		var _vertices = [],
 			visible;
 		for ( i2 = 0; i2 < t2.g.f[l]; i2++ ) {
@@ -806,6 +802,26 @@ renderElements = function() {
 		c.fill();
 	}
 },
+isVisible = function( eye, point ) {
+	var i1, i2, distance;
+	// Walk on the map from eye to point
+	v1.copy( point ).sub( eye ); // eye vector
+	distance = v1.length();
+
+	v1.normalize();
+
+	v2.copy( eye ); // v2 holds the current position on the map to check
+	for ( i1 = 0; i1 < distance - 1; i1++ ) {
+		if ( map[ Math.floor( v2.z ) ] !== undefined && map[ Math.floor( v2.z ) ][ Math.floor( v2.x ) ] !== undefined ) {
+			if ( map[ Math.floor( v2.z ) ][ Math.floor( v2.x ) ] === 0 ) {
+				return false;
+			}
+		}
+		v2.add( v1 );
+	}
+
+	return true;
+},
 FR = new FR,
 projectionScreenMatrix = new M4, //projection screen matrix
 prepareScene = function() {
@@ -829,15 +845,32 @@ title = function() {
 	c.fillStyle = '#44dd77';
 	c.fillText( 'Lab 13', 25, 100 );
 
-	var i1, i2;
+	var i1, i2, drawRoom = function( x1, y1, x2, y2 ) {
+		for ( i1 = y1; i1 <= y2; i1++ ) {
+			for ( i2 = x1; i2 <= x2; i2++ ) {
+				map[i1][i2] = 1;
+			}
+		}
+	};
 
 	// Generate map
+	for ( i1 = 0; i1 < 50; i1++ ) {
+		map[i1] = [];
+		for ( i2 = 0; i2 < 50; i2++ ) {
+			map[i1][i2] = 0;
+		}
+	}
+
+	drawRoom( 0, 10, 8, 14 );
+	drawRoom( 8, 11, 16, 13 );
+	drawRoom( 12, 10, 12, 10 );
+	drawRoom( 10, 6, 14, 9 );
+
 	for ( i1 = 0; i1 < map[0][l]; i1++ ) {
 		for ( i2 = 0; i2 < map[l]; i2++ ) {
 			// Floor
 			switch ( map[i2][i1] ) {
 				case 1:
-					var test = 
 					t1 = new Model( models.tile, materials['floor_' + Math.floor( Math.random() * 3 ) ] );
 					t1.p.set( i1, 0, i2 );
 					scene_objects.push( t1 );
@@ -892,7 +925,7 @@ title = function() {
 		player.a[0][i1 * 3 + 1] -= player.g.v[i1].y;
 		player.a[0][i1 * 3 + 2] -= player.g.v[i1].z;
 	}
-	player.p.set( 3, 0, 3 );
+	player.p.set( 3, 0, 12 );
 	player.t.copy( player.p );
 	players.push( player );
 	scene_objects.push( player );
