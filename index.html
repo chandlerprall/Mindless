@@ -451,7 +451,8 @@ F[p].clone = function() {
 	return new F(
 		[ this.v[0].clone(), this.v[1].clone(), this.v[2].clone() ],
 		this.m.clone(),
-		this.n.clone()
+		this.n.clone(),
+		this.c.clone()
 	)
 };
 F[p].computeW = function() {
@@ -478,20 +479,7 @@ Geometry = function( v, f ) {
 			this.v[this.f[i].v[2]].clone().sub( this.v[this.f[i].v[0]] )
 		).normalize();
 	}
-
-	this.computeBoundingSphere();
 };
-Geometry[p].computeBoundingSphere = function() {
-	var f, v, radius, maxRadius = 0;
-
-	for ( f = 0; f < this.f[l]; f++ ) {
-		for ( v = 0; v < this.f[f].v[l]; v++ ) {
-			radius = this.v[this.f[f].v[v]][l]();
-			if ( radius > maxRadius ) maxRadius = radius;
-		}
-	}
-	this.boundingSphere = maxRadius;
-}
 
 Model = function( g, c ) {
 	// materials
@@ -502,7 +490,6 @@ Model = function( g, c ) {
 
 	this.g = g; // geometry
 	this.m = new M4; //matrix
-	this.o = 0; //W offset
 	this.p = new V3; //position
 	this.r = new V3; //rotation
 	this.t = new V3; //target, used for players
@@ -535,9 +522,19 @@ materials = {
 	floor_0: [ 35, 30, 25, 1 ],
 	floor_1: [ 40, 35, 30, 1 ],
 	floor_2: [ 35, 30, 35, 1 ],
+
 	wall_0: [ 80, 70, 70, 1 ],
 	wall_1: [ 85, 75, 70, 1 ],
-	wall_2: [ 80, 75, 75, 1 ]
+	wall_2: [ 80, 75, 75, 1 ],
+
+	player: [245,213,143,1,13,185,0,1,22,14,65,1,0,0,0,1]
+},
+
+animations = {
+	person: [
+		// Walking
+		[-0.1415,0.4932,-0.2913,-0.1137,0.4941,-0.3037,-0.1278,0.4928,-0.2533,-0.1413,0.4922,-0.2352,-0.1279,0.4923,-0.1588,-0.1414,0.4921,-0.1767,-0.1139,0.4923,-0.1089,-0.1419,0.4926,-0.121,-0.0499,0.4931,-0.3038,-0.0332,0.4917,-0.2525,-0.0332,0.4912,-0.1579,-0.05,0.4911,-0.1089,0.0352,0.4915,-0.3037,0.023,0.4913,-0.2525,0.023,0.4909,-0.1579,0.0351,0.4895,-0.1089,0.098,0.4904,-0.3037,0.1129,0.4905,-0.2533,0.1127,0.4896,-0.1588,0.0979,0.4883,-0.1089,0.1268,0.4906,-0.2913,0.1271,0.4906,-0.2352,0.1269,0.4901,-0.1767,0.1264,0.4885,-0.121,-0.0453,1.1236,-0.1472,-0.0446,1.1245,-0.2518,-0.1241,1.1261,-0.2974,0.0574,1.1229,-0.2508,0.2146,1.109,-0.1072,0.0562,1.122,-0.1465,0.1514,1.1182,-0.2968,-0.2111,0.9139,-0.2757,-0.1935,0.9518,-0.1662,-0.2175,1.0033,-0.1221,-0.2035,1.1022,-0.1084,0.2143,0.9016,-0.128,0.2145,0.9039,-0.2692,-0.0381,0.2466,-0.3773,-0.0355,0.2484,-0.2958,-0.1165,0.2366,-0.2949,-0.1192,0.25,-0.3734,0.1129,0.2021,-0.1945,0.1126,0.2322,-0.1233,0.0327,0.2379,-0.1276,0.0332,0.196,-0.1915,-0.0445,0.0681,-0.3526,-0.1004,0.0675,-0.3524,-0.0436,0.0713,-0.2978,-0.0994,0.0697,-0.296,0.1024,0.0972,-0.0389,0.0477,0.0987,-0.0395,0.1021,0.1267,0.004,0.0473,0.1277,0.0012,-0.0471,0.0131,-0.2952,-0.0972,0.0119,-0.3,0.0997,0.0742,0.0322,0.0501,0.071,0.0292,-0.0723,0.018,-0.46,0.0752,0.0151,-0.122,-0.1982,0.6934,-0.0816,-0.2065,0.6748,-0.162,-0.2803,0.6989,-0.0743,-0.2887,0.6795,-0.1547,-0.247,0.9948,-0.2426,0.2179,0.6779,-0.2432,0.2126,0.6472,-0.1675,0.3003,0.6803,-0.2366,0.2945,0.6542,-0.1597,0.2419,0.9941,-0.2405,0.2459,0.9899,-0.1568,-0.2183,0.3637,-0.0021,-0.2901,0.3652,0.0031,-0.2982,0.3456,-0.0945,-0.2264,0.3427,-0.0993,0.2505,0.3776,-0.3965,0.3222,0.3782,-0.3897,0.3147,0.3356,-0.2997,0.243,0.3337,-0.3071,-0.0605,1.225,-0.1305,0.0558,1.1934,-0.1453,0.0585,1.1935,-0.2499,-0.043,1.1937,-0.2525,-0.0801,1.3985,-0.285,-0.05,1.3619,-0.2956,-0.05,1.3326,-0.2956,-0.0801,1.2639,-0.285,0.0374,1.3326,-0.2931,0.0714,1.3326,-0.2922,0.0714,1.3619,-0.2922,0.0977,1.3971,-0.281,0.0374,1.3619,-0.2931,-0.016,1.3326,-0.2946,-0.016,1.3619,-0.2946,0.0956,1.261,-0.2779,0.0928,1.3985,-0.1129,-0.0848,1.3985,-0.1179,0.0928,1.2639,-0.1129,0.0065,1.4411,-0.203,0.2177,1.0851,-0.2849,-0.2077,1.094,-0.2849]
+	]
 },
 
 models = {
@@ -547,10 +544,10 @@ models = {
 	),
 	tile: new Geometry(
 			[
-				-.47,0,-.47,
-				.47,0,-.47,
-				.47,0,.47,
-				-.47,0,.47
+				-4.7,0,-4.7,
+				4.7,0,-4.7,
+				4.7,0,4.7,
+				-4.7,0,4.7
 			],
 			[
 				2,1,0,0,
@@ -559,10 +556,10 @@ models = {
 		),
 	wall: new Geometry(
 			[
-				-.5,1,-.5,
-				.5,1,-.5,
-				.5,0,-.5,
-				-.5,0,-.5
+				-5,10,-5,
+				5,10,-5,
+				5,0,-5,
+				-5,0,-5
 			],
 			[
 				2,1,0,0,
@@ -585,7 +582,11 @@ run = function() {
 	ca.addEventListener(
 		'click',
 		function( ev ) {
-			var vector = new V3( ( ev.offsetX / b ) * 2 - 1, - ( ev.offsetY / e ) * 2 + 1, .5 );
+			var vector = new V3(
+				( (ev.clientX - ca.offsetLeft) / b ) * 2 - 1,
+				- ( (ev.clientY - ca.offsetTop) / e ) * 2 + 1,
+				.5
+			);
 			
 			var test = new M4().getInverse( cam.p );
 			var test2 = new M4().multiply( new M4().extractRotation( cam.m ), test );
@@ -604,13 +605,14 @@ anim = function() {
 	for ( i1 = 0; i1 < players[l]; i1++ ) {
 		v1.copy( players[i1].t ).sub( players[i1].p );
 
-		if ( Math.abs( v1.x ) > .02 || Math.abs( v1.z ) > .02 ) {
+		if ( Math.abs( v1.x ) > .2 || Math.abs( v1.z ) > .2 ) {
 			v2.copy( players[i1].p )
-			v2.x += Math.abs( v1.x ) > .02 ? .02 * (v1.x > 0 ? 1 : -1) : 0;
-			v2.z += Math.abs( v1.z ) > .02 ? .02 * (v1.z > 0 ? 1 : -1) : 0;
+			v2.x += Math.abs( v1.x ) > .2 ? .2 * (v1.x > 0 ? 1 : -1) : 0;
+			v2.z += Math.abs( v1.z ) > .2 ? .2 * (v1.z > 0 ? 1 : -1) : 0;
 			
 
 			// Check map bounds
+			/*
 			if (
 				v2.x < 0 || v2.z < 0 || v2.x > map[0][l] - 1 || v2.z > map[l] - 1 // Map edges
 				||
@@ -618,25 +620,26 @@ anim = function() {
 			) {
 				continue;
 			}
+			*/
 			
 			players[i1].p.x = v2.x;
 			players[i1].p.z = v2.z;
 			players[i1].m.lookAt( v2 );
 			players[i1].r.getRotationFromMatrix( players[i1].m );
 
-			if ( !player.a_desc ) {
-				player.ap[0] += 0.06;
-				if ( player.ap[0] > 1 ) player.a_desc = true;
+			if ( !players[i1].a_desc ) {
+				players[i1].ap[0] += 0.06;
+				if ( players[i1].ap[0] > 1 ) players[i1].a_desc = true;
 			} else {
-				player.ap[0] -= 0.06;
-				if ( player.ap[0] < 0 ) player.a_desc = false;
+				players[i1].ap[0] -= 0.06;
+				if ( players[i1].ap[0] < 0 ) players[i1].a_desc = false;
 			}
 		}
 	}
 	
 
 	// set camera position
-	v1.copy( player.p ).add( v2.set( 3, 7, 9 ) );
+	v1.copy( player.p ).add( v2.set( 30, 70, 90 ) );
 	cam.m.setPosition( v1 );
 	cam.m.lookAt( player.p );
 	render();
@@ -652,7 +655,6 @@ projectGraph = function() {
 		if( FR.contains( o ) ) {
 			v1.copy( o.m.getPosition() );
 			projectionScreenMatrix.multiplyV3( v1 );
-			o.d = v1.z;
 			scene_renderables.push( o );
 			
 			for ( i2 = 0; i2 < o.k[l]; i2++ ) {
@@ -665,7 +667,6 @@ projectGraph = function() {
 				
 				v1.copy( c.m.getPosition() );
 				projectionScreenMatrix.multiplyV3( v1 );
-				c.d = v1.z;
 				scene_renderables.push( c );
 			}
 		}
@@ -674,10 +675,11 @@ projectGraph = function() {
 readyFaces = function() {
 	scene_elements[l]=0;
 	for( i1 = 0, t1 = scene_renderables[l]; i1 < t1; i1++ ) {
+
 		t2 = scene_renderables[i1];
 		m1.extractRotation(t2.m);
 		
-		if ( !isVisible( player.p, t2.p ) ) continue;
+		//if ( !isVisible( player.p, t2.p ) ) continue;
 
 		var _vertices = [],
 			visible;
@@ -740,20 +742,20 @@ readyFaces = function() {
 
 			v1.copy( t2.g.f[i2].n );
 			m1.multiplyV3( v1 );
-
+			
 			t3 = new F(
 				[ v4_1.clone(), v4_2.clone(), v4_3.clone() ],
 				t2.c[ t2.g.f[i2].m ],
 				v1.clone()
 			).computeW();
-			t3.offset = t2.o;
 
 			scene_elements.push( t3 );
 		}
 	}
-},
+}
 FSorter = function( a, b ) {
-	return a.w + a.offset < b.w + b.offset;
+	//return b.c.z - a.c.z;
+	return b.w - a.w;
 },
 expand = function( v1, v2 ) {
 	// For dealing with canvas anti-aliasing
@@ -769,6 +771,29 @@ expand = function( v1, v2 ) {
 	v2.x += x; v2.y += y;
 	v1.x -= x; v1.y -= y;
 },
+createPerson = function( type ) {
+	var person = new Model(
+		models.person,
+		materials[type]
+	);
+	person.ap[0] = 0;
+	person.a = animations.person;
+	if ( !window.fixed_anim ) {
+		for ( i1 = 0; i1 < person.g.v[l]; i1++ ) {
+			person.g.v[i1].multiplyScalar( 10 );
+
+			person.a[0][i1 * 3] *= 10;
+			person.a[0][i1 * 3 + 1] *= 10;
+			person.a[0][i1 * 3 + 2] *= 10;
+
+			person.a[0][i1 * 3] -= person.g.v[i1].x;
+			person.a[0][i1 * 3 + 1] -= person.g.v[i1].y;
+			person.a[0][i1 * 3 + 2] -= person.g.v[i1].z;
+		}
+		window.fixed_anim = true;
+	}
+	return person;
+};
 renderElements = function() {
 	scene_elements.sort( FSorter );
 	for( i1=0, t1 = scene_elements[l]; i1 < t1; i1++ ) {
@@ -845,10 +870,35 @@ title = function() {
 	c.fillStyle = '#44dd77';
 	c.fillText( 'Lab 13', 25, 100 );
 
-	var i1, i2, drawRoom = function( x1, y1, x2, y2 ) {
+	var i1, i2, i3, drawRoom = function( x1, y1, x2, y2, options ) {
+		options = options || {};
+
+		var person, people = [];
+
+		// Create tiles
 		for ( i1 = y1; i1 <= y2; i1++ ) {
 			for ( i2 = x1; i2 <= x2; i2++ ) {
 				map[i1][i2] = 1;
+			}
+		}
+
+		// Populate
+		if ( options.pmin > 0 && options.pmax ) {
+			t1 = Math.floor( Math.random() * (options.pmax - options.pmin + 1) ) + options.pmin;
+			for ( i1 = 0; i1 < t1; i1++ ) {
+				person = createPerson( 'player' );
+				person.p.set(
+					( (Math.random() * (x2 - x1)) + x1 ) * 10,
+					0,
+					( (Math.random() * (y2 - y1)) + y1 ) * 10
+				);
+				person.t.set(
+					( (Math.random() * (x2 - x1)) + x1 ) * 10,
+					0,
+					( (Math.random() * (y2 - y1)) + y1 ) * 10
+				);
+				players.push( person );
+				scene_objects.push( person );
 			}
 		}
 	};
@@ -862,9 +912,9 @@ title = function() {
 	}
 
 	drawRoom( 0, 10, 8, 14 );
-	drawRoom( 8, 11, 16, 13 );
+	drawRoom( 8, 11, 16, 13, {pmin: 4, pmax:7} );
 	drawRoom( 12, 10, 12, 10 );
-	drawRoom( 10, 6, 14, 9 );
+	drawRoom( 10, 6, 14, 9, {pmin: 2, pmax:3} );
 
 	for ( i1 = 0; i1 < map[0][l]; i1++ ) {
 		for ( i2 = 0; i2 < map[l]; i2++ ) {
@@ -872,7 +922,7 @@ title = function() {
 			switch ( map[i2][i1] ) {
 				case 1:
 					t1 = new Model( models.tile, materials['floor_' + Math.floor( Math.random() * 3 ) ] );
-					t1.p.set( i1, 0, i2 );
+					t1.p.set( i1 * 10, 0, i2 * 10 );
 					scene_objects.push( t1 );
 					break;
 			}
@@ -882,14 +932,14 @@ title = function() {
 				if ( map[i2 - 1] === undefined || map[i2 - 1][i1] === 0 ) {
 					// Need a wall on top
 					t1 = new Model( models.wall, materials['wall_' + Math.floor( Math.random() * 3 ) ] );
-					t1.p.set( i1, 0, i2 );
+					t1.p.set( i1 * 10, 0, i2 * 10 );
 					scene_objects.push( t1 );
 				}
 
 				if ( map[i2 + 1] === undefined || map[i2 + 1][i1] === 0 ) {
 					// Need a wall on bottom
 					t1 = new Model( models.wall, materials['wall_' + Math.floor( Math.random() * 3 ) ] );
-					t1.p.set( i1, 0, i2 );
+					t1.p.set( i1 * 10, 0, i2 * 10 );
 					t1.r.set( 0, Math.PI, 0 )
 					scene_objects.push( t1 );
 				}
@@ -897,7 +947,7 @@ title = function() {
 				if ( map[i2][i1 - 1] === undefined || map[i2][i1 - 1] === 0 ) {
 					// Need a wall on left
 					t1 = new Model( models.wall, materials['wall_' + Math.floor( Math.random() * 3 ) ] );
-					t1.p.set( i1, 0, i2 );
+					t1.p.set( i1 * 10, 0, i2 * 10 );
 					t1.r.set( 0, Math.PI / 2, 0 )
 					scene_objects.push( t1 );
 				}
@@ -905,7 +955,7 @@ title = function() {
 				if ( map[i2][i1 + 1] === undefined || map[i2][i1 + 1] === 0 ) {
 					// Need a wall on right
 					t1 = new Model( models.wall, materials['wall_' + Math.floor( Math.random() * 3 ) ] );
-					t1.p.set( i1, 0, i2 );
+					t1.p.set( i1 * 10, 0, i2 * 10 );
 					t1.r.set( 0, Math.PI / -2, 0 )
 					scene_objects.push( t1 );
 				}
@@ -913,23 +963,11 @@ title = function() {
 		}
 	}
 
-	// Player's character
-	player = new Model(
-		models.person,
-		[245,213,143,1,13,185,0,1,22,14,65,1,0,0,0,1]
-	);
-	player.ap[0] = 0;
-	player.a[0] = [-0.1415,0.4932,-0.2913,-0.1137,0.4941,-0.3037,-0.1278,0.4928,-0.2533,-0.1413,0.4922,-0.2352,-0.1279,0.4923,-0.1588,-0.1414,0.4921,-0.1767,-0.1139,0.4923,-0.1089,-0.1419,0.4926,-0.121,-0.0499,0.4931,-0.3038,-0.0332,0.4917,-0.2525,-0.0332,0.4912,-0.1579,-0.05,0.4911,-0.1089,0.0352,0.4915,-0.3037,0.023,0.4913,-0.2525,0.023,0.4909,-0.1579,0.0351,0.4895,-0.1089,0.098,0.4904,-0.3037,0.1129,0.4905,-0.2533,0.1127,0.4896,-0.1588,0.0979,0.4883,-0.1089,0.1268,0.4906,-0.2913,0.1271,0.4906,-0.2352,0.1269,0.4901,-0.1767,0.1264,0.4885,-0.121,-0.0453,1.1236,-0.1472,-0.0446,1.1245,-0.2518,-0.1241,1.1261,-0.2974,0.0574,1.1229,-0.2508,0.2146,1.109,-0.1072,0.0562,1.122,-0.1465,0.1514,1.1182,-0.2968,-0.2111,0.9139,-0.2757,-0.1935,0.9518,-0.1662,-0.2175,1.0033,-0.1221,-0.2035,1.1022,-0.1084,0.2143,0.9016,-0.128,0.2145,0.9039,-0.2692,-0.0381,0.2466,-0.3773,-0.0355,0.2484,-0.2958,-0.1165,0.2366,-0.2949,-0.1192,0.25,-0.3734,0.1129,0.2021,-0.1945,0.1126,0.2322,-0.1233,0.0327,0.2379,-0.1276,0.0332,0.196,-0.1915,-0.0445,0.0681,-0.3526,-0.1004,0.0675,-0.3524,-0.0436,0.0713,-0.2978,-0.0994,0.0697,-0.296,0.1024,0.0972,-0.0389,0.0477,0.0987,-0.0395,0.1021,0.1267,0.004,0.0473,0.1277,0.0012,-0.0471,0.0131,-0.2952,-0.0972,0.0119,-0.3,0.0997,0.0742,0.0322,0.0501,0.071,0.0292,-0.0723,0.018,-0.46,0.0752,0.0151,-0.122,-0.1982,0.6934,-0.0816,-0.2065,0.6748,-0.162,-0.2803,0.6989,-0.0743,-0.2887,0.6795,-0.1547,-0.247,0.9948,-0.2426,0.2179,0.6779,-0.2432,0.2126,0.6472,-0.1675,0.3003,0.6803,-0.2366,0.2945,0.6542,-0.1597,0.2419,0.9941,-0.2405,0.2459,0.9899,-0.1568,-0.2183,0.3637,-0.0021,-0.2901,0.3652,0.0031,-0.2982,0.3456,-0.0945,-0.2264,0.3427,-0.0993,0.2505,0.3776,-0.3965,0.3222,0.3782,-0.3897,0.3147,0.3356,-0.2997,0.243,0.3337,-0.3071,-0.0605,1.225,-0.1305,0.0558,1.1934,-0.1453,0.0585,1.1935,-0.2499,-0.043,1.1937,-0.2525,-0.0801,1.3985,-0.285,-0.05,1.3619,-0.2956,-0.05,1.3326,-0.2956,-0.0801,1.2639,-0.285,0.0374,1.3326,-0.2931,0.0714,1.3326,-0.2922,0.0714,1.3619,-0.2922,0.0977,1.3971,-0.281,0.0374,1.3619,-0.2931,-0.016,1.3326,-0.2946,-0.016,1.3619,-0.2946,0.0956,1.261,-0.2779,0.0928,1.3985,-0.1129,-0.0848,1.3985,-0.1179,0.0928,1.2639,-0.1129,0.0065,1.4411,-0.203,0.2177,1.0851,-0.2849,-0.2077,1.094,-0.2849];
-	for ( i1 = 0; i1 < player.g.v[l]; i1++ ) {
-		player.a[0][i1 * 3] -= player.g.v[i1].x;
-		player.a[0][i1 * 3 + 1] -= player.g.v[i1].y;
-		player.a[0][i1 * 3 + 2] -= player.g.v[i1].z;
-	}
-	player.p.set( 3, 0, 12 );
+	player = createPerson( 'player' );
+	player.p.set( 30, 0, 120 );
 	player.t.copy( player.p );
 	players.push( player );
 	scene_objects.push( player );
-
 
 	c.font = '14pt Monospace';
 	c.fillText( 'Click to start', 200, 200 );
