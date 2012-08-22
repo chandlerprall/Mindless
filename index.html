@@ -612,15 +612,13 @@ anim = function() {
 			
 
 			// Check map bounds
-			/*
 			if (
-				v2.x < 0 || v2.z < 0 || v2.x > map[0][l] - 1 || v2.z > map[l] - 1 // Map edges
+				v2.x < 0 || v2.z < 0 || v2.x / 10 > map[0][l] - 1 || v2.z / 10 > map[l] - 1 // Map edges
 				||
-				map[Math.round( v2.z )][Math.round( v2.x )] === 0
+				map[Math.round( v2.z / 10 )][Math.round( v2.x / 10 )] === 0
 			) {
 				continue;
 			}
-			*/
 			
 			players[i1].p.x = v2.x;
 			players[i1].p.z = v2.z;
@@ -679,7 +677,7 @@ readyFaces = function() {
 		t2 = scene_renderables[i1];
 		m1.extractRotation(t2.m);
 		
-		//if ( !isVisible( player.p, t2.p ) ) continue;
+		if ( !isVisible( player.p, t2.p ) ) continue;
 
 		var _vertices = [],
 			visible;
@@ -837,8 +835,8 @@ isVisible = function( eye, point ) {
 
 	v2.copy( eye ); // v2 holds the current position on the map to check
 	for ( i1 = 0; i1 < distance - 1; i1++ ) {
-		if ( map[ Math.floor( v2.z ) ] !== undefined && map[ Math.floor( v2.z ) ][ Math.floor( v2.x ) ] !== undefined ) {
-			if ( map[ Math.floor( v2.z ) ][ Math.floor( v2.x ) ] === 0 ) {
+		if (map[ Math.round( v2.z / 10 ) ] !== undefined && map[ Math.round( v2.z / 10 ) ][ Math.round( v2.x / 10 ) ] !== undefined ) {
+			if ( map[ Math.round( v2.z / 10 ) ][ Math.round( v2.x / 10 ) ] === 0 ) {
 				return false;
 			}
 		}
