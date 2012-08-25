@@ -527,7 +527,8 @@ materials = {
 	wall_1: [ 85, 75, 70, 1 ],
 	wall_2: [ 80, 75, 75, 1 ],
 
-	player: [36,96,3,1,244,29,29,1,227,213,168,1,149,149,149,1,149,149,149,1,12,12,12,1,149,149,149,1,23,36,101,1]
+	player:    [36,96,3,1,244,29,29,1,227,213,168,1,149,149,149,1,149,149,149,1,12,12,12,1,149,149,149,1,23,36,101,1],
+	scientist: [200,210,220,1,244,29,29,1,227,213,168,1,149,149,149,1,149,149,149,1,12,12,12,1,149,149,149,1,200,210,220,1]
 },
 
 animations = {
@@ -602,6 +603,7 @@ run = function() {
 },
 anim = function() {
 	// move players
+	player_movement:
 	for ( i1 = 0; i1 < players[l]; i1++ ) {
 		v1.copy( players[i1].t ).sub( players[i1].p );
 
@@ -615,7 +617,6 @@ anim = function() {
 			v3.copy( players[i1].p )
 			v3.x += Math.abs( v1.x ) > .2 ? 5 * (v1.x > 0 ? 1 : -1) : 0;
 			v3.z += Math.abs( v1.z ) > .2 ? 5 * (v1.z > 0 ? 1 : -1) : 0;
-			
 
 			// Check map bounds
 			if (
@@ -625,7 +626,14 @@ anim = function() {
 			) {
 				continue;
 			}
-			
+
+			// Check against player positions
+			for ( i2 = 0; i2 < players[l]; i2++ ) {
+				if ( players[i1] === players[i2] ) continue;
+				v4.copy( v2 ).sub( players[i2].p );
+				if ( v4.lengthSq() <= 40 ) continue player_movement;
+			}
+
 			players[i1].p.x = v2.x;
 			players[i1].p.z = v2.z;
 			players[i1].m.lookAt( v2 );
@@ -644,7 +652,7 @@ anim = function() {
 	
 
 	// set camera position
-	v1.copy( player.p ).add( v2.set( 30, 70, 90 ) );
+	v1.copy( player.p ).add( v2.set( 60, 80, 120 ) );
 	cam.m.setPosition( v1 );
 	cam.m.lookAt( player.p );
 	render();
@@ -899,6 +907,25 @@ title = function() {
 				scene_objects.push( person );
 			}
 		}
+
+		if ( options.smin > 0 && options.smax ) {
+			t1 = Math.floor( Math.random() * (options.smax - options.smin + 1) ) + options.smin;
+			for ( i1 = 0; i1 < t1; i1++ ) {
+				person = createPerson( 'scientist' );
+				person.p.set(
+					( (Math.random() * (x2 - x1)) + x1 ) * 10,
+					.3,
+					( (Math.random() * (y2 - y1)) + y1 ) * 10
+				);
+				person.t.set(
+					( (Math.random() * (x2 - x1)) + x1 ) * 10,
+					.3,
+					( (Math.random() * (y2 - y1)) + y1 ) * 10
+				);
+				players.push( person );
+				scene_objects.push( person );
+			}
+		}
 	};
 
 	// Generate map
@@ -910,10 +937,14 @@ title = function() {
 	}
 
 	drawRoom( 0, 10, 8, 14 );
-	drawRoom( 8, 11, 16, 13, {pmin: 4, pmax:7} );
-	drawRoom( 12, 10, 12, 10 );
+	drawRoom( 8, 11, 16, 13, {pmin: 1, pmax:4} );
+
+	drawRoom( 11, 10, 12, 10 );
 	drawRoom( 10, 6, 14, 9, {pmin: 2, pmax:3} );
 
+	drawRoom( 11, 14, 12, 14 );
+	drawRoom( 10, 15, 14, 19, {pmin: 1, pmax:3, smin: 2, smax: 3} );
+	
 	for ( i1 = 0; i1 < map[0][l]; i1++ ) {
 		for ( i2 = 0; i2 < map[l]; i2++ ) {
 			// Floor
