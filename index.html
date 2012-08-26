@@ -496,6 +496,7 @@ Model = function( g, c ) {
 	this.k = []; //children
 	this.a = []; //animation sets
 	this.ap = []; //animation progress
+	this.iv = false; // is visible
 };
 
 var ca = document.getElementById('c'), c = ca.getContext('2d'),
@@ -508,8 +509,8 @@ cam = {
 	p: new M4( [1.6083801984786987,0,0,0,0,2.1445069313049316,0,0,0,0,-1.0002000331878662,-1,0,0,-2.000200033187866,0] ), //projection matrix
 	m: new M4( [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1] ), //world matrix
 	i: new M4( [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1] ), //matrix world inverse
-	near: 1,
-	far: 10000
+	near: 5,
+	far: 500
 },
 
 scene_objects=[],
@@ -589,9 +590,9 @@ run = function() {
 				.5
 			);
 			
-			var test = new M4().getInverse( cam.p );
-			var test2 = new M4().multiply( new M4().extractRotation( cam.m ), test );
-			test2.multiplyV3( vector );
+			var inverse = new M4().getInverse( cam.p ),
+				rotator = new M4().multiply( new M4().extractRotation( cam.m ), inverse );
+			rotator.multiplyV3( vector );
 			vector.normalize();
 
 			vector.multiplyScalar( -cam.m.getPosition().y / vector.y );
@@ -658,9 +659,14 @@ anim = function() {
 	render();
 	a( anim ); // rAF loop
 },
+calculateVisibilty = 0,
 projectGraph = function() {
 	scene_renderables[l] = 0;
 	var o, c;
+	
+	calculateVisibilty += 1;
+	if ( calculateVisibilty == 5 ) calculateVisibilty = 0;
+
 	for ( i1 = 0; i1 < scene_objects[l]; i1++ ){ //loop over all scene objects
 		o = scene_objects[i1];
 		o.m.setPosition( o.p );
@@ -668,6 +674,7 @@ projectGraph = function() {
 		if( FR.contains( o ) ) {
 			v1.copy( o.m.getPosition() );
 			projectionScreenMatrix.multiplyV3( v1 );
+			if ( calculateVisibilty === 0 ) o.iv = isVisible( player.p, o.p );
 			scene_renderables.push( o );
 			
 			for ( i2 = 0; i2 < o.k[l]; i2++ ) {
@@ -680,6 +687,7 @@ projectGraph = function() {
 				
 				v1.copy( c.m.getPosition() );
 				projectionScreenMatrix.multiplyV3( v1 );
+				if ( calculateVisibilty === 0 ) c.iv = isVisible( player.p, c.p );
 				scene_renderables.push( c );
 			}
 		}
@@ -740,11 +748,14 @@ readyFaces = function() {
 			v4_1.x /= v4_1.w;
 			v4_1.y /= v4_1.w;
 			//v4_1.visible = v4_1.z > near && v4_1.z < far;
+			if ( v4_1.z < cam.near || v4_1.z > cam.far ) continue;
 			v4_2.x /= v4_2.w;
 			v4_2.y /= v4_2.w;
+			if ( v4_1.z < cam.near || v4_1.z > cam.far ) continue;
 			//v4_2.visible = v4_2.z > near && v4_2.z < far;
 			v4_3.x /= v4_3.w;
 			v4_3.y /= v4_3.w;
+			if ( v4_1.z < cam.near || v4_1.z > cam.far ) continue;
 			//v4_3.visible = v4_3.z > near && v4_3.z < far;
 
 			visible = ( ( v4_3.x - v4_1.x ) * ( v4_2.y - v4_1.y ) - ( v4_3.y - v4_1.y ) * ( v4_2.x - v4_1.x ) ) < 0;
@@ -760,7 +771,7 @@ readyFaces = function() {
 				v1.clone()
 			).computeW();
 
-			t3.vis = isVisible( player.p, t2.p );
+			t3.vis = t2.iv;
 			if ( !t3.vis && t2.a.length > 0 ) continue;
 
 			scene_elements.push( t3 );
@@ -838,6 +849,8 @@ isVisible = function( eye, point ) {
 	// Walk on the map from eye to point
 	v1.copy( point ).sub( eye ); // eye vector
 	distance = v1.length();
+
+	if ( distance > 70 ) return false;
 
 	v1.normalize();
 
