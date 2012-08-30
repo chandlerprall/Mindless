@@ -510,7 +510,11 @@ cam = {
 	m: new M4( [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1] ), //world matrix
 	i: new M4( [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1] ), //matrix world inverse
 	near: 5,
-	far: 500
+	far: 500,
+	look_at: new V3,
+	position: new V3,
+	position_target: new V3( -60, 80, 120 ),
+	look_at_target: new V3
 },
 
 scene_objects=[],
@@ -735,9 +739,18 @@ anim = function() {
 	
 
 	// set camera position
-	v1.copy( player.p ).add( v2.set( 60, 80, 120 ) );
+	v1.copy( cam.position_target ).sub( cam.position ).multiplyScalar( .02 );
+	cam.position.add( v1 );
+
+	v1.copy( cam.look_at_target ).sub( cam.look_at ).multiplyScalar( .02 );
+	cam.look_at.add( v1 );
+
+	v1.copy( player.p ).add( cam.position );
 	cam.m.setPosition( v1 );
-	cam.m.lookAt( player.p );
+
+	v1.copy( player.p ).add( cam.look_at );
+	cam.m.lookAt( v1 );
+
 	render();
 	a( anim ); // rAF loop
 },
@@ -1094,9 +1107,12 @@ title = function() {
 
 	player = createPerson( 'player' );
 	player.p.set( 30, .3, 120 );
+	player.r.y = -Math.PI / 2;
 	player.t.copy( player.p );
 	players.push( player );
 	scene_objects.push( player );
+	cam.look_at.set( 20, 5, 0 );
+	cam.position.y = 10;
 
 	c.font = '14pt Monospace';
 	c.fillText( 'Click to start', 200, 200 );
