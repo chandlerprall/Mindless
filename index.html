@@ -435,7 +435,7 @@ FR[p].contains = function( o ) {
 
 	for ( var i2 = 0; i2 < 6; i2 ++ ) {
 		t1 = t2[ i2 ].x * t3[12] + t2[ i2 ].y * t3[13] + t2[ i2 ].z * t3[14] + t2[ i2 ].w;
-		if ( t1 <= - o.bs * o.m.getMaxScaleOnAxis() ) return false;
+		if ( t1 <= - o.g.boundingSphere * o.m.getMaxScaleOnAxis() ) return false;
 	}
 
 	return true;
@@ -479,6 +479,22 @@ Geometry = function( v, f ) {
 			this.v[this.f[i].v[2]].clone().sub( this.v[this.f[i].v[0]] )
 		).normalize();
 	}
+
+	this.computeBoundingSphere();
+};
+Geometry[p].computeBoundingSphere = function () {
+
+	var maxRadiusSq = 0;
+
+	for ( i1 = 0; i1 < this.v[l]; i1++ ) {
+
+		var radiusSq = this.v[i1].lengthSq();
+		if ( radiusSq > maxRadiusSq ) maxRadiusSq = radiusSq;
+
+	}
+
+	this.boundingSphere = Math.sqrt( maxRadiusSq );
+
 };
 
 Model = function( g, c ) {
@@ -488,6 +504,7 @@ Model = function( g, c ) {
 		this.c.push( new V4( c[i1], c[i1+1], c[i1+2], c[i1+3] ) );
 	}
 
+	//this.o = 0.01; // offset
 	this.g = g; // geometry
 	this.m = new M4; //matrix
 	this.p = new V3; //position
@@ -513,7 +530,7 @@ cam = {
 	far: 500,
 	look_at: new V3,
 	position: new V3,
-	position_target: new V3( -60, 80, 120 ),
+	position_target: new V3( -40, 80, 80 ),
 	look_at_target: new V3
 },
 
@@ -717,7 +734,6 @@ anim = function() {
 					players[i1].ap[0] -= 0.06;
 					if ( players[i1].ap[0] < 0 ) players[i1].a_desc = false;
 				}
-				//players[i1].k[0].ap[0] = players[i1].ap[0];
 			}
 
 		} else if ( players[i1].health === 0 ) {
@@ -860,15 +876,15 @@ readyFaces = function() {
 				v1.clone()
 			).computeW();
 
-			t3.vis = t2.iv;
-			if ( !t3.vis && t2.a.length > 0 ) continue;
-
+			t3.model = t2;
+			if ( !t2.iv && t2.a.length > 0 ) continue;
 			scene_elements.push( t3 );
 		}
 	}
 }
 FSorter = function( a, b ) {
-	return b.w - a.w;
+	//return ( b.w + b.model.offset ) - ( a.w + a.model.offset );
+	return ( b.w ) - ( a.w );
 },
 expand = function( v1, v2 ) {
 	// For dealing with canvas anti-aliasing
@@ -932,7 +948,7 @@ renderElements = function() {
 			Math.round( t2.m.y * light_value ),
 			Math.round( t2.m.z * light_value )
 		);
-		if ( !t2.vis ) v1.multiplyScalar( .2 );
+		if ( !t2.model.iv ) v1.multiplyScalar( .2 );
 
 		c.fillStyle = 'rgba(' + Math.round( v1.x ) + ',' + Math.round( v1.y ) + ',' + Math.round( v1.z ) + ',' + t2.m.w + ')';
 		c.beginPath();
@@ -1000,6 +1016,29 @@ title = function() {
 				map[i1][i2] = 1;
 			}
 		}
+		/*
+		t2 = ( ( x2 - x1 + 1 ) / 2 ) * 10;
+		t3 = ( ( y2 - y1 + 1 ) / 2 ) * 10;
+
+		t1 = new Model(
+			new Geometry(
+				[
+					-t2,0,-t3,
+					t2,0,-t3,
+					t2,0,t3,
+					-t2,0,t3
+				],
+				[
+					2,1,0,0,
+					3,2,0,0
+				]
+			),
+			materials['floor_' + Math.floor( Math.random() * 3 ) ]
+		);
+		t1.o = 10000;
+		t1.p.set( ( ( x1 + x2 ) / 2 ) * 10, 0, ( ( y1 + y2 ) / 2 ) * 10 );
+		scene_objects.push( t1 );
+		*/
 
 		// Populate
 		if ( options.pmin > 0 && options.pmax ) {
@@ -1042,31 +1081,146 @@ title = function() {
 	};
 
 	// Generate map
-	for ( i1 = 0; i1 < 50; i1++ ) {
+	for ( i1 = 0; i1 < 138; i1++ ) {
 		map[i1] = [];
-		for ( i2 = 0; i2 < 50; i2++ ) {
+		for ( i2 = 0; i2 < 138; i2++ ) {
 			map[i1][i2] = 0;
 		}
 	}
 
-	drawRoom( 0, 10, 8, 14 );
-	drawRoom( 8, 11, 16, 13, {pmin: 1, pmax:4} );
+	//drawRoom( 0,0,9,9 );
 
-	drawRoom( 11, 10, 12, 10 );
-	drawRoom( 10, 6, 14, 9, {pmin: 2, pmax:3} );
+	// Row 1
+	drawRoom( 12, 0, 20, 6 );
+	drawRoom( 16, 7, 20, 7 );
 
-	drawRoom( 11, 14, 12, 14 );
-	drawRoom( 10, 15, 14, 19, {pmin: 1, pmax:3, smin: 2, smax: 3} );
+	drawRoom( 22, 0, 31, 6 );
+	drawRoom( 22, 7, 26, 7 );
+	drawRoom( 32, 3, 32, 6 );
+
+	drawRoom( 33, 0, 42, 6 );
+	drawRoom( 38, 7, 42, 7 );
+
+	drawRoom( 44, 0, 53, 6 );
+	drawRoom( 46, 7, 48, 7 );
+
+	drawRoom( 55, 0, 64, 9 );
+	drawRoom( 57, 10, 59, 10 );
+
+	drawRoom( 66, 0, 76, 9 );
+	drawRoom( 72, 10, 74, 10 );
+
+	drawRoom( 78, 0, 81, 10 );
+	drawRoom( 82, 0, 97, 4 );
+	drawRoom( 83, 5, 97, 9 );
+
+	drawRoom( 99, 0, 104, 4 );
+	drawRoom( 106, 0, 115, 4 );
+	drawRoom( 99, 5, 115, 6 );
+	drawRoom( 104, 7, 106, 7 );
+
+	drawRoom( 117, 0, 126, 6 );
+	drawRoom( 121, 7, 123, 7 );
+
+	// Row 2
+	drawRoom( 0, 6, 10, 13 );
+	drawRoom( 11, 9, 11, 10 );
+
+	drawRoom( 12, 8, 17, 14 );
+
+	drawRoom( 18, 8, 26, 11 );
+	drawRoom( 27, 8, 27, 10 );
+	drawRoom( 19, 12, 26, 14 );
+	drawRoom( 21, 15, 26, 15 );
+
+	drawRoom( 28, 8, 36, 18 );
+	drawRoom( 37, 10, 37, 12 );
+	drawRoom( 32, 19, 34, 19 );
+
+	drawRoom( 38, 8, 53, 13 );
+
+	drawRoom( 54, 11, 81, 13 );
+	drawRoom( 57, 14, 59, 14 );
+	drawRoom( 78, 14, 81, 14 );
+
+	drawRoom( 98, 8, 126, 12 );
+	drawRoom( 104, 13, 106, 13 );
+	drawRoom( 120, 13, 122, 13 );
+	drawRoom( 127, 9, 127, 11 );
+
+	drawRoom( 128, 6, 138, 14 );
+
+	drawRoom( 95, 10, 97, 25 );
+
+	// Row 3
+	drawRoom( 12, 16, 28, 18 );
+	drawRoom( 12, 19, 21, 19 );
+
+	drawRoom( 38, 15, 42, 40 );
+	drawRoom( 43, 20, 43, 23 );
+
+	drawRoom( 44, 15, 48, 32 );
+	drawRoom( 49, 15, 49, 19 );
+
+	drawRoom( 50, 15, 54, 32 );
+	drawRoom( 55, 26, 61, 32 );
+	drawRoom( 62, 27, 65, 32 );
+
+	drawRoom( 56, 15, 67, 25 );
+
+	drawRoom( 69, 15, 75, 25 );
+	drawRoom( 76, 17, 76, 19 );
+	drawRoom( 72, 26, 75, 26 );
+
+	drawRoom( 77, 15, 81, 29 );
+	drawRoom( 82, 17, 82, 19 );
+	drawRoom( 78, 30, 80, 30 );
+
+	drawRoom( 83, 11, 86, 29 );
+	drawRoom( 87, 11, 88, 28 );
+	drawRoom( 89, 22, 93, 28 );
+	drawRoom( 90, 11, 93, 21 );
+	drawRoom( 94, 11, 94, 15 );
+
+	drawRoom( 99, 14, 104, 20 );
+	drawRoom( 105, 14, 105, 15 );
+
+	drawRoom( 106, 14, 115, 20 );
+
+	drawRoom( 117, 14, 126, 20 );
+	drawRoom( 128, 6, 138, 14 );
+
+	// Row 4
+	drawRoom( 12, 20, 36, 24 );
+	drawRoom( 37, 20, 37, 23 );
+
+	drawRoom( 98, 22, 100, 25 );
+	drawRoom( 124, 21, 126, 21 );
+
+	drawRoom( 101, 22, 126, 24 );
+
+	drawRoom( 43, 38, 51, 40 );
+
+	// Row 5
+	drawRoom( 44, 34, 65, 37 );
+
+	drawRoom( 67, 27, 69, 56 );
+	drawRoom( 70, 27, 75, 29 );
+
+	drawRoom( 71, 31, 81, 37 );
+	
 	
 	for ( i1 = 0; i1 < map[0][l]; i1++ ) {
 		for ( i2 = 0; i2 < map[l]; i2++ ) {
 			// Floor
 			switch ( map[i2][i1] ) {
 				case 1:
+					
 					t1 = new Model( models.tile, materials['floor_' + Math.floor( Math.random() * 3 ) ] );
 					t1.p.set( i1 * 10, 0, i2 * 10 );
 					scene_objects.push( t1 );
 					break;
+					
 			}
 
 			// Wall
@@ -1082,7 +1236,7 @@ title = function() {
 					// Need a wall on bottom
 					t1 = new Model( models.wall, materials['wall_' + Math.floor( Math.random() * 3 ) ] );
 					t1.p.set( i1 * 10, 0, i2 * 10 );
-					t1.r.set( 0, Math.PI, 0 )
+					t1.r.set( 0, Math.PI, 0 );
 					scene_objects.push( t1 );
 				}
 				
@@ -1090,7 +1244,7 @@ title = function() {
 					// Need a wall on left
 					t1 = new Model( models.wall, materials['wall_' + Math.floor( Math.random() * 3 ) ] );
 					t1.p.set( i1 * 10, 0, i2 * 10 );
-					t1.r.set( 0, Math.PI / 2, 0 )
+					t1.r.set( 0, Math.PI / 2, 0 );
 					scene_objects.push( t1 );
 				}
 				
@@ -1098,7 +1252,7 @@ title = function() {
 					// Need a wall on right
 					t1 = new Model( models.wall, materials['wall_' + Math.floor( Math.random() * 3 ) ] );
 					t1.p.set( i1 * 10, 0, i2 * 10 );
-					t1.r.set( 0, Math.PI / -2, 0 )
+					t1.r.set( 0, Math.PI / -2, 0 );
 					scene_objects.push( t1 );
 				}
 			}
@@ -1106,7 +1260,7 @@ title = function() {
 	}
 
 	player = createPerson( 'player' );
-	player.p.set( 30, .3, 120 );
+	player.p.set( 680, .3, 560 );
 	player.r.y = -Math.PI / 2;
 	player.t.copy( player.p );
 	players.push( player );
