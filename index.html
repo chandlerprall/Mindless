@@ -1,4 +1,4 @@
-<!DOCTYPE html><html><head><title>Lab 13</title><style>body {background:#222} canvas {display:block;margin:auto}</style></head><body><canvas id="c" width=640 height=480></canvas><script>
+<!DOCTYPE html><html><head><title>Lab 13</title><style>body {background:#222;width:640px;height:480px;margin:auto;} canvas {position:absolute;} #d {position:relative;z-index:1;margin:auto;top: 350px;width:500px;height:100px;padding:10px;background:#fff;font-family:"Book Antiqua", Palatino, "Palatino Linotype", "Palatino LT STD", Georgia, serif;color:#333;display:none;border-radius:4px;}</style></head><body><canvas id="c" width=640 height=480></canvas><div id="d"></div><script>
 var l='length',p='prototype',sq=Math.sqrt // shortcuts
 
 //Vector3
@@ -517,6 +517,7 @@ Model = function( g, c ) {
 };
 
 var ca = document.getElementById('c'), c = ca.getContext('2d'),
+d = document.getElementById( 'd' ),
 b = 640, e = 480, //canvas width, height
 w = window,
 raf = 'equestAnimationFrame',
@@ -550,6 +551,7 @@ materials = {
 	wall_2: [ 80, 75, 75, 1 ],
 
 	player:    [36,96,3,1,244,29,29,1,227,213,168,1,149,149,149,1,149,149,149,1,12,12,12,1,149,149,149,1,23,36,101,1],
+	guard:    [36,96,3,1,244,29,29,1,227,213,168,1,149,149,149,1,149,149,149,1,12,12,12,1,149,149,149,1,23,36,101,1],
 	scientist: [200,210,220,1,244,29,29,1,227,213,168,1,149,149,149,1,149,149,149,1,12,12,12,1,149,149,149,1,200,210,220,1],
 
 	poker: [69,51,32,1]
@@ -608,6 +610,32 @@ models = {
 players = [],
 player,
 
+dialogue = [
+	
+],
+
+prompt = {
+	stack: [],
+	status: false,
+	say: function( message ) {
+		this.stack.push( message );
+	},
+	display: function() {
+		if ( this.stack[l] > 0 ) {
+			this.status = true;
+			t1 = this.stack.splice( 0, 1 ).toString();
+			d.innerHTML = t1;
+			d.style.display = 'block';
+		}
+	},
+	clear: function() {
+		this.status = false;
+		d.style.display = 'none';
+		cam.position_target.set( -40, 80, 80 );
+		cam.look_at_target.set( 0, 0, 0 );
+	}
+},
+
 // Temporary variables
 i1,i2,i3,
 t1,t2,t3,
@@ -616,9 +644,14 @@ v4_1 = new V4, v4_2 = new V4, v4_3 = new V4,
 m1 = new M4,
 
 run = function() {
-	ca.addEventListener(
+	document.addEventListener(
 		'click',
 		function( ev ) {
+			if ( prompt.status ) {
+				prompt.clear();
+				return;
+			}
+
 			var vector = new V3(
 				( (ev.clientX - ca.offsetLeft) / b ) * 2 - 1,
 				- ( (ev.clientY - ca.offsetTop) / e ) * 2 + 1,
@@ -635,6 +668,7 @@ run = function() {
 			player.t.set( vector.x, .3, vector.z );
 		}
 	);
+	prompt.say( 'Welcome to Biochemical Lab #13. Left click to walk.' );
 	anim();
 },
 attack = function( who, direction, damage ) {
@@ -657,108 +691,139 @@ attack = function( who, direction, damage ) {
 	}
 	
 },
+
+// Message flags
+has_walked = false,
+first_guard = false,
+
 anim = function() {
-	// move players
-	player_movement:
-	for ( i1 = 0; i1 < players[l]; i1++ ) {
+	if ( !has_walked ) {
+		v1.set( 680, .3, 400 );
+		if ( v1.sub( player.p ).lengthSq() > 5000 ) {
+			has_walked = true;
+			prompt.say( 'Earlier today an airborne virus escaped from the lab, which has infected nearly 50% of the city\'s residents.' );
+			prompt.say( 'The INFECTED are not very strong, but are very smart. One by one they are capturing humans and killing them. This is their nest.');
+			prompt.say( 'An ANTIDOTE is being held in a room at the EAST of the lab. You must find it and release it before everyone becomes INFECTED.');
+		}
+	}
 
-		if ( players[i1].health > 0 ) {
+	if ( !prompt.status ) {
+		prompt.display();
 
-			// direction faced
-			v1.copy( players[i1].t ).sub( players[i1].p );
+		// move players
+		player_movement:
+		for ( i1 = 0; i1 < players[l]; i1++ ) {
 
-			// if this is an AI person, check for action
-			if ( players[i1] !== player ) {
-				if (
-					player.health > 0
-					&&
-					v2.copy( player.p ).sub( players[i1].p ).lengthSq() <= 100
-					&&
-					!players[i1].combat
-					) players[i1].combat = .01;
-			}
+			if ( players[i1].health > 0 ) {
 
-			// Combat animation
-			if ( players[i1].combat ) {
-				players[i1].combat += .1;
-				if ( players[i1].combat >= 2 ) players[i1].combat = 0;
-				if ( players[i1].combat >= .4 && players[i1].combat < .5 ) {
-					attack( players[i1], v1, 100 );
+				// direction faced
+				v1.copy( players[i1].t ).sub( players[i1].p );
+
+				// if this is an AI person, check for action
+				if ( players[i1] !== player ) {
+					if (
+						player.health > 0
+						&&
+						players[i1].k[l] > 0
+						&&
+						v2.copy( player.p ).sub( players[i1].p ).lengthSq() <= 100
+						&&
+						!players[i1].combat
+						) players[i1].combat = .01;
 				}
 
-				players[i1].ap[1] = players[i1].combat;
-				if ( players[i1].ap[1] > 1 ) players[i1].ap[1] = 2 - players[i1].ap[1];
-				players[i1].k[0].ap[1] = players[i1].ap[1];
-			}
+				// Combat animation
+				if ( players[i1].combat ) {
+					players[i1].combat += .1;
+					if ( players[i1].combat >= 2 ) players[i1].combat = 0;
+					if ( players[i1].combat >= .4 && players[i1].combat < .5 ) {
+						attack( players[i1], v1, 100 );
+					}
 
-			// Walking
-			if ( Math.abs( v1.x ) > .2 || Math.abs( v1.z ) > .2 ) {
-				// v2 is where the player will be
-				v2.copy( players[i1].p )
-				v2.x += Math.abs( v1.x ) > .2 ? .3 * (v1.x > 0 ? 1 : -1) : 0;
-				v2.z += Math.abs( v1.z ) > .2 ? .3 * (v1.z > 0 ? 1 : -1) : 0;
+					players[i1].ap[1] = players[i1].combat;
+					if ( players[i1].ap[1] > 1 ) players[i1].ap[1] = 2 - players[i1].ap[1];
 
-				// v3 is for collisions
-				v3.copy( players[i1].p )
-				v3.x += Math.abs( v1.x ) > .2 ? 5 * (v1.x > 0 ? 1 : -1) : 0;
-				v3.z += Math.abs( v1.z ) > .2 ? 5 * (v1.z > 0 ? 1 : -1) : 0;
-
-				// Check map bounds
-				if (
-					v3.x < 0 || v3.z < 0 || v3.x / 10 > map[0][l] - 1 || v3.z / 10 > map[l] - 1 // Map edges
-					||
-					map[Math.round( v3.z / 10 )][Math.round( v3.x / 10 )] === 0
-				) {
-					continue;
-				}
-				
-
-				// Check against player positions
-				for ( i2 = 0; i2 < players[l]; i2++ ) {
-					if ( players[i2].health <= 0 ) continue;
-					if ( players[i1] === players[i2] ) continue;
-					v4.copy( v2 ).sub( players[i2].p );
-					if ( v4.lengthSq() <= 40 ) continue player_movement;
+					if ( players[i1].k[l] > 0 )
+						players[i1].k[0].ap[1] = players[i1].ap[1];
 				}
 
-				players[i1].p.x = v2.x;
-				players[i1].p.z = v2.z;
+				// Walking
+				if ( Math.abs( v1.x ) > .2 || Math.abs( v1.z ) > .2 ) {
+					// v2 is where the player will be
+					v2.copy( players[i1].p )
+					v2.x += Math.abs( v1.x ) > .2 ? .3 * (v1.x > 0 ? 1 : -1) : 0;
+					v2.z += Math.abs( v1.z ) > .2 ? .3 * (v1.z > 0 ? 1 : -1) : 0;
+
+					// v3 is for collisions
+					v3.copy( players[i1].p )
+					v3.x += Math.abs( v1.x ) > .2 ? 5 * (v1.x > 0 ? 1 : -1) : 0;
+					v3.z += Math.abs( v1.z ) > .2 ? 5 * (v1.z > 0 ? 1 : -1) : 0;
+
+					// Check map bounds
+					if (
+						v3.x < 0 || v3.z < 0 || v3.x / 10 > map[0][l] - 1 || v3.z / 10 > map[l] - 1 // Map edges
+						||
+						map[Math.round( v3.z / 10 )][Math.round( v3.x / 10 )] === 0
+					) {
+						continue;
+					}
+					
+
+					// Check against player positions
+					for ( i2 = 0; i2 < players[l]; i2++ ) {
+						if ( players[i2].health <= 0 ) continue;
+						if ( players[i1] === players[i2] ) continue;
+						v4.copy( v2 ).sub( players[i2].p );
+						if ( v4.lengthSq() <= 40 ) continue player_movement;
+					}
+
+					players[i1].p.x = v2.x;
+					players[i1].p.z = v2.z;
+					players[i1].m.lookAt( v2 );
+					players[i1].r.getRotationFromMatrix( players[i1].m );
+					
+					// Walking animation
+					if ( !players[i1].a_desc ) {
+						players[i1].ap[0] += 0.06;
+						if ( players[i1].ap[0] > 1 ) players[i1].a_desc = true;
+					} else {
+						players[i1].ap[0] -= 0.06;
+						if ( players[i1].ap[0] < 0 ) players[i1].a_desc = false;
+					}
+				}
+
+			} else if ( players[i1].health === 0 ) {
+				players[i1].health = -1;
+
+				// Player has died
+				players[i1].ap[0] = .5;
+				players[i1].ap[1] = 0;
+
+				if ( players[i1].k[l] > 0 ) {
+					players[i1].k[0].ap[0] = .5;
+					players[i1].k[0].ap[1] = 0;
+				}
+
+				players[i1].p.y += .5;
+				v2.copy( players[i1].p );
+				v2.x += Math.random() * .02 - .01;
+				v2.y = 10;
+				v2.z += Math.random() * .02 - .01;
 				players[i1].m.lookAt( v2 );
 				players[i1].r.getRotationFromMatrix( players[i1].m );
-				
-				// Walking animation
-				if ( !players[i1].a_desc ) {
-					players[i1].ap[0] += 0.06;
-					if ( players[i1].ap[0] > 1 ) players[i1].a_desc = true;
-				} else {
-					players[i1].ap[0] -= 0.06;
-					if ( players[i1].ap[0] < 0 ) players[i1].a_desc = false;
-				}
 			}
-
-		} else if ( players[i1].health === 0 ) {
-			players[i1].health = -1;
-
-			// Player has died
-			players[i1].ap[0] = players[i1].k[0].ap[0] = .5;
-			players[i1].ap[1] = players[i1].k[0].ap[1] = 0;
-
-			players[i1].p.y += .5;
-			v2.copy( players[i1].p );
-			v2.x += Math.random() * .02 - .01;
-			v2.y = 10;
-			v2.z += Math.random() * .02 - .01;
-			players[i1].m.lookAt( v2 );
-			players[i1].r.getRotationFromMatrix( players[i1].m );
 		}
+
 	}
 	
 
 	// set camera position
-	v1.copy( cam.position_target ).sub( cam.position ).multiplyScalar( .02 );
+	v1.copy( cam.position_target ).sub( cam.position ).multiplyScalar( .015 );
+	if ( v1.lengthSq() > 1 ) v1.multiplyScalar( 1 / v1.length() );
 	cam.position.add( v1 );
 
-	v1.copy( cam.look_at_target ).sub( cam.look_at ).multiplyScalar( .02 );
+	v1.copy( cam.look_at_target ).sub( cam.look_at ).multiplyScalar( .015 );
+	if ( v1.lengthSq() > 1 ) v1.multiplyScalar( 1 / v1.length() );
 	cam.look_at.add( v1 );
 
 	v1.copy( player.p ).add( cam.position );
@@ -784,6 +849,26 @@ projectGraph = function() {
 		o.m.setRotation( o.r );
 		if( FR.contains( o ) ) {
 			if ( calculateVisibilty === 0 ) o.iv = isVisible( player.p, o.p );
+
+			if ( o.type && o !== player && o.iv ) {
+				if ( o.k[l] > 0 ) {
+					// Person is armed
+					o.t.copy( player.p );
+				} else {
+					// Person is not armed
+				}
+			}
+
+			if ( o.type === 'guard' && o.iv ) {
+				if ( !first_guard ) {
+					first_guard = true;
+					cam.look_at_target.copy( o.p ).sub( player.p );
+					cam.look_at_target.y = 10;
+					cam.position_target.set( 0, 10, 0 );
+					prompt.say( 'The scientists here want to study the virus at any cost. As such, the lab\'s GUARDS will attempt to stop you. There\'s one now.<br><br> Press SPACEBAR When an enemy is in front of you to attack them.' );
+				}
+			}
+
 			scene_renderables.push( o );
 			
 			for ( i2 = 0; i2 < o.k[l]; i2++ ) {
@@ -900,23 +985,26 @@ expand = function( v1, v2 ) {
 	v2.x += x; v2.y += y;
 	v1.x -= x; v1.y -= y;
 },
-createPerson = function( type ) {
+createPerson = function( type, armed ) {
 	var person = new Model(
 		models.person,
 		materials[type]
 	);
+	person.type = type;
 	person.ap[0] = 0;
 	person.ap[1] = 0;
 	person.a = animations.person;
 
 	person.health = 100;
 
-	person.k.push(new Model(
-		models.poker,
-		materials.poker
-	));
-	person.k[0].ap[0] = person.k[0].ap[1] = 0;
-	person.k[0].a = animations.poker;
+	if ( armed ) {
+		person.k.push(new Model(
+			models.poker,
+			materials.poker
+		));
+		person.k[0].ap[0] = person.k[0].ap[1] = 0;
+		person.k[0].a = animations.poker;
+	}
 
 	return person;
 };
@@ -1044,7 +1132,7 @@ title = function() {
 		if ( options.pmin > 0 && options.pmax ) {
 			t1 = Math.floor( Math.random() * (options.pmax - options.pmin + 1) ) + options.pmin;
 			for ( i1 = 0; i1 < t1; i1++ ) {
-				person = createPerson( 'player' );
+				person = createPerson( 'player', false );
 				person.p.set(
 					( (Math.random() * (x2 - x1)) + x1 ) * 10,
 					.3,
@@ -1063,7 +1151,26 @@ title = function() {
 		if ( options.smin > 0 && options.smax ) {
 			t1 = Math.floor( Math.random() * (options.smax - options.smin + 1) ) + options.smin;
 			for ( i1 = 0; i1 < t1; i1++ ) {
-				person = createPerson( 'scientist' );
+				person = createPerson( 'scientist', false );
+				person.p.set(
+					( (Math.random() * (x2 - x1)) + x1 ) * 10,
+					.3,
+					( (Math.random() * (y2 - y1)) + y1 ) * 10
+				);
+				person.t.set(
+					( (Math.random() * (x2 - x1)) + x1 ) * 10,
+					.3,
+					( (Math.random() * (y2 - y1)) + y1 ) * 10
+				);
+				players.push( person );
+				scene_objects.push( person );
+			}
+		}
+
+		if ( options.gmin > 0 && options.gmax ) {
+			t1 = Math.floor( Math.random() * (options.gmax - options.gmin + 1) ) + options.gmin;
+			for ( i1 = 0; i1 < t1; i1++ ) {
+				person = createPerson( 'guard', true );
 				person.p.set(
 					( (Math.random() * (x2 - x1)) + x1 ) * 10,
 					.3,
@@ -1205,7 +1312,7 @@ title = function() {
 	drawRoom( 44, 34, 65, 37 );
 
 	drawRoom( 67, 27, 69, 56 );
-	drawRoom( 70, 27, 75, 29 );
+	drawRoom( 70, 27, 75, 29, { gmin: 1, gmax: 1 } );
 
 	drawRoom( 71, 31, 81, 37 );
 	
@@ -1259,14 +1366,13 @@ title = function() {
 		}
 	}
 
-	player = createPerson( 'player' );
-	player.p.set( 680, .3, 560 );
-	player.r.y = -Math.PI / 2;
+	player = createPerson( 'player', true );
+	player.p.set( 680, .3, 400 );
 	player.t.copy( player.p );
 	players.push( player );
 	scene_objects.push( player );
-	cam.look_at.set( 20, 5, 0 );
-	cam.position.y = 10;
+	cam.position.set( 0,10,0 );
+	cam.look_at.set( 0,10,-10 );
 
 	c.font = '14pt Monospace';
 	c.fillText( 'Click to start', 200, 200 );
