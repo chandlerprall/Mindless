@@ -1,4 +1,4 @@
-<!DOCTYPE html><html><head><title>Lab 13</title><style>body {background:#222;width:640px;height:480px;margin:auto;} canvas {position:absolute;} #d {position:relative;z-index:1;margin:auto;top: 350px;width:500px;height:100px;padding:10px;background:#fff;font-family:"Book Antiqua", Palatino, "Palatino Linotype", "Palatino LT STD", Georgia, serif;color:#333;display:none;border-radius:4px;}</style></head><body><canvas id="c" width=640 height=480></canvas><div id="d"></div><script>
+<!DOCTYPE html><html><head><title>Lab 13</title><style>body {background:#222;width:640px;height:480px;margin:auto;} canvas {position:absolute;} #d {position:relative;z-index:1;margin:auto;top: 350px;width:500px;height:100px;padding:10px;background:#fff;font-family:"Book Antiqua", Palatino, "Palatino Linotype", "Palatino LT STD", Georgia, serif;color:#333;display:none;border-radius:4px;}#d:after {content:"Press any key to close";font-size:10px;position:absolute;right:3px;bottom:0;}</style></head><body><canvas id="c" width=640 height=480></canvas><div id="d"></div><script>
 var l='length',p='prototype',sq=Math.sqrt // shortcuts
 
 //Vector3
@@ -192,7 +192,7 @@ M4[p].multiplyScalar = function( s ) {
 	te[3] *= s; te[7] *= s; te[11] *= s; te[15] *= s;
 
 	return this;
-}
+};
 M4[p].determinant = function() {
 	var te = this.e,
 
@@ -528,11 +528,11 @@ cam = {
 	m: new M4( [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1] ), //world matrix
 	i: new M4( [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1] ), //matrix world inverse
 	near: 5,
-	far: 500,
-	look_at: new V3,
-	position: new V3,
-	position_target: new V3( -40, 80, 80 ),
-	look_at_target: new V3
+	far: 250,
+	look_at: new V3( 0, 10, 0 ),
+	position: new V3( 0, 20, -35 ),
+	position_target: new V3( 0, 0, -15 ),
+	look_at_target: new V3( 0, 10, 0 )
 },
 
 scene_objects=[],
@@ -550,9 +550,56 @@ materials = {
 	wall_1: [ 85, 75, 70, 1 ],
 	wall_2: [ 80, 75, 75, 1 ],
 
-	player:    [36,96,3,1,244,29,29,1,227,213,168,1,149,149,149,1,149,149,149,1,12,12,12,1,149,149,149,1,23,36,101,1],
-	guard:    [36,96,3,1,244,29,29,1,227,213,168,1,149,149,149,1,149,149,149,1,12,12,12,1,149,149,149,1,23,36,101,1],
-	scientist: [200,210,220,1,244,29,29,1,227,213,168,1,149,149,149,1,149,149,149,1,12,12,12,1,149,149,149,1,200,210,220,1],
+	player: [
+		76,100,107,1, //shirt
+		204,204,204,1, //shoes
+		241,219,203,1, //skin
+		149,149,149,1, // nada
+		149,149,149,1, // nada
+		74,15,0,1, // eyes & hair
+		149,149,149,1, // nada
+		35,49,56,1 // pants
+	],
+	guard: [
+		52,61,89,1, //shirt
+		33,34,38,1, //shoes
+		224,173,166,1, //skin
+		149,149,149,1, // nada
+		149,149,149,1, // nada
+		52,61,89,1, // eyes & hair
+		149,149,149,1, // nada
+		89,88,87,1 // pants
+	],
+	scientist: [
+		230,230,230,1, //shirt
+		77,77,77,1, //shoes
+		245,224,205,1, //skin
+		149,149,149,1, // nada
+		149,149,149,1, // nada
+		179,179,179,1, // eyes & hair
+		149,149,149,1, // nada
+		77,77,77,1 // pants
+	],
+	civilian: [
+		80,89,43,1, //shirt
+		51,39,22,1, //shoes
+		241,219,203,1, //skin
+		149,149,149,1, // nada
+		149,149,149,1, // nada
+		229,237,150,1, // eyes & hair
+		149,149,149,1, // nada
+		73,56,32,1 // pants
+	],
+	infected: [
+		87,32,0,1, //shirt
+		241,244,206,1, //shoes
+		241,244,206,1, //skin
+		149,149,149,1, // nada
+		149,149,149,1, // nada
+		207,158,118,1, // eyes & hair
+		149,149,149,1, // nada
+		44,28,21,1 // pants
+	],
 
 	poker: [69,51,32,1]
 },
@@ -647,11 +694,6 @@ run = function() {
 	document.addEventListener(
 		'click',
 		function( ev ) {
-			if ( prompt.status ) {
-				prompt.clear();
-				return;
-			}
-
 			var vector = new V3(
 				( (ev.clientX - ca.offsetLeft) / b ) * 2 - 1,
 				- ( (ev.clientY - ca.offsetTop) / e ) * 2 + 1,
@@ -695,11 +737,13 @@ attack = function( who, direction, damage ) {
 // Message flags
 has_walked = false,
 first_guard = false,
+first_scientist = false,
+first_infected = false,
 
 anim = function() {
 	if ( !has_walked ) {
-		v1.set( 680, .3, 400 );
-		if ( v1.sub( player.p ).lengthSq() > 5000 ) {
+		v1.set( 680, .3, 550 );
+		if ( v1.sub( player.p ).lengthSq() > 3000 ) {
 			has_walked = true;
 			prompt.say( 'Earlier today an airborne virus escaped from the lab, which has infected nearly 50% of the city\'s residents.' );
 			prompt.say( 'The INFECTED are not very strong, but are very smart. One by one they are capturing humans and killing them. This is their nest.');
@@ -734,10 +778,10 @@ anim = function() {
 
 				// Combat animation
 				if ( players[i1].combat ) {
-					players[i1].combat += .1;
+					players[i1].combat += .15;
 					if ( players[i1].combat >= 2 ) players[i1].combat = 0;
-					if ( players[i1].combat >= .4 && players[i1].combat < .5 ) {
-						attack( players[i1], v1, 100 );
+					if ( players[i1].combat >= .4 && players[i1].combat < .6 ) {
+						attack( players[i1], v1, players[i1] === player ? 100 : 10 );
 					}
 
 					players[i1].ap[1] = players[i1].combat;
@@ -790,6 +834,8 @@ anim = function() {
 						players[i1].ap[0] -= 0.06;
 						if ( players[i1].ap[0] < 0 ) players[i1].a_desc = false;
 					}
+					if ( players[i1].k[l] > 0 )
+						players[i1].k[0].ap[0] = 1 - players[i1].ap[0];
 				}
 
 			} else if ( players[i1].health === 0 ) {
@@ -813,7 +859,6 @@ anim = function() {
 				players[i1].r.getRotationFromMatrix( players[i1].m );
 			}
 		}
-
 	}
 	
 
@@ -856,6 +901,11 @@ projectGraph = function() {
 					o.t.copy( player.p );
 				} else {
 					// Person is not armed
+					if ( calculateVisibilty === 0 ) {
+						o.t.copy( o.p ).sub( player.p ).normalize().multiplyScalar( 5 ).add( o.p );
+						o.t.x += Math.random() * 20 - 10;
+						o.t.z += Math.random() * 20 - 10;
+					}
 				}
 			}
 
@@ -866,6 +916,26 @@ projectGraph = function() {
 					cam.look_at_target.y = 10;
 					cam.position_target.set( 0, 10, 0 );
 					prompt.say( 'The scientists here want to study the virus at any cost. As such, the lab\'s GUARDS will attempt to stop you. There\'s one now.<br><br> Press SPACEBAR When an enemy is in front of you to attack them.' );
+				}
+			}
+
+			if ( o.type === 'scientist' && o.iv ) {
+				if ( !first_scientist ) {
+					first_scientist = true;
+					cam.look_at_target.copy( o.p ).sub( player.p );
+					cam.look_at_target.y = 10;
+					cam.position_target.set( 0, 10, 0 );
+					prompt.say( 'In the lab you will also encounter SCIENTISTS. They will attempt to escape if you chase them, but will drop HEALTH if you kill them. There\'s one now. Try sneaking up on him and attacking.' );
+				}
+			}
+
+			if ( o.type === 'infected' && o.iv ) {
+				if ( !first_infected ) {
+					first_infected = true;
+					cam.look_at_target.copy( o.p ).sub( player.p );
+					cam.look_at_target.y = 10;
+					cam.position_target.set( 0, 10, 0 );
+					prompt.say( 'The INFECTED are not physically dangerous, but are very crafty and will lead you into traps. If you run into them, kill them or scare them away. There\'s a few now.' );
 				}
 			}
 
@@ -1036,7 +1106,7 @@ renderElements = function() {
 			Math.round( t2.m.y * light_value ),
 			Math.round( t2.m.z * light_value )
 		);
-		if ( !t2.model.iv ) v1.multiplyScalar( .2 );
+		if ( !t2.model.iv ) v1.multiplyScalar( .4 );
 
 		c.fillStyle = 'rgba(' + Math.round( v1.x ) + ',' + Math.round( v1.y ) + ',' + Math.round( v1.z ) + ',' + t2.m.w + ')';
 		c.beginPath();
@@ -1104,30 +1174,7 @@ title = function() {
 				map[i1][i2] = 1;
 			}
 		}
-		/*
-		t2 = ( ( x2 - x1 + 1 ) / 2 ) * 10;
-		t3 = ( ( y2 - y1 + 1 ) / 2 ) * 10;
-
-		t1 = new Model(
-			new Geometry(
-				[
-					-t2,0,-t3,
-					t2,0,-t3,
-					t2,0,t3,
-					-t2,0,t3
-				],
-				[
-					2,1,0,0,
-					3,2,0,0
-				]
-			),
-			materials['floor_' + Math.floor( Math.random() * 3 ) ]
-		);
-		t1.o = 10000;
-		t1.p.set( ( ( x1 + x2 ) / 2 ) * 10, 0, ( ( y1 + y2 ) / 2 ) * 10 );
-		scene_objects.push( t1 );
-		*/
-
+		
 		// Populate
 		if ( options.pmin > 0 && options.pmax ) {
 			t1 = Math.floor( Math.random() * (options.pmax - options.pmin + 1) ) + options.pmin;
@@ -1171,6 +1218,44 @@ title = function() {
 			t1 = Math.floor( Math.random() * (options.gmax - options.gmin + 1) ) + options.gmin;
 			for ( i1 = 0; i1 < t1; i1++ ) {
 				person = createPerson( 'guard', true );
+				person.p.set(
+					( (Math.random() * (x2 - x1)) + x1 ) * 10,
+					.3,
+					( (Math.random() * (y2 - y1)) + y1 ) * 10
+				);
+				person.t.set(
+					( (Math.random() * (x2 - x1)) + x1 ) * 10,
+					.3,
+					( (Math.random() * (y2 - y1)) + y1 ) * 10
+				);
+				players.push( person );
+				scene_objects.push( person );
+			}
+		}
+
+		if ( options.imin > 0 && options.imax ) {
+			t1 = Math.floor( Math.random() * (options.imax - options.imin + 1) ) + options.imin;
+			for ( i1 = 0; i1 < t1; i1++ ) {
+				person = createPerson( 'infected', false );
+				person.p.set(
+					( (Math.random() * (x2 - x1)) + x1 ) * 10,
+					.3,
+					( (Math.random() * (y2 - y1)) + y1 ) * 10
+				);
+				person.t.set(
+					( (Math.random() * (x2 - x1)) + x1 ) * 10,
+					.3,
+					( (Math.random() * (y2 - y1)) + y1 ) * 10
+				);
+				players.push( person );
+				scene_objects.push( person );
+			}
+		}
+
+		if ( options.cmin > 0 && options.cmax ) {
+			t1 = Math.floor( Math.random() * (options.cmax - options.cmin + 1) ) + options.cmin;
+			for ( i1 = 0; i1 < t1; i1++ ) {
+				person = createPerson( 'civilian', false );
 				person.p.set(
 					( (Math.random() * (x2 - x1)) + x1 ) * 10,
 					.3,
@@ -1275,7 +1360,7 @@ title = function() {
 
 	drawRoom( 56, 15, 67, 25 );
 
-	drawRoom( 69, 15, 75, 25 );
+	drawRoom( 69, 15, 75, 25, { cmin: 2, cmax: 3 } );
 	drawRoom( 76, 17, 76, 19 );
 	drawRoom( 72, 26, 75, 26 );
 
@@ -1311,8 +1396,11 @@ title = function() {
 	// Row 5
 	drawRoom( 44, 34, 65, 37 );
 
-	drawRoom( 67, 27, 69, 56 );
-	drawRoom( 70, 27, 75, 29, { gmin: 1, gmax: 1 } );
+	// Entry hallway
+	drawRoom( 70, 27, 75, 29, { imin: 3, imax: 5 } );
+	drawRoom( 67, 27, 69, 34, { smin: 1, smax: 1 } );
+	drawRoom( 67, 35, 69, 40, { gmin: 1, gmax: 1 } );
+	drawRoom( 67, 41, 69, 56 );
 
 	drawRoom( 71, 31, 81, 37 );
 	
@@ -1367,12 +1455,10 @@ title = function() {
 	}
 
 	player = createPerson( 'player', true );
-	player.p.set( 680, .3, 400 );
+	player.p.set( 680, .3, 550 );
 	player.t.copy( player.p );
 	players.push( player );
 	scene_objects.push( player );
-	cam.position.set( 0,10,0 );
-	cam.look_at.set( 0,10,-10 );
 
 	c.font = '14pt Monospace';
 	c.fillText( 'Click to start', 200, 200 );
@@ -1382,12 +1468,24 @@ title = function() {
 			document.removeEventListener( 'click', startGame );
 
 			document.addEventListener( 'keydown', function( ev ) {
+				if ( prompt.status ) {
+					prompt.clear();
+					return;
+				}
+
 				switch ( ev.keyCode ) {
 					case 32: //space
 						if ( !player.combat ) player.combat = .01;
 						break;
 				}
 			});
+
+			setTimeout(
+				function() {
+					cam.position_target.set( -40, 80, 80 );
+				},
+				1000
+			);
 
 			run();
 		}
