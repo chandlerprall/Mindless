@@ -1,4 +1,4 @@
-<!DOCTYPE html><html><head><title>Lab 13</title><style>body {background:#222;width:640px;height:480px;margin:auto;} canvas {position:absolute;} #d {position:relative;z-index:1;margin:auto;top: 350px;width:500px;height:100px;padding:10px;background:#fff;font-family:"Book Antiqua", Palatino, "Palatino Linotype", "Palatino LT STD", Georgia, serif;color:#333;display:none;border-radius:4px;}#d:after {content:"Press any key to close";font-size:10px;position:absolute;right:3px;bottom:0;}</style></head><body><canvas id="c" width=640 height=480></canvas><div id="d"></div><script>
+<!DOCTYPE html><html><head><title>Lab 13</title><style>* {cursor: default;} body {-webkit-touch-callout: none;-webkit-user-select: none;-khtml-user-select: none;-moz-user-select: none;-ms-user-select: none;user-select: none;background:#222;width:640px;height:480px;margin:auto;} canvas {position:absolute;} #d {position:relative;z-index:1;margin:auto;top: 350px;width:500px;height:100px;padding:10px;background:#fff;font-family:"Book Antiqua", Palatino, "Palatino Linotype", "Palatino LT STD", Georgia, serif;color:#333;display:none;border-radius:4px;}#d:after {content:"Press any key to close";font-size:10px;position:absolute;right:3px;bottom:0;}</style></head><body><canvas id="c" width=640 height=480></canvas><div id="d"></div><script>
 var l='length',p='prototype',sq=Math.sqrt // shortcuts
 
 //Vector3
@@ -523,6 +523,85 @@ w = window,
 raf = 'equestAnimationFrame',
 a = window['r'+raf] || window['mozR'+raf] || window['webkitR'+raf] || window['oR'+raf] || window['msR'+raf],
 
+noise = (function() {
+	var SimplexNoise = function() {
+		this.grad3 = [[1,1,0],[-1,1,0],[1,-1,0],[-1,-1,0], 
+		                             [1,0,1],[-1,0,1],[1,0,-1],[-1,0,-1], 
+		                             [0,1,1],[0,-1,1],[0,1,-1],[0,-1,-1]]; 
+		this.p = [];
+		for (var i=0; i<256; i++) {
+		  this.p[i] = Math.floor(Math.random()*256);
+		}
+		// To remove the need for index wrapping, double the permutation table length 
+		this.perm = []; 
+		for(var i=0; i<512; i++) {
+			this.perm[i]=this.p[i & 255];
+		}
+	}
+
+	SimplexNoise[p].dot = function(g, x, y) { 
+		return g[0]*x + g[1]*y;
+	};
+
+	SimplexNoise[p].noise = function(xin, yin) { 
+		var n0, n1, n2; // Noise contributions from the three corners 
+		// Skew the input space to determine which simplex cell we're in 
+		var F2 = 0.5*(Math.sqrt(3.0)-1.0); 
+		var s = (xin+yin)*F2; // Hairy factor for 2D 
+		var i = Math.floor(xin+s); 
+		var j = Math.floor(yin+s); 
+		var G2 = (3.0-Math.sqrt(3.0))/6.0; 
+		var t = (i+j)*G2; 
+		var X0 = i-t; // Unskew the cell origin back to (x,y) space 
+		var Y0 = j-t; 
+		var x0 = xin-X0; // The x,y distances from the cell origin 
+		var y0 = yin-Y0; 
+		// For the 2D case, the simplex shape is an equilateral triangle. 
+		// Determine which simplex we are in. 
+		var i1, j1; // Offsets for second (middle) corner of simplex in (i,j) coords 
+		if(x0>y0) {i1=1; j1=0;} // lower triangle, XY order: (0,0)->(1,0)->(1,1) 
+		else {i1=0; j1=1;}      // upper triangle, YX order: (0,0)->(0,1)->(1,1) 
+		// A step of (1,0) in (i,j) means a step of (1-c,-c) in (x,y), and 
+		// a step of (0,1) in (i,j) means a step of (-c,1-c) in (x,y), where 
+		// c = (3-sqrt(3))/6 
+		var x1 = x0 - i1 + G2; // Offsets for middle corner in (x,y) unskewed coords 
+		var y1 = y0 - j1 + G2; 
+		var x2 = x0 - 1.0 + 2.0 * G2; // Offsets for last corner in (x,y) unskewed coords 
+		var y2 = y0 - 1.0 + 2.0 * G2; 
+		// Work out the hashed gradient indices of the three simplex corners 
+		var ii = i & 255; 
+		var jj = j & 255; 
+		var gi0 = this.perm[ii+this.perm[jj]] % 12; 
+		var gi1 = this.perm[ii+i1+this.perm[jj+j1]] % 12; 
+		var gi2 = this.perm[ii+1+this.perm[jj+1]] % 12; 
+		// Calculate the contribution from the three corners 
+		var t0 = 0.5 - x0*x0-y0*y0; 
+		if(t0<0) n0 = 0.0; 
+		else { 
+			t0 *= t0; 
+			n0 = t0 * t0 * this.dot(this.grad3[gi0], x0, y0);  // (x,y) of grad3 used for 2D gradient 
+		} 
+		var t1 = 0.5 - x1*x1-y1*y1; 
+		if(t1<0) n1 = 0.0; 
+		else { 
+			t1 *= t1; 
+			n1 = t1 * t1 * this.dot(this.grad3[gi1], x1, y1); 
+		}
+		var t2 = 0.5 - x2*x2-y2*y2; 
+		if(t2<0) n2 = 0.0; 
+		else { 
+			t2 *= t2; 
+			n2 = t2 * t2 * this.dot(this.grad3[gi2], x2, y2); 
+		} 
+		// Add contributions from each corner to get the final noise value. 
+		// The result is scaled to return values in the interval [-1,1]. 
+		return 70.0 * (n0 + n1 + n2); 
+	};
+
+	var noise = new SimplexNoise;
+	return noise.noise.bind( noise );
+})(),
+
 cam = {
 	p: new M4( [1.6083801984786987,0,0,0,0,2.1445069313049316,0,0,0,0,-1.0002000331878662,-1,0,0,-2.000200033187866,0] ), //projection matrix
 	m: new M4( [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1] ), //world matrix
@@ -657,29 +736,99 @@ models = {
 players = [],
 player,
 
-dialogue = [
-	
-],
+dialogue = (function() {
+	var pieces = [
+			{ t: 1, i: -5, w: 'scientist', '1': "Wait! Wait, please - you're missing something important, please stop!", '2': "Just ... don't ..." },
+			{ t: 1, i: 2, w: 'civilian', '1': "Shit! Another one! Get back! I'm warning you!", '2': "Listen, I can't defend myself. Just please, think about what you're doing!" },
+			{ t: 1, i: 2, w: 'scientist', '1': "I saw what you did to those guards. What's the matter with you? Is that a fire poker?", '2': "I'm not getting through to you am I ..." },
+			{ t: 1, i: 2, w: 'civilian', '1': "I'm not getting through to you am I ...", '2': "I think if you step back and question what's going on, you'll put that thing down." },
+			{ t: 1, i: 3, w: 'scientist', '1': "Wait! We think you may be sick, we're only trying to help.", '2': "Can you hear us? You're hearing another voice, aren't you? Please stop. We can tell you what the voice means." },
+			{ t: 2, i: 3, w: 'civilian', '1': "... Are you hearing it right now?", '2': "You're being tricked." },
+			{ t: 2, i: 3, w: 'scientist', '1': "... Are you not going to kill us?<br>... You stopped listening for a second, didn't you? Can you hear me?", '2': "Is it talking again? I can get it to stop of you listen to me." },
+			{ t: 2, i: 3, w: 'scientist', '1': "Don't get too close! He's infected!", '2': "Yes, YOU. YOU are infected. Please, hear me out." },
+		],
+		possibilities_sorter = function( a, b ) {
+			// Push the more important pieces to the top, with some randomness to keep things interesting
+			return ( a.i + Math.random() ) - ( b.i * Math.random() );
+		},
+		second_speech,
+		i1;
+
+	return {
+		speak: function( timing, who ) {
+			if ( pieces[l] === 0 ) return;
+
+			var possibilities = [],
+				selection,
+				who_proper;
+
+			for ( i1 = 0; i1 < pieces[l]; i1++ ) {
+				// Make sure we are ready for this dialogue and it's being said by the right person
+				if ( pieces[i1].t > timing || pieces[i1].w !== who.type ) continue;
+
+				pieces[i1].idx = i1; // remember what array index this piece is in
+				possibilities.push( pieces[i1] );
+			}
+
+			if ( possibilities[l] === 0 ) return;
+			possibilities.sort( possibilities_sorter );
+			selection = possibilities[0];
+
+			// If this piece's importance is greater than 1 then ignore it 90% of the time
+			if ( selection.i > 1 && Math.random() >= .1 ) return;
+
+			pieces.splice( selection.idx, 1 );
+
+			who_proper = who.type.substr( 0,1 ).toUpperCase() + who.type.substr( 1 );
+			cam.look_at_target.copy( who.p ).sub( player.p );
+			cam.position_target.set( 0, 10, 0 );
+			prompt.say(
+				who_proper + ': ' + selection['1'],
+				function() {
+					setTimeout(
+						function() {
+							if ( who.health === 100 ) {
+								prompt.say( who_proper + ': ' + selection['2'] );
+							}
+						},
+						3000
+					)
+				}
+			);
+		}
+	};
+})(),
 
 prompt = {
+	callback: null,
+	prompt_time: 0,
 	stack: [],
 	status: false,
-	say: function( message ) {
-		this.stack.push( message );
+	say: function( message, callback ) {
+		this.stack.push({ message: message, callback: callback });
 	},
 	display: function() {
 		if ( this.stack[l] > 0 ) {
+			this.prompt_time = (new Date).getTime();
 			this.status = true;
-			t1 = this.stack.splice( 0, 1 ).toString();
-			d.innerHTML = t1;
+			t1 = this.stack.splice( 0, 1 )[0];
+			d.innerHTML = t1.message;
+			this.callback = t1.callback;
 			d.style.display = 'block';
 		}
 	},
 	clear: function() {
-		this.status = false;
-		d.style.display = 'none';
-		cam.position_target.set( -40, 80, 80 );
-		cam.look_at_target.set( 0, 0, 0 );
+		if ( (new Date).getTime() > this.prompt_time + 500 ) {
+			this.status = false;
+			d.style.display = 'none';
+			cam.position_target.set( -30, 70, 70 );
+			cam.look_at_target.set( 0, 0, 0 );
+
+			if ( this.callback instanceof Function ) {
+				this.callback();
+				this.callback = null;
+			}
+		}
 	}
 },
 
@@ -694,6 +843,11 @@ run = function() {
 	document.addEventListener(
 		'click',
 		function( ev ) {
+			if ( prompt.status ) {
+				prompt.clear();
+				return;
+			}
+
 			var vector = new V3(
 				( (ev.clientX - ca.offsetLeft) / b ) * 2 - 1,
 				- ( (ev.clientY - ca.offsetTop) / e ) * 2 + 1,
@@ -738,12 +892,12 @@ attack = function( who, direction, damage ) {
 has_walked = false,
 first_guard = false,
 first_scientist = false,
-first_infected = false,
+first_civilian = false,
 
 anim = function() {
 	if ( !has_walked ) {
 		v1.set( 680, .3, 550 );
-		if ( v1.sub( player.p ).lengthSq() > 3000 ) {
+		if ( v1.sub( player.p ).lengthSq() > 900 ) {
 			has_walked = true;
 			prompt.say( 'Earlier today an airborne virus escaped from the lab, which has infected nearly 50% of the city\'s residents.' );
 			prompt.say( 'The INFECTED are not very strong, but are very smart. One by one they are capturing humans and killing them. This is their nest.');
@@ -766,14 +920,12 @@ anim = function() {
 				// if this is an AI person, check for action
 				if ( players[i1] !== player ) {
 					if (
-						player.health > 0
-						&&
-						players[i1].k[l] > 0
-						&&
-						v2.copy( player.p ).sub( players[i1].p ).lengthSq() <= 100
-						&&
-						!players[i1].combat
-						) players[i1].combat = .01;
+						player.health > 0 // player isn't already dead
+						&& players[i1].good === player.infected // player is not on AI's side
+						&& players[i1].k[l] > 0 // AI is armed
+						&& !players[i1].combat // not already striking
+						&& v2.copy( player.p ).sub( players[i1].p ).lengthSq() <= 100 // player is within range
+					) players[i1].combat = .01;
 				}
 
 				// Combat animation
@@ -793,10 +945,13 @@ anim = function() {
 
 				// Walking
 				if ( Math.abs( v1.x ) > .2 || Math.abs( v1.z ) > .2 ) {
+					// Player speed is .4, AI is .3
+					t1 = ( players[i1] === player ) ? .4 : .3;
+
 					// v2 is where the player will be
 					v2.copy( players[i1].p )
-					v2.x += Math.abs( v1.x ) > .2 ? .3 * (v1.x > 0 ? 1 : -1) : 0;
-					v2.z += Math.abs( v1.z ) > .2 ? .3 * (v1.z > 0 ? 1 : -1) : 0;
+					v2.x += Math.abs( v1.x ) > .2 ? t1 * (v1.x > 0 ? 1 : -1) : 0;
+					v2.z += Math.abs( v1.z ) > .2 ? t1 * (v1.z > 0 ? 1 : -1) : 0;
 
 					// v3 is for collisions
 					v3.copy( players[i1].p )
@@ -895,17 +1050,56 @@ projectGraph = function() {
 		if( FR.contains( o ) ) {
 			if ( calculateVisibilty === 0 ) o.iv = isVisible( player.p, o.p );
 
-			if ( o.type && o !== player && o.iv ) {
-				if ( o.k[l] > 0 ) {
-					// Person is armed
-					o.t.copy( player.p );
+			// Display some dialogue
+			if (
+				( o.type === 'scientist' || o.type === 'civilian' ) // must be a scientist or a civilian
+				&& o.iv // must be visible
+				&& !o.has_been_seen // must not have been seen before
+				&& v1.copy( o.p ).sub( player.p ).lengthSq() <= 2500 // player must be within 5 tiles
+			) {
+				o.has_been_seen = true;
+				// Calculate which dialogue ring the AI is in
+				v1.copy( o.p ).sub( new V3( 680, .3, 340 ) ); // 680, 340 is the center of dialogue rings
+				t1 = v1.length() / 10;
+				if ( t1 <= 8 ) {
+					// Within 8 tiles, no dialogue
+					t2 = 0;
+				} else if ( t1 <= 20 ) {
+					// Within 20 tiles
+					t2 = 1;
+				} else if ( t1 <= 35 ) {
+					// Within 35 tiles
+					t2 = 2;
+				} else if ( t1 <= 50 ) {
+					// Within 50 tiles
+					t2 = 3;
 				} else {
-					// Person is not armed
+					// > 50 tiles
+					t2 = 4;
+				}
+				dialogue.speak( t2, o );
+			}
+
+			if (
+				o.type // is a character
+				&& o !== player // not the player
+				&& o.iv // is visible
+				&& Math.random() > .8 // making things look smoother
+			) {
+				if ( o.k[l] > 0 && o.good === player.infected ) {
+					// Person is not on the player's side and is armed, attack!
+					o.t.copy( player.p );
+				} else if ( o.good === player.infected ) {
+					// Person is not on the player's side and isn't armed, run!!
 					if ( calculateVisibilty === 0 ) {
 						o.t.copy( o.p ).sub( player.p ).normalize().multiplyScalar( 5 ).add( o.p );
-						o.t.x += Math.random() * 20 - 10;
-						o.t.z += Math.random() * 20 - 10;
+						o.t.x += 10 * noise( o.t.x / 5, o.t.z / 5 );
+						o.t.z += 10 * noise( o.t.x / 5 + 50, o.t.z / 5 + 50 );
 					}
+				} else {
+					// AI and player are on the same side
+					o.t.x += 5 * noise( o.t.x / 5, o.t.z / 5 );
+					o.t.z += 5 * noise( o.t.x / 5 + 50, o.t.z / 5 + 50 );
 				}
 			}
 
@@ -929,9 +1123,9 @@ projectGraph = function() {
 				}
 			}
 
-			if ( o.type === 'infected' && o.iv ) {
-				if ( !first_infected ) {
-					first_infected = true;
+			if ( o.type === 'civilian' && o.iv ) {
+				if ( !first_civilian ) {
+					first_civilian = true;
 					cam.look_at_target.copy( o.p ).sub( player.p );
 					cam.look_at_target.y = 10;
 					cam.position_target.set( 0, 10, 0 );
@@ -1038,7 +1232,6 @@ readyFaces = function() {
 	}
 }
 FSorter = function( a, b ) {
-	//return ( b.w + b.model.offset ) - ( a.w + a.model.offset );
 	return ( b.w ) - ( a.w );
 },
 expand = function( v1, v2 ) {
@@ -1064,8 +1257,10 @@ createPerson = function( type, armed ) {
 	person.ap[0] = 0;
 	person.ap[1] = 0;
 	person.a = animations.person;
+	person.has_been_seen = false;
 
 	person.health = 100;
+	person.good = type !== 'infected';
 
 	if ( armed ) {
 		person.k.push(new Model(
@@ -1280,8 +1475,6 @@ title = function() {
 		}
 	}
 
-	//drawRoom( 0,0,9,9 );
-
 	// Row 1
 	drawRoom( 12, 0, 20, 6 );
 	drawRoom( 16, 7, 20, 7 );
@@ -1360,15 +1553,15 @@ title = function() {
 
 	drawRoom( 56, 15, 67, 25 );
 
-	drawRoom( 69, 15, 75, 25, { cmin: 2, cmax: 3 } );
+	drawRoom( 69, 15, 75, 25, { imin: 2, imax: 3, smin: 1, smax: 1 } );
 	drawRoom( 76, 17, 76, 19 );
 	drawRoom( 72, 26, 75, 26 );
 
-	drawRoom( 77, 15, 81, 29 );
+	drawRoom( 77, 15, 81, 29, { imin: 1, imax: 2, smin: 0, smax: 1, cmin: 2, cmax: 2 } );
 	drawRoom( 82, 17, 82, 19 );
 	drawRoom( 78, 30, 80, 30 );
 
-	drawRoom( 83, 11, 86, 29 );
+	drawRoom( 83, 11, 86, 29, { gmin: 2, gmax: 3, smin: 1, smax: 1, cmin: 1, cmax: 2 } );
 	drawRoom( 87, 11, 88, 28 );
 	drawRoom( 89, 22, 93, 28 );
 	drawRoom( 90, 11, 93, 21 );
@@ -1397,10 +1590,12 @@ title = function() {
 	drawRoom( 44, 34, 65, 37 );
 
 	// Entry hallway
-	drawRoom( 70, 27, 75, 29, { imin: 3, imax: 5 } );
-	drawRoom( 67, 27, 69, 34, { smin: 1, smax: 1 } );
-	drawRoom( 67, 35, 69, 40, { gmin: 1, gmax: 1 } );
-	drawRoom( 67, 41, 69, 56 );
+	drawRoom( 70, 27, 75, 29 );
+	drawRoom( 67, 27, 69, 30, { cmin: 2, cmax: 2 } );
+	drawRoom( 67, 31, 69, 35 );
+	drawRoom( 67, 36, 69, 38, { smin: 1, smax: 1 } );
+	drawRoom( 67, 39, 69, 42, { gmin: 1, gmax: 1 } );
+	drawRoom( 67, 43, 69, 56 );
 
 	drawRoom( 71, 31, 81, 37 );
 	
@@ -1455,6 +1650,7 @@ title = function() {
 	}
 
 	player = createPerson( 'player', true );
+	player.infected = true;
 	player.p.set( 680, .3, 550 );
 	player.t.copy( player.p );
 	players.push( player );
