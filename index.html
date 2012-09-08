@@ -1050,6 +1050,10 @@ anim = function() {
 				players[i1].m.lookAt( v2 );
 				players[i1].r.getRotationFromMatrix( players[i1].m );
 
+				if ( players[i1]['type'] === 'scientist' ) {
+					player['health'] += 10;
+				}
+
 				if ( players[i1] === player ) {
 					// The dead guy is our heroic player
 					cam.position_target.set( -15, 30, 15 );
@@ -1393,6 +1397,18 @@ render = function() {
 	prepareScene();
 	readyFaces();
 	renderElements();
+
+	if ( player['health'] > 0 && player['health'] < 100 ) {
+		var health_start = b - (b * .9);
+		// Draw the health bar
+		c.fillStyle = '#b30';
+		c.fillRect(
+			health_start,
+			10,
+			( b - health_start * 2 ) * ( player['health'] * .01 ),
+			Math.min( 20, e * .1 )
+		);
+	}
 },
 title = function() {
 	c.fillStyle = '#000';
