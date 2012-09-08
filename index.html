@@ -1,5 +1,5 @@
 <!DOCTYPE html><html><head><title>Lab 13</title><style>* {cursor: default;} body {-webkit-touch-callout: none;-webkit-user-select: none;-khtml-user-select: none;-moz-user-select: none;-ms-user-select: none;user-select: none;background:#222;width:640px;height:480px;margin:auto;} canvas {position:absolute;} #d {position:relative;z-index:1;margin:auto;top: 350px;width:500px;height:100px;padding:10px;background:#fff;font-family:"Book Antiqua", Palatino, "Palatino Linotype", "Palatino LT STD", Georgia, serif;color:#333;display:none;border-radius:4px;}#d:after {content:"Press any key to close";font-size:10px;position:absolute;right:3px;bottom:0;}</style></head><body><canvas id="c" width=640 height=480></canvas><div id="d"></div><script>
-var l='length',p='prototype',sq=Math.sqrt // shortcuts
+var l='length',p='prototype',sq=Math.sqrt, // shortcuts
 
 //Vector3
 V3 = function( x, y, z ) {
@@ -736,7 +736,7 @@ models = {
 players = [],
 player,
 
-dialogue = (function() {
+dialog = (function() {
 	var pieces = [
 			{ t: 1, i: -5, w: 'scientist', '1': "Wait! Wait, please - you're missing something important, please stop!", '2': "Just ... don't ..." },
 			{ t: 1, i: 2, w: 'civilian', '1': "Shit! Another one! Get back! I'm warning you!", '2': "Listen, I can't defend myself. Just please, think about what you're doing!" },
@@ -745,7 +745,7 @@ dialogue = (function() {
 			{ t: 1, i: 3, w: 'scientist', '1': "Wait! We think you may be sick, we're only trying to help.", '2': "Can you hear us? You're hearing another voice, aren't you? Please stop. We can tell you what the voice means." },
 			{ t: 2, i: 3, w: 'civilian', '1': "... Are you hearing it right now?", '2': "You're being tricked." },
 			{ t: 2, i: 3, w: 'scientist', '1': "... Are you not going to kill us?<br>... You stopped listening for a second, didn't you? Can you hear me?", '2': "Is it talking again? I can get it to stop of you listen to me." },
-			{ t: 2, i: 3, w: 'scientist', '1': "Don't get too close! He's infected!", '2': "Yes, YOU. YOU are infected. Please, hear me out." },
+			{ t: 2, i: 3, w: 'scientist', '1': "Don't get too close! He's infected!", '2': "Yes, YOU. YOU are infected. Please, hear me out." }
 		],
 		possibilities_sorter = function( a, b ) {
 			// Push the more important pieces to the top, with some randomness to keep things interesting
@@ -763,7 +763,7 @@ dialogue = (function() {
 				who_proper;
 
 			for ( i1 = 0; i1 < pieces[l]; i1++ ) {
-				// Make sure we are ready for this dialogue and it's being said by the right person
+				// Make sure we are ready for this dialog and it's being said by the right person
 				if ( pieces[i1].t > timing || pieces[i1].w !== who.type ) continue;
 
 				pieces[i1].idx = i1; // remember what array index this piece is in
@@ -774,8 +774,8 @@ dialogue = (function() {
 			possibilities.sort( possibilities_sorter );
 			selection = possibilities[0];
 
-			// If this piece's importance is greater than 1 then ignore it 90% of the time
-			if ( selection.i > 1 && Math.random() >= .1 ) return;
+			// If this piece's importance is greater than 1 then ignore it 70% of the time
+			if ( selection.i > 1 && Math.random() >= .3 ) return;
 
 			pieces.splice( selection.idx, 1 );
 
@@ -791,7 +791,7 @@ dialogue = (function() {
 								prompt.say( who_proper + ': ' + selection['2'] );
 							}
 						},
-						3000
+						5000
 					)
 				}
 			);
@@ -865,6 +865,7 @@ run = function() {
 		}
 	);
 	prompt.say( 'Welcome to Biochemical Lab #13. Left click to walk.' );
+	last_anim = (new Date).getTime();
 	anim();
 },
 attack = function( who, direction, damage ) {
@@ -894,7 +895,12 @@ first_guard = false,
 first_scientist = false,
 first_civilian = false,
 
+last_anim, now, delta,
 anim = function() {
+	now = (new Date).getTime();
+	delta = now - last_anim;
+	last_anim = now;
+
 	if ( !has_walked ) {
 		v1.set( 680, .3, 550 );
 		if ( v1.sub( player.p ).lengthSq() > 900 ) {
@@ -944,19 +950,19 @@ anim = function() {
 				}
 
 				// Walking
-				if ( Math.abs( v1.x ) > .2 || Math.abs( v1.z ) > .2 ) {
+				if ( Math.abs( v1.x ) > .3 || Math.abs( v1.z ) > .3 ) {
 					// Player speed is .4, AI is .3
-					t1 = ( players[i1] === player ) ? .4 : .3;
+					t1 = ( players[i1] === player ) ? .025 * delta : .019 * delta;
 
 					// v2 is where the player will be
 					v2.copy( players[i1].p )
-					v2.x += Math.abs( v1.x ) > .2 ? t1 * (v1.x > 0 ? 1 : -1) : 0;
-					v2.z += Math.abs( v1.z ) > .2 ? t1 * (v1.z > 0 ? 1 : -1) : 0;
+					v2.x += Math.abs( v1.x ) > .3 ? t1 * (v1.x > 0 ? 1 : -1) : 0;
+					v2.z += Math.abs( v1.z ) > .3 ? t1 * (v1.z > 0 ? 1 : -1) : 0;
 
 					// v3 is for collisions
 					v3.copy( players[i1].p )
-					v3.x += Math.abs( v1.x ) > .2 ? 5 * (v1.x > 0 ? 1 : -1) : 0;
-					v3.z += Math.abs( v1.z ) > .2 ? 5 * (v1.z > 0 ? 1 : -1) : 0;
+					v3.x += Math.abs( v1.x ) > .3 ? 5 * (v1.x > 0 ? 1 : -1) : 0;
+					v3.z += Math.abs( v1.z ) > .3 ? 5 * (v1.z > 0 ? 1 : -1) : 0;
 
 					// Check map bounds
 					if (
@@ -967,7 +973,7 @@ anim = function() {
 						continue;
 					}
 					
-
+					/*
 					// Check against player positions
 					for ( i2 = 0; i2 < players[l]; i2++ ) {
 						if ( players[i2].health <= 0 ) continue;
@@ -975,6 +981,7 @@ anim = function() {
 						v4.copy( v2 ).sub( players[i2].p );
 						if ( v4.lengthSq() <= 40 ) continue player_movement;
 					}
+					*/
 
 					players[i1].p.x = v2.x;
 					players[i1].p.z = v2.z;
@@ -983,10 +990,10 @@ anim = function() {
 					
 					// Walking animation
 					if ( !players[i1].a_desc ) {
-						players[i1].ap[0] += 0.06;
+						players[i1].ap[0] += 0.075;
 						if ( players[i1].ap[0] > 1 ) players[i1].a_desc = true;
 					} else {
-						players[i1].ap[0] -= 0.06;
+						players[i1].ap[0] -= 0.075;
 						if ( players[i1].ap[0] < 0 ) players[i1].a_desc = false;
 					}
 					if ( players[i1].k[l] > 0 )
@@ -1050,7 +1057,7 @@ projectGraph = function() {
 		if( FR.contains( o ) ) {
 			if ( calculateVisibilty === 0 ) o.iv = isVisible( player.p, o.p );
 
-			// Display some dialogue
+			// Display some dialog
 			if (
 				( o.type === 'scientist' || o.type === 'civilian' ) // must be a scientist or a civilian
 				&& o.iv // must be visible
@@ -1058,11 +1065,11 @@ projectGraph = function() {
 				&& v1.copy( o.p ).sub( player.p ).lengthSq() <= 2500 // player must be within 5 tiles
 			) {
 				o.has_been_seen = true;
-				// Calculate which dialogue ring the AI is in
-				v1.copy( o.p ).sub( new V3( 680, .3, 340 ) ); // 680, 340 is the center of dialogue rings
+				// Calculate which dialog ring the AI is in
+				v1.copy( o.p ).sub( new V3( 680, .3, 340 ) ); // 680, 340 is the center of dialog rings
 				t1 = v1.length() / 10;
 				if ( t1 <= 8 ) {
-					// Within 8 tiles, no dialogue
+					// Within 8 tiles, no dialog
 					t2 = 0;
 				} else if ( t1 <= 20 ) {
 					// Within 20 tiles
@@ -1077,7 +1084,7 @@ projectGraph = function() {
 					// > 50 tiles
 					t2 = 4;
 				}
-				dialogue.speak( t2, o );
+				dialog.speak( t2, o );
 			}
 
 			if (
@@ -1093,13 +1100,13 @@ projectGraph = function() {
 					// Person is not on the player's side and isn't armed, run!!
 					if ( calculateVisibilty === 0 ) {
 						o.t.copy( o.p ).sub( player.p ).normalize().multiplyScalar( 5 ).add( o.p );
-						o.t.x += 10 * noise( o.t.x / 5, o.t.z / 5 );
-						o.t.z += 10 * noise( o.t.x / 5 + 50, o.t.z / 5 + 50 );
+						o.t.x += 50 * noise( o.t.x / 5, o.t.z / 5 );
+						o.t.z += 50 * noise( o.t.x / 5 + 50, o.t.z / 5 + 50 );
 					}
 				} else {
 					// AI and player are on the same side
-					o.t.x += 5 * noise( o.t.x / 5, o.t.z / 5 );
-					o.t.z += 5 * noise( o.t.x / 5 + 50, o.t.z / 5 + 50 );
+					o.t.x += 50 * noise( o.p.x / 5, o.p.z / 5 );
+					o.t.z += 50 * noise( o.p.x / 5 + 50, o.p.z / 5 + 50 );
 				}
 			}
 
@@ -1593,8 +1600,9 @@ title = function() {
 	drawRoom( 70, 27, 75, 29 );
 	drawRoom( 67, 27, 69, 30, { cmin: 2, cmax: 2 } );
 	drawRoom( 67, 31, 69, 35 );
-	drawRoom( 67, 36, 69, 38, { smin: 1, smax: 1 } );
-	drawRoom( 67, 39, 69, 42, { gmin: 1, gmax: 1 } );
+	drawRoom( 67, 36, 69, 36, { smin: 1, smax: 1 } );
+	drawRoom( 67, 37, 69, 40 );
+	drawRoom( 67, 41, 69, 42, { gmin: 1, gmax: 1 } );
 	drawRoom( 67, 43, 69, 56 );
 
 	drawRoom( 71, 31, 81, 37 );
