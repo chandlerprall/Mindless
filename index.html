@@ -1,4 +1,4 @@
-<!DOCTYPE html><html><head><title>Lab 13</title><style>* {cursor: default;} body {-webkit-touch-callout: none;-webkit-user-select: none;-khtml-user-select: none;-moz-user-select: none;-ms-user-select: none;user-select: none;background:#222;width:640px;height:480px;margin:auto;} canvas {position:absolute;} #d {position:relative;z-index:1;margin:auto;top: 350px;width:500px;height:100px;padding:10px;background:#fff;font-family:"Book Antiqua", Palatino, "Palatino Linotype", "Palatino LT STD", Georgia, serif;color:#333;display:none;border-radius:4px;}#d:after {content:"Press any key to close";font-size:10px;position:absolute;right:3px;bottom:0;}</style></head><body><canvas id="c" width=640 height=480></canvas><div id="d"></div><script>
+<!DOCTYPE html><html><head><title>Lab 13</title><style>* {cursor: default;} body {-webkit-touch-callout: none;-webkit-user-select: none;-khtml-user-select: none;-moz-user-select: none;-ms-user-select: none;user-select: none;background:#222;width:100%;height:100%;margin:auto;} canvas {position:absolute;} #d {position:relative;z-index:1;margin:auto;top: 350px;width:500px;height:100px;padding:10px;background:#fff;font-family:"Book Antiqua", Palatino, "Palatino Linotype", "Palatino LT STD", Georgia, serif;color:#333;display:none;border-radius:4px;}#d:after {content:"Press any key to close";font-size:10px;position:absolute;right:3px;bottom:0;}</style></head><body><canvas id="c"></canvas><div id="d"></div><script>
 var l='length',p='prototype',sq=Math.sqrt, // shortcuts
 
 //Vector3
@@ -364,6 +364,34 @@ M4[p].extractRotation = function( m ) {
 
 	return this;
 };
+M4[p].makeFrustum = function ( left, right, bottom, top, near, far ) {
+
+	var te = this.e;
+	var x = 2 * near / ( right - left );
+	var y = 2 * near / ( top - bottom );
+
+	var a = ( right + left ) / ( right - left );
+	var b = ( top + bottom ) / ( top - bottom );
+	var c = - ( far + near ) / ( far - near );
+	var d = - 2 * far * near / ( far - near );
+
+	te[0] = x;  te[4] = 0;  te[8] = a;   te[12] = 0;
+	te[1] = 0;  te[5] = y;  te[9] = b;   te[13] = 0;
+	te[2] = 0;  te[6] = 0;  te[10] = c;   te[14] = d;
+	te[3] = 0;  te[7] = 0;  te[11] = - 1; te[15] = 0;
+
+	return this;
+
+};
+M4[p].makePerspective = function ( fov, aspect, near, far ) {
+
+	var ymax = near * Math.tan( fov * Math.PI / 360 );
+	var ymin = - ymax;
+	var xmin = ymin * aspect;
+	var xmax = ymax * aspect;
+
+	return this.makeFrustum( xmin, xmax, ymin, ymax, near, far );
+};
 
 //Vector4
 V4 = function( x, y, z, w ) {
@@ -518,10 +546,10 @@ Model = function( g, c ) {
 
 var ca = document.getElementById('c'), c = ca.getContext('2d'),
 d = document.getElementById( 'd' ),
-b = 640, e = 480, //canvas width, height
 w = window,
+b = w.innerWidth, e = w.innerHeight, //canvas width, height
 raf = 'equestAnimationFrame',
-a = window['r'+raf] || window['mozR'+raf] || window['webkitR'+raf] || window['oR'+raf] || window['msR'+raf],
+a = w['r'+raf] || w['mozR'+raf] || w['webkitR'+raf] || w['oR'+raf] || w['msR'+raf],
 
 noise = (function() {
 	var SimplexNoise = function() {
@@ -603,7 +631,7 @@ noise = (function() {
 })(),
 
 cam = {
-	p: new M4( [1.6083801984786987,0,0,0,0,2.1445069313049316,0,0,0,0,-1.0002000331878662,-1,0,0,-2.000200033187866,0] ), //projection matrix
+	p: new M4().makePerspective( 35, b / e, 1, 250 ),
 	m: new M4( [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1] ), //world matrix
 	i: new M4( [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1] ), //matrix world inverse
 	near: 5,
@@ -759,8 +787,7 @@ dialog = (function() {
 			if ( pieces[l] === 0 ) return;
 
 			var possibilities = [],
-				selection,
-				who_proper;
+				selection;
 
 			for ( i1 = 0; i1 < pieces[l]; i1++ ) {
 				// Make sure we are ready for this dialog and it's being said by the right person
@@ -779,16 +806,16 @@ dialog = (function() {
 
 			pieces.splice( selection.idx, 1 );
 
-			who_proper = who.type.substr( 0,1 ).toUpperCase() + who.type.substr( 1 );
 			cam.look_at_target.copy( who.p ).sub( player.p );
+			cam.look_at_target.y = 10;
 			cam.position_target.set( 0, 10, 0 );
 			prompt.say(
-				who_proper + ': ' + selection['1'],
+				'<i>"' + selection['1'] + '"</i>',
 				function() {
 					setTimeout(
 						function() {
 							if ( who.health === 100 ) {
-								prompt.say( who_proper + ': ' + selection['2'] );
+								prompt.say( '<i>"' + selection['2'] + '"</i>' );
 							}
 						},
 						5000
@@ -819,10 +846,15 @@ prompt = {
 	},
 	clear: function() {
 		if ( (new Date).getTime() > this.prompt_time + 500 ) {
+			if ( player.health === -1 ) {
+				// Player is dead, we are clearing the death message
+				location.reload();
+			}
+
 			this.status = false;
 			d.style.display = 'none';
-			cam.position_target.set( -30, 70, 70 );
-			cam.look_at_target.set( 0, 0, 0 );
+			cam.position_target.set( -40, 80, 80 );
+			cam.look_at_target.set( 0, 10, 0 );
 
 			if ( this.callback instanceof Function ) {
 				this.callback();
@@ -864,7 +896,7 @@ run = function() {
 			player.t.set( vector.x, .3, vector.z );
 		}
 	);
-	prompt.say( 'Welcome to Biochemical Lab #13. Left click to walk.' );
+	prompt.say( 'Welcome to <b>Biochemical Lab #13</b>. Left click on the map to walk.' );
 	last_anim = (new Date).getTime();
 	anim();
 },
@@ -880,7 +912,7 @@ attack = function( who, direction, damage ) {
 		if ( players[i2] === who ) { continue };
 
 		v3.copy( players[i2].p ).sub( v2 );
-		if ( v3.lengthSq() <= 100 ) {
+		if ( v3.lengthSq() <= 200 ) {
 			players[i2].health -= damage;
 			if ( players[i2].health < 0 ) players[i2].health = 0;
 			return; // only stab one person at a time
@@ -973,15 +1005,13 @@ anim = function() {
 						continue;
 					}
 					
-					/*
 					// Check against player positions
 					for ( i2 = 0; i2 < players[l]; i2++ ) {
 						if ( players[i2].health <= 0 ) continue;
 						if ( players[i1] === players[i2] ) continue;
 						v4.copy( v2 ).sub( players[i2].p );
-						if ( v4.lengthSq() <= 40 ) continue player_movement;
+						if ( v4.lengthSq() <= 20 ) continue player_movement;
 					}
-					*/
 
 					players[i1].p.x = v2.x;
 					players[i1].p.z = v2.z;
@@ -1019,6 +1049,12 @@ anim = function() {
 				v2.z += Math.random() * .02 - .01;
 				players[i1].m.lookAt( v2 );
 				players[i1].r.getRotationFromMatrix( players[i1].m );
+
+				if ( players[i1] === player ) {
+					// The dead guy is our heroic player
+					cam.position_target.set( -15, 30, 15 );
+					prompt.say( 'You have been killed. Click or press any key to restart.' );
+				}
 			}
 		}
 	}
@@ -1116,7 +1152,7 @@ projectGraph = function() {
 					cam.look_at_target.copy( o.p ).sub( player.p );
 					cam.look_at_target.y = 10;
 					cam.position_target.set( 0, 10, 0 );
-					prompt.say( 'The scientists here want to study the virus at any cost. As such, the lab\'s GUARDS will attempt to stop you. There\'s one now.<br><br> Press SPACEBAR When an enemy is in front of you to attack them.' );
+					prompt.say( 'The scientists here want to study the virus at any cost. As such, the lab\'s <b>GUARDS</b> will attempt to stop you. There\'s one now.<br><br> Press <b>SPACEBAR</b> when an enemy is in front of you to attack them.' );
 				}
 			}
 
@@ -1126,7 +1162,7 @@ projectGraph = function() {
 					cam.look_at_target.copy( o.p ).sub( player.p );
 					cam.look_at_target.y = 10;
 					cam.position_target.set( 0, 10, 0 );
-					prompt.say( 'In the lab you will also encounter SCIENTISTS. They will attempt to escape if you chase them, but will drop HEALTH if you kill them. There\'s one now. Try sneaking up on him and attacking.' );
+					prompt.say( 'In the lab you will also encounter <b>SCIENTISTS</b>. They will attempt to escape if you chase them, will give you <b>HEALTH</b> if you kill them. There\'s one now. Try sneaking up on him and attacking.' );
 				}
 			}
 
@@ -1136,7 +1172,7 @@ projectGraph = function() {
 					cam.look_at_target.copy( o.p ).sub( player.p );
 					cam.look_at_target.y = 10;
 					cam.position_target.set( 0, 10, 0 );
-					prompt.say( 'The INFECTED are not physically dangerous, but are very crafty and will lead you into traps. If you run into them, kill them or scare them away. There\'s a few now.' );
+					prompt.say( 'The <b>INFECTED</b> are not physically dangerous, but are very crafty and will lead you into traps. If you run into them, kill them or scare them away. There\'s a few now.' );
 				}
 			}
 
@@ -1285,14 +1321,14 @@ renderElements = function() {
 	for( i1=0, t1 = scene_elements[l]; i1 < t1; i1++ ) {
 		t2 = scene_elements[i1];
 
-		t2.v[0].x *= 320; t2.v[0].y *= 240;
-		t2.v[0].x += 320; t2.v[0].y += 240;
+		t2.v[0].x *= (b/2); t2.v[0].y *= (e/2);
+		t2.v[0].x += (b/2); t2.v[0].y += (e/2);
 
-		t2.v[1].x *= 320; t2.v[1].y *= 240;
-		t2.v[1].x += 320; t2.v[1].y += 240;
+		t2.v[1].x *= (b/2); t2.v[1].y *= (e/2);
+		t2.v[1].x += (b/2); t2.v[1].y += (e/2);
 
-		t2.v[2].x *= 320; t2.v[2].y *= 240;
-		t2.v[2].x += 320; t2.v[2].y += 240;
+		t2.v[2].x *= (b/2); t2.v[2].y *= (e/2);
+		t2.v[2].x += (b/2); t2.v[2].y += (e/2);
 
 		var light_normal = new V3( .2,.8,.6 ).normalize();
 		var ambient_term = .3;
@@ -1312,10 +1348,10 @@ renderElements = function() {
 
 		c.fillStyle = 'rgba(' + Math.round( v1.x ) + ',' + Math.round( v1.y ) + ',' + Math.round( v1.z ) + ',' + t2.m.w + ')';
 		c.beginPath();
-		c.moveTo(t2.v[0].x,480-t2.v[0].y);
-		c.lineTo(t2.v[1].x,480-t2.v[1].y);
-		c.lineTo(t2.v[2].x,480-t2.v[2].y);
-		c.lineTo(t2.v[0].x,480-t2.v[0].y);
+		c.moveTo(t2.v[0].x,e-t2.v[0].y);
+		c.lineTo(t2.v[1].x,e-t2.v[1].y);
+		c.lineTo(t2.v[2].x,e-t2.v[2].y);
+		c.lineTo(t2.v[0].x,e-t2.v[0].y);
 		c.closePath();
 		c.fill();
 	}
@@ -1363,7 +1399,7 @@ title = function() {
 	c.fillRect(0,0,b,e);
 	c.font = '72pt Comic Sans';
 	c.fillStyle = '#44dd77';
-	c.fillText( 'Lab 13', 25, 100 );
+	c.fillText( 'Lab 13', b / 2 - 150, 100 );
 
 	var i1, i2, i3, drawRoom = function( x1, y1, x2, y2, options ) {
 		options = options || {};
@@ -1665,7 +1701,7 @@ title = function() {
 	scene_objects.push( player );
 
 	c.font = '14pt Monospace';
-	c.fillText( 'Click to start', 200, 200 );
+	c.fillText( 'Click to start', b / 2 - 100, 200 );
 	document.addEventListener(
 		'click',
 		function startGame() {
@@ -1695,5 +1731,7 @@ title = function() {
 		}
 	);
 };
+ca.width = b;
+ca.height = e;
 title(); //start everything
 </script></body></html>
