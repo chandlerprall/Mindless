@@ -1,11 +1,11 @@
 <!DOCTYPE html><html><head><title>Lab 13</title><style>* {cursor: default;} body {-webkit-touch-callout: none;-webkit-user-select: none;-khtml-user-select: none;-moz-user-select: none;-ms-user-select: none;user-select: none;background:#222;width:100%;height:100%;margin:auto;} canvas {position:absolute;}
 
 #d {
-	position:relative;
+	position:fixed;
 	z-index:1;
 	/*margin:auto;*/
 	left:20px;
-	top: 510px;
+	bottom:20px;
 	width:550px;
 	height:130px;
 	padding:16px;
@@ -567,7 +567,7 @@ d = document.getElementById( 'd' ),
 w = window,
 b = w.innerWidth, e = w.innerHeight, //canvas width, height
 raf = 'equestAnimationFrame',
-a = w['r'+raf] || w['mozR'+raf] || w['webkitR'+raf] || w['oR'+raf] || w['msR'+raf],
+a = w['r'+raf] || w['mozR'+raf] || w['webkitR'+raf] || w['oR'+raf] || w['msR'+raf] || function(callback) { setTimeout( callback, 60 ) },
 
 noise = (function() {
 	var SimplexNoise = function() {
@@ -797,6 +797,7 @@ dialog = (function() {
 			// Push the more important pieces to the top, with some randomness to keep things interesting
 			return ( a.i + Math.random() ) - ( b.i * Math.random() );
 		},
+		times_interjected = 0,
 		second_speech,
 		i1;
 
@@ -840,6 +841,9 @@ dialog = (function() {
 					)
 				}
 			);
+			if ( times_interjected++ <= 3 ) {
+				prompt['say']( 'Enemies will try to trick you. Click <b>SPACEBAR</b> to attack them.' );
+			}
 		}
 	};
 })(),
@@ -926,11 +930,11 @@ attack = function( who, direction, damage ) {
 	v2.add( who.p );
 
 	for ( i2 = 0; i2 < players[l]; i2++ ) {
+		if ( players[i2]['infected'] === who['infected'] && who !== player ) continue;
 		if ( players[i2]['health'] <= 0 ) { continue };
 		if ( players[i2] === who ) { continue };
 
-		v3.copy( players[i2].p ).sub( v2 );
-		if ( v3.lengthSq() <= 200 ) {
+		if ( v3.copy( players[i2].p ).sub( v2 ).lengthSq() <= 200 ) {
 			players[i2]['health'] -= damage;
 			if ( players[i2]['health'] < 0 ) players[i2]['health'] = 0;
 			return; // only stab one person at a time
@@ -975,22 +979,45 @@ anim = function() {
 				v1.copy( players[i1].t ).sub( players[i1].p );
 
 				// if this is an AI person, check for action
-				if ( players[i1] !== player ) {
+				if ( players[i1] !== player && players[i1].iv ) {
+					for ( i2 = 0; i2 < players[l]; i2++ ) {
+						if (
+							players[i1] !== players[i2],
+							players[i2]['health'] > 0 // player isn't already dead
+							&& players[i1]['infected'] !== players[i2]['infected'] // player is not on AI's side
+							&& players[i1].k[l] > 0 // AI is armed
+							&& !players[i1].combat // not already striking
+							&& v2.copy( players[i2].p ).sub( players[i1].p ).lengthSq() <= 100 // player is within range
+						) {
+							players[i1].combat = .01;
+							break;
+						}
+					}
+					/*
 					if (
 						player['health'] > 0 // player isn't already dead
-						&& players[i1].good === player.infected // player is not on AI's side
+						&& players[i1]['infected'] !== player['infected'] // player is not on AI's side
 						&& players[i1].k[l] > 0 // AI is armed
 						&& !players[i1].combat // not already striking
 						&& v2.copy( player.p ).sub( players[i1].p ).lengthSq() <= 100 // player is within range
 					) players[i1].combat = .01;
+					*/
 				}
 
 				// Combat animation
 				if ( players[i1].combat ) {
-					players[i1].combat += .15;
+					players[i1].combat += .1;
 					if ( players[i1].combat >= 2 ) players[i1].combat = 0;
-					if ( players[i1].combat >= .4 && players[i1].combat < .6 ) {
-						attack( players[i1], v1, players[i1] === player ? 100 : 10 );
+					if ( players[i1].combat >= .4 && players[i1].combat < .5 ) {
+						attack(
+							players[i1],
+							v1,
+							players[i1] === player ? 100 : // player attacks with full strength
+											(
+												players[i1].type === 'guard' ? 20 // guards damage 20 points
+												: 10 // everyone else does 10 damage
+											)
+						);
 					}
 
 					players[i1].ap[1] = players[i1].combat;
@@ -1002,13 +1029,13 @@ anim = function() {
 
 				// Walking
 				if ( Math.abs( v1.x ) > .3 || Math.abs( v1.z ) > .3 ) {
-					// Player speed is .4, AI is .3
+					// Player speed is .025, AI is .019
 					t1 = ( players[i1] === player ) ? .025 * delta : .019 * delta;
 
 					// v2 is where the player will be
 					v2.copy( players[i1].p )
-					v2.x += Math.abs( v1.x ) > .3 ? t1 * (v1.x > 0 ? 1 : -1) : 0;
-					v2.z += Math.abs( v1.z ) > .3 ? t1 * (v1.z > 0 ? 1 : -1) : 0;
+					v2.x += Math.min( Math.abs( v1.x ) > .3 ? t1 * (v1.x > 0 ? 1 : -1) : 0, Math.abs( players[i1].t.x - players[i1].p.x ) );
+					v2.z += Math.min( Math.abs( v1.z ) > .3 ? t1 * (v1.z > 0 ? 1 : -1) : 0, Math.abs( players[i1].t.z - players[i1].p.z ) );
 
 					// v3 is for collisions
 					v3.copy( players[i1].p )
@@ -1071,6 +1098,7 @@ anim = function() {
 
 				if ( players[i1]['type'] === 'scientist' ) {
 					player['health'] += 10;
+					if ( player['health'] > 100 ) player['health'] = 100;
 				}
 
 				if ( players[i1] === player ) {
@@ -1086,11 +1114,11 @@ anim = function() {
 	// set camera position
 	v1.copy( cam.position_target ).sub( cam.position ).multiplyScalar( .015 );
 	if ( v1.lengthSq() > 1 ) v1.multiplyScalar( 1 / v1.length() );
-	cam.position.add( v1 );
+	cam.position.add( v1.multiplyScalar( delta / 16 ) );
 
 	v1.copy( cam.look_at_target ).sub( cam.look_at ).multiplyScalar( .015 );
 	if ( v1.lengthSq() > 1 ) v1.multiplyScalar( 1 / v1.length() );
-	cam.look_at.add( v1 );
+	cam.look_at.add( v1.multiplyScalar( delta / 16 ) );
 
 	v1.copy( player.p ).add( cam.position );
 	cam.m.setPosition( v1 );
@@ -1152,18 +1180,37 @@ projectGraph = function() {
 				&& o.iv // is visible
 				&& Math.random() > .8 // making things look smoother
 			) {
-				if ( o.k[l] > 0 && o.good === player.infected ) {
+				if ( o.k[l] > 0 && o['infected'] !== player['infected'] ) {
 					// Person is not on the player's side and is armed, attack!
 					o.t.copy( player.p );
-				} else if ( o.good === player.infected ) {
+				} else if ( o['infected'] !== player['infected'] ) {
 					// Person is not on the player's side and isn't armed, run!!
 					if ( calculateVisibilty === 0 ) {
 						o.t.copy( o.p ).sub( player.p ).normalize().multiplyScalar( 5 ).add( o.p );
 						o.t.x += 50 * noise( o.t.x / 5, o.t.z / 5 );
 						o.t.z += 50 * noise( o.t.x / 5 + 50, o.t.z / 5 + 50 );
 					}
+				} else if ( o.k[l] > 0 ) {
+					// AI and player are on the same side and AI is armed, search for a target
+					o.t.x = -1000;
+					for ( i2 = 0; i2 < players[l]; i2++ ) {
+						if (
+							players[i2] !== player
+							&& players[i2]['health'] > 0
+							&& players[i2].iv
+							&& players[i2]['infected'] !== o['infected']
+							&& v1.copy( players[i2].p ).sub( o.p ).lengthSq() <= 2500
+						) {
+							o.t.copy( players[i2].p );
+							break;
+						}
+					}
+					if ( o.t.x === -1000 ) {
+						o.t.x += 50 * noise( o.p.x / 5, o.p.z / 5 );
+						o.t.z += 50 * noise( o.p.x / 5 + 50, o.p.z / 5 + 50 );
+					}
 				} else {
-					// AI and player are on the same side
+					// AI is on player's side and isn't armed, wander aimlessly
 					o.t.x += 50 * noise( o.p.x / 5, o.p.z / 5 );
 					o.t.z += 50 * noise( o.p.x / 5 + 50, o.p.z / 5 + 50 );
 				}
@@ -1336,7 +1383,7 @@ createPerson = function( type, armed ) {
 	person.has_been_seen = false;
 
 	person['health'] = 100;
-	person.good = type !== 'infected';
+	person['infected'] = ( type === 'infected' );
 
 	if ( armed ) {
 		person.k.push(new Model(
@@ -1427,7 +1474,7 @@ render = function() {
 	readyFaces();
 	renderElements();
 
-	if ( player['health'] > 0 && player['health'] < 100 ) {
+	if ( player['health'] > 0 ) {
 		var health_start = b - (b * .9);
 		// Draw the health bar
 		c.fillStyle = '#b30';
@@ -1524,7 +1571,7 @@ title = function() {
 		if ( options.imin > 0 && options.imax ) {
 			t1 = Math.floor( Math.random() * (options.imax - options.imin + 1) ) + options.imin;
 			for ( i1 = 0; i1 < t1; i1++ ) {
-				person = createPerson( 'infected', false );
+				person = createPerson( 'infected', ( Math.random() > .9 ? true : false ) );
 				person.p.set(
 					( (Math.random() * (x2 - x1)) + x1 ) * 10,
 					.3,
@@ -1744,7 +1791,7 @@ title = function() {
 	}
 
 	player = createPerson( 'player', true );
-	player.infected = true;
+	player['infected'] = true;
 	player.p.set( 680, .3, 550 );
 	player.t.copy( player.p );
 	players.push( player );
