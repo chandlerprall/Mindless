@@ -834,12 +834,13 @@ dialog = (function() {
 					setTimeout(
 						function() {
 							if ( who['health'] === 100 ) {
-								prompt['say']( '<i>"' + selection['2'] + '"</i>' );
+								prompt['say']( '<i>"' + selection['2'] + '"</i>', null, who.type );
 							}
 						},
 						5000
 					)
-				}
+				},
+				who.type
 			);
 			if ( times_interjected++ <= 3 ) {
 				prompt['say']( 'Enemies will try to trick you. Click <b>SPACEBAR</b> to attack them.' );
@@ -853,8 +854,8 @@ prompt = new (function() {
 	this['prompt_time'] = 0;
 	this['stack'] = [];
 	this['status'] = false;
-	this['say'] = function( message, callback ) {
-		this['stack'].push({ 'message': message, 'callback': callback });
+	this['say'] = function( message, callback, className ) {
+		this['stack'].push({ 'message': message, 'callback': callback, 'class': className || '' });
 	};
 	this['display'] = function() {
 		if ( this.stack[l] > 0 ) {
@@ -862,6 +863,7 @@ prompt = new (function() {
 			this['status'] = true;
 			t1 = this['stack'].splice( 0, 1 )[0];
 			d.innerHTML = t1['message'];
+			d.className = t1['class'];
 			this['callback'] = t1['callback'];
 			d.style.display = 'block';
 		}
