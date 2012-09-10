@@ -549,7 +549,7 @@ d = document.getElementById( 'd' ),
 w = window,
 b = w.innerWidth, e = w.innerHeight, //canvas width, height
 raf = 'equestAnimationFrame',
-a = w['r'+raf] || w['mozR'+raf] || w['webkitR'+raf] || w['oR'+raf] || w['msR'+raf],
+a = w['r'+raf] || w['mozR'+raf] || w['webkitR'+raf] || w['oR'+raf] || w['msR'+raf] || function(callback) { setTimeout( callback, 60 ) },
 
 noise = (function() {
 	var SimplexNoise = function() {
