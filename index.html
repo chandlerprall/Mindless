@@ -1,22 +1,26 @@
 <!DOCTYPE html><html><head><title>Lab 13</title><style>* {cursor: default;} body {-webkit-touch-callout: none;-webkit-user-select: none;-khtml-user-select: none;-moz-user-select: none;-ms-user-select: none;user-select: none;background:#222;width:100%;height:100%;margin:auto;} canvas {position:absolute;}
 
 #d {
-	position:fixed;
+	position:absolute;
 	z-index:1;
 	/*margin:auto;*/
 	left:20px;
-	bottom:20px;
-	width:550px;
+	bottom: 20px;
+	width:600px;
 	height:130px;
-	padding:16px;
-	background:#fff;
-	border:1px solid #333;
+	padding:16px 550px 16px 16px;
+	/* background:#fff; */
+	background-image: -webkit-gradient(
+          linear, right top, left top, from(rgba(226, 223, 222, 0)),
+          to(rgba(226, 223, 222, 1.0))
+        );
+	/* border:1px solid #333; */
 	font-family:/*"Book Antiqua", Palatino, "Palatino Linotype", "Palatino LT STD", */ Courier, sans-serif;
 	color:#333;
 	display:none;
-	border-radius:4px;
+	/* border-radius:4px; */
 }
-#d:after {content:"Press any key to close";font-size:10px;position:absolute;right:3px;bottom:0;}</style></head><body><canvas id="c"></canvas><div id="d"></div><script>
+#d:after {content:"(Press any key to close)";font-size:11px;position:absolute;left:10px;bottom:-18px;color:#FFF;}</style></head><body><canvas id="c"></canvas><div id="d"></div><script>
 var l='length',p='prototype',sq=Math.sqrt, // shortcuts
 
 //Vector3
@@ -545,12 +549,8 @@ Geometry[p].computeBoundingSphere = function () {
 
 Model = function( g, c ) {
 	// materials
-	this.c = [];
-	for ( i1 = 0; i1 < c[l]; i1 += 4 ) {
-		this.c.push( new V4( c[i1], c[i1+1], c[i1+2], c[i1+3] ) );
-	}
+	this.c = this.buildMaterial( c );
 
-	//this.o = 0.01; // offset
 	this.g = g; // geometry
 	this.m = new M4; //matrix
 	this.p = new V3; //position
@@ -560,6 +560,13 @@ Model = function( g, c ) {
 	this.a = []; //animation sets
 	this.ap = []; //animation progress
 	this.iv = false; // is visible
+};
+Model[p].buildMaterial = function( c ) {
+	var material = [];
+	for ( i1 = 0; i1 < c[l]; i1 += 4 ) {
+		material.push( new V4( c[i1], c[i1+1], c[i1+2], c[i1+3] ) );
+	}
+	return material;
 };
 
 var ca = document.getElementById('c'), c = ca.getContext('2d'),
@@ -783,15 +790,38 @@ players = [],
 player,
 
 dialog = (function() {
-	var pieces = [
-			{ t: 1, i: -5, w: 'scientist', '1': "Wait! Wait, please - you're missing something important, please stop!", '2': "Just ... don't ..." },
+	var pieces = [	// Intro
+			{ t: 1, i: -5, w: 'scientist', '1': "Wait! Wait, please - you don't understand what's happening, please stop!", '2': "You don't get it . . ." },
 			{ t: 1, i: 2, w: 'civilian', '1': "Shit! Another one! Get back! I'm warning you!", '2': "Listen, I can't defend myself. Just please, think about what you're doing!" },
 			{ t: 1, i: 2, w: 'scientist', '1': "I saw what you did to those guards. What's the matter with you? Is that a fire poker?", '2': "I'm not getting through to you am I ..." },
 			{ t: 1, i: 2, w: 'civilian', '1': "I'm not getting through to you am I ...", '2': "I think if you step back and question what's going on, you'll put that thing down." },
 			{ t: 1, i: 3, w: 'scientist', '1': "Wait! We think you may be sick, we're only trying to help.", '2': "Can you hear us? You're hearing another voice, aren't you? Please stop. We can tell you what the voice means." },
 			{ t: 2, i: 3, w: 'civilian', '1': "... Are you hearing it right now?", '2': "You're being tricked." },
 			{ t: 2, i: 3, w: 'scientist', '1': "... Are you not going to kill us?<br>... You stopped listening for a second, didn't you? Can you hear me?", '2': "Is it talking again? I can get it to stop of you listen to me." },
-			{ t: 2, i: 3, w: 'scientist', '1': "Don't get too close! He's infected!", '2': "Yes, YOU. YOU are infected. Please, hear me out." }
+			{ t: 2, i: 3, w: 'scientist', '1': "Don't get too close! He's infected!", '2': "Yes, YOU. YOU are infected. Please, hear me out." },
+			// Agressive dialogue (bad setting)
+			{ a: true, t: 4, i: 3, w: 'scientist', '1': "CÕmon, would you put that thing down?  Does it look like thatÕs helping this situation?", '2': "You probably think IÕm trying to trick you.  Why are all the INFECTEDS thinking that?!" },
+			{ a: true, t: 8, i: 6, w: 'civilian', '1': "ItÕs funny - the crazier things get, the more IÕm able to roll with the punches.", '2': "text" },
+			{ a: true, t: 6, i: 8, w: 'scientist', '1': "You know, Einstein said, ÔI do not know with what weapons World War III will be fought, but World War IV will be fought with sticks and stones.", '2': "IÕm just saying, look at yourself.  Look at these guards.  Does this feel right to you?" },
+			{ a: true, t: 10, i: 1, w: 'scientist', '1': "PLEASE!  DonÕt kill the refugees.  DonÕt activate the self destruct.  DonÕt do whatever itÕs telling you, please . . .", '2': "WeÕre running out of guards . . . you win . . . just please donÕt kill all of us." },
+			// Insightful dialogue (good setting)
+			{ a: false, t: 5, i: 4, w: 'scientist', '1': "This lab is closed to civilians, but it doesnÕt seem to be stopping anyone from coming in.  You, for instance - you look like you just rolled out of bed.", '2': "I guess itÕs understandable in a situation like this." },
+			{ a: false, t: 8, i: 3, w: 'scientist', '1': "It was supposed to just be a high tech personal assistant, like that phone app that talks to you.  But it seems that once itÕs in your head, you canÕt tell the difference between it, and you.", '2': "The hard reset probably didnÕt help things either.  Let me guess, the last thing you remember is just standing around, this voice telling you what to do?" },
+			{ a: false, t: 6, i: 3, w: 'scientist', '1': "You look disoriented.  Did you get hit by the hard reset?", '2': "Just go back to your home, weÕll have everything back online soon." },
+			{ a: false, t: 5, i: 5, w: 'scientist', '1': "If it makes you feel any better, weÕre all pretty confused.", '2': "This is only hour one of the virus, you know?  And thereÕs no telling how far it has reached within the network." },
+			{ a: false, t: 8, i: 5, w: 'scientist', '1': "If things keep up like this, theyÕll blow the place, no questions asked.", '2': "They donÕt seem to understand that wonÕt stop the spread.  Plus theyÕd be blowing up the debugger along with us!" },
+			{ a: false, t: 6, i: 5, w: 'civilian', '1': "TheyÕve got an debugger off in the West-most room.  CanÕt get it out though, the scientists are being held in by the INFECTEDS.", '2': "I guess thereÕs too many of 'em for the guards.  ItÕs a really awful situation." },
+			{ a: false, t: 8, i: 7, w: 'civilian', '1': "Can you see over there?  My buddy is on the other side of this wall.  I can hear him.  IÕm afraid to leave though.", '2': "I think IÕll just accept this as a new paradigm to our relationship.  It hasnÕt been so bad." },
+			{ a: false, t: 9, i: 9, w: 'scientist', '1': "I stopped going to church . . . probably four years ago.  Sometimes I think that if I had been there this Sunday, I might have avoided this.", '2': "But it wouldnÕt have saved all of these people, would it?  See, thatÕs the problem with the whole thing.  I guess IÕd just rather be here fixing things myself." },
+			{ a: false, t: 7, i: 10, w: 'civilian', '1': "I got some M&Ms from the vending machine.  Why not, right?", '2': "CanÕt really taste them though.  I guess not even chocolate is gonna get my mind off the crazed maniacs trying to stab me." },
+			{ a: false, t: 10, i: 10, w: 'scientist', '1': "What a crappy internship this turned out to be.  My friend got a gig at Umbrella Corp; heÕs probably sitting around drinking coffee and complaining about spreadsheets or something.", '2': "Bio sciences is where itÕs at.  Not this dangerous tech startup business." },
+			{ a: false, t: 6, i: 10, w: 'scientist', '1': "We used to have a conference table in here.  The prompts broke them all though :/", '2': "I used to sit in here, bored out of my mind.  This is all pretty surreal for me." },
+			{ a: false, t: 6, i: 10, w: 'scientist', '1': "Scientist?  Try ENGINEER.  If I would have thought my computer science degree would have come to being stabbed by buggy software, I would have gone to art school.", '2': "You wouldnÕt guess it, but IÕm quite good with charcoal.  A lot better than QAing software.  If you know what I mean.  Sorry about your brain." }
+			//{ t: 1, i: 1, w: 'scientist', '1': "text", '2': "text" },
+			//{ t: 1, i: 1, w: 'scientist', '1': "text", '2': "text" },
+			//{ t: 1, i: 1, w: 'scientist', '1': "text", '2': "text" },
+			//{ t: 1, i: 1, w: 'scientist', '1': "text", '2': "text" },
+			//{ t: 1, i: 1, w: 'scientist', '1': "text", '2': "text" }
 		],
 		possibilities_sorter = function( a, b ) {
 			// Push the more important pieces to the top, with some randomness to keep things interesting
@@ -802,6 +832,7 @@ dialog = (function() {
 		i1;
 
 	return {
+		timeout: null,
 		speak: function( timing, who ) {
 			if ( pieces[l] === 0 ) return;
 
@@ -811,6 +842,9 @@ dialog = (function() {
 			for ( i1 = 0; i1 < pieces[l]; i1++ ) {
 				// Make sure we are ready for this dialog and it's being said by the right person
 				if ( pieces[i1].t > timing || pieces[i1].w !== who.type ) continue;
+
+				// Check if the player needs to be [un]infected for this dialog
+				if ( pieces[i1].a !== undefined && pieces.a !== player.infected ) continue;
 
 				pieces[i1].idx = i1; // remember what array index this piece is in
 				possibilities.push( pieces[i1] );
@@ -825,26 +859,45 @@ dialog = (function() {
 
 			pieces.splice( selection.idx, 1 );
 
-			cam.look_at_target.copy( who.p ).sub( player.p );
-			cam.look_at_target.y = 10;
-			cam.position_target.set( 0, 10, 0 );
-			prompt['say'](
-				'<i>"' + selection['1'] + '"</i>',
-				function() {
-					setTimeout(
+			setTimeout(function() {
+				if ( who['health'] <= 0 ) return;
+
+				cam.look_at_target.copy( who.p ).sub( player.p );
+				cam.look_at_target.y = 10;
+				cam.position_target.set( 0, 10, 0 );
+			
+				prompt['say'](
+					'<i>"' + selection['1'] + '"</i>',
+					function() {
+						if ( times_interjected > 3 ) {
+							dialog.timeout = setTimeout(
+								function() {
+									if ( who['health'] > 0 ) {
+										prompt['say']( '<i>"' + selection['2'] + '"</i>', null, who.type );
+									}
+								},
+								2000
+							);
+						}
+					},
+					who.type
+				);
+				if ( ++times_interjected <= 3 ) {
+					prompt['say'](
+						'Enemies will try to trick you. Click <b>SPACEBAR</b> to attack them.',
 						function() {
-							if ( who['health'] === 100 ) {
-								prompt['say']( '<i>"' + selection['2'] + '"</i>', null, who.type );
-							}
-						},
-						5000
-					)
-				},
-				who.type
-			);
-			if ( times_interjected++ <= 3 ) {
-				prompt['say']( 'Enemies will try to trick you. Click <b>SPACEBAR</b> to attack them.' );
-			}
+							dialog.timeout = setTimeout(
+								function() {
+									if ( who['health'] > 0 ) {
+										prompt['say']( '<i>"' + selection['2'] + '"</i>', null, who.type );
+									}
+								},
+								2000
+							);
+						}
+					);
+				}
+			}, 100);
 		}
 	};
 })(),
@@ -904,6 +957,8 @@ run = function() {
 				return;
 			}
 
+			clearTimeout( dialog.timeout );
+
 			var vector = new V3(
 				( (ev.clientX - ca.offsetLeft) / b ) * 2 - 1,
 				- ( (ev.clientY - ca.offsetTop) / e ) * 2 + 1,
@@ -937,8 +992,18 @@ attack = function( who, direction, damage ) {
 		if ( players[i2] === who ) { continue };
 
 		if ( v3.copy( players[i2].p ).sub( v2 ).lengthSq() <= 200 ) {
-			players[i2]['health'] -= damage;
-			if ( players[i2]['health'] < 0 ) players[i2]['health'] = 0;
+			if (
+				who !== player // AI always stabs to kill
+				|| player.infected // infected player always stabs to kill
+				|| players[i2].type !== 'infected' // if it's a healed player and the stabee isn't infected, kill
+			) {
+				players[i2]['health'] -= damage;
+				if ( players[i2]['health'] < 0 ) players[i2]['health'] = 0;
+			} else {
+				players[i2].type = 'civilian';
+				players[i2].c = players[i2].buildMaterial( materials.civilian )
+				players[i2].infected = false;
+			}
 			return; // only stab one person at a time
 		}
 	}
@@ -951,6 +1016,9 @@ first_guard = false,
 first_scientist = false,
 first_civilian = false,
 first_infected = false,
+
+seen_antidote = false,
+seen_kerpow = false,
 
 last_anim, now, delta,
 anim = function() {
@@ -992,25 +1060,18 @@ anim = function() {
 							&& v2.copy( players[i2].p ).sub( players[i1].p ).lengthSq() <= 100 // player is within range
 						) {
 							players[i1].combat = .01;
+							players[i1].is_attacking = true;
 							break;
 						}
 					}
-					/*
-					if (
-						player['health'] > 0 // player isn't already dead
-						&& players[i1]['infected'] !== player['infected'] // player is not on AI's side
-						&& players[i1].k[l] > 0 // AI is armed
-						&& !players[i1].combat // not already striking
-						&& v2.copy( player.p ).sub( players[i1].p ).lengthSq() <= 100 // player is within range
-					) players[i1].combat = .01;
-					*/
 				}
 
 				// Combat animation
 				if ( players[i1].combat ) {
-					players[i1].combat += .1;
+					players[i1].combat += .1 * ( delta / 16 );
 					if ( players[i1].combat >= 2 ) players[i1].combat = 0;
-					if ( players[i1].combat >= .4 && players[i1].combat < .5 ) {
+					if ( players[i1].is_attacking && players[i1].combat >= .4 ) {
+						players[i1].is_attacking = false;
 						attack(
 							players[i1],
 							v1,
@@ -1129,6 +1190,18 @@ anim = function() {
 	cam.m.lookAt( v1 );
 
 	render();
+
+	// Check for winning/losing conditions
+	if ( !seen_antidote && player.p.x <= 100 && player.p.z >= 60 && player.p.z <= 130 ) {
+		seen_antidote = true;
+		prompt['say']( 'Press "x" to receive the ANTIDOTE!' );
+	}
+
+	if ( !seen_kerpow && player.p.x >= 1280 && player.p.x <= 1380 && player.p.z >= 60 && player.p.z <= 140 ) {
+		seen_kerpow = true;
+		prompt['say']( 'Press "x" to rid the world of the virus!' );
+	}
+
 	a( anim ); // rAF loop
 },
 calculateVisibilty = 0,
@@ -1151,7 +1224,7 @@ projectGraph = function() {
 				( o.type === 'scientist' || o.type === 'civilian' ) // must be a scientist or a civilian
 				&& o.iv // must be visible
 				&& !o.has_been_seen // must not have been seen before
-				&& v1.copy( o.p ).sub( player.p ).lengthSq() <= 2500 // player must be within 5 tiles
+				&& v1.copy( o.p ).sub( player.p ).lengthSq() <= 100 // player must be within 1 tile
 			) {
 				o.has_been_seen = true;
 				// Calculate which dialog ring the AI is in
@@ -1383,6 +1456,7 @@ createPerson = function( type, armed ) {
 	person.ap[1] = 0;
 	person.a = animations.person;
 	person.has_been_seen = false;
+	person.is_attacking = false;
 
 	person['health'] = 100;
 	person['infected'] = ( type === 'infected' );
@@ -1618,84 +1692,84 @@ title = function() {
 	}
 
 	// Row 1
-	drawRoom( 12, 0, 20, 6 );
+	drawRoom( 12, 0, 20, 6, { imin: 3, imax: 3, smin: 2, smax: 2 }  );
 	drawRoom( 16, 7, 20, 7 );
 
-	drawRoom( 22, 0, 31, 6 );
+	drawRoom( 22, 0, 31, 6, { smin: 3, smax: 3, cmin: 2, cmax: 3 }  );
 	drawRoom( 22, 7, 26, 7 );
 	drawRoom( 32, 3, 32, 6 );
 
-	drawRoom( 33, 0, 42, 6 );
+	drawRoom( 33, 0, 42, 6, { smin: 4, smax: 5 }  );
 	drawRoom( 38, 7, 42, 7 );
 
-	drawRoom( 44, 0, 53, 6 );
+	drawRoom( 44, 0, 53, 6, { gmin: 1, gmax: 1, cmin: 3, cmax: 4 }  );
 	drawRoom( 46, 7, 48, 7 );
 
-	drawRoom( 55, 0, 64, 9 );
+	drawRoom( 55, 0, 64, 9, { gmin: 1, gmax: 2, smin: 4, smax: 4 }  );
 	drawRoom( 57, 10, 59, 10 );
 
-	drawRoom( 66, 0, 76, 9 );
+	drawRoom( 66, 0, 76, 9, { gmin: 1, gmax: 2, smin: 4, smax: 4 }  );
 	drawRoom( 72, 10, 74, 10 );
 
-	drawRoom( 78, 0, 81, 10 );
-	drawRoom( 82, 0, 97, 4, { smin: 1, smax: 2, cmin: 1, cmax: 2, } );
-	drawRoom( 83, 5, 97, 9, { gmin: 2, gmax: 2, } );
+	drawRoom( 78, 0, 81, 10, { imin: 2, imax: 4 }  );
+	drawRoom( 82, 0, 97, 4, { smin: 1, smax: 2, cmin: 1, cmax: 2 }  );
+	drawRoom( 83, 5, 97, 9, { gmin: 2, gmax: 2 }  );
 
-	drawRoom( 99, 0, 104, 4, { gmin: 1, gmax: 1, smin: 1, smax: 2, cmin: 1, cmax: 1, } );
-	drawRoom( 106, 0, 115, 4, { gmin: 1, gmax: 1, smin: 3, smax: 4, } );
+	drawRoom( 99, 0, 104, 4, { gmin: 1, gmax: 1, smin: 1, smax: 2, cmin: 1, cmax: 1 }  );
+	drawRoom( 106, 0, 115, 4, { gmin: 1, gmax: 1, smin: 3, smax: 4 }  );
 	drawRoom( 99, 5, 115, 6 );
 	drawRoom( 104, 7, 106, 7 );
 
-	drawRoom( 117, 0, 126, 6, { gmin: 1, gmax: 1, cmin: 3, cmax: 4, }  );
+	drawRoom( 117, 0, 126, 6, { gmin: 1, gmax: 1, cmin: 3, cmax: 4 }  );
 	drawRoom( 121, 7, 123, 7 );
 
 	// Row 2
-	drawRoom( 0, 6, 10, 13, { smin: 3, smax: 6, } );
+	drawRoom( 0, 6, 10, 13, { smin: 3, smax: 6 }  );
 	drawRoom( 11, 9, 11, 10 );
 
-	drawRoom( 12, 8, 17, 14, { imin: 7, imax: 10, }  );
+	drawRoom( 12, 8, 17, 14, { imin: 7, imax: 10 }  );
 
 	drawRoom( 18, 8, 26, 11 );
 	drawRoom( 27, 8, 27, 10 );
 	drawRoom( 19, 12, 26, 14 );
 	drawRoom( 21, 15, 26, 15 );
 
-	drawRoom( 28, 8, 36, 18 );
+	drawRoom( 28, 8, 36, 18, { cmin: 3, cmax: 4, smin: 2, smax: 2 }  );
 	drawRoom( 37, 10, 37, 12 );
 	drawRoom( 32, 19, 34, 19 );
 
-	drawRoom( 38, 8, 53, 13 );
+	drawRoom( 38, 8, 53, 13, { gmin: 1, gmax: 2, smin: 1, smax:2 }  );
 
-	drawRoom( 54, 11, 81, 13 );
+	drawRoom( 54, 11, 81, 13, { imin: 5, imax: 8 }  );
 	drawRoom( 57, 14, 59, 14 );
 	drawRoom( 78, 14, 81, 14 );
 
-	drawRoom( 98, 8, 126, 12 , { gmin: 5, gmax: 9, smin: 2, smax: 3, }  );
+	drawRoom( 98, 8, 126, 12, { gmin: 5, gmax: 9, smin: 2, smax: 3 }  );
 	drawRoom( 104, 13, 106, 13 );
 	drawRoom( 120, 13, 122, 13 );
 	drawRoom( 127, 9, 127, 11 );
 
-	drawRoom( 128, 6, 138, 14 );
+	drawRoom( 128, 6, 138, 14, { gmin: 2, gmax: 2, cmin: 10, cmax: 12 }  );
 
 	drawRoom( 95, 10, 97, 25 );
 
 	// Row 3
-	drawRoom( 12, 16, 28, 18 );
+	drawRoom( 12, 16, 28, 18, { gmin: 2, gmax: 2, imin: 1, imax: 1 }  );
 	drawRoom( 12, 19, 21, 19 );
 
-	drawRoom( 38, 15, 42, 40 );
+	drawRoom( 38, 15, 42, 40, { gmin: 1, gmax: 1, imin: 3, imax: 3, smin: 2, smax: 2 }  );
 	drawRoom( 43, 20, 43, 23 );
 
-	drawRoom( 44, 15, 48, 32 );
+	drawRoom( 44, 15, 48, 32, { gmin: 2, gmax: 2, imin: 3, imax: 3 }  );
 	drawRoom( 49, 15, 49, 19 );
 
-	drawRoom( 50, 15, 54, 32 );
-	drawRoom( 55, 26, 61, 32 );
+	drawRoom( 50, 15, 54, 32, { gmin: 1, gmax: 1, smin: 2, smax: 2 }  );
+	drawRoom( 55, 26, 61, 32, { cmin: 2, cmax: 2, smin: 1, smax: 1 }  );
 	drawRoom( 62, 27, 65, 32 );
 
-	drawRoom( 56, 15, 67, 25 );
+	drawRoom( 56, 15, 67, 25, { gmin: 2, gmax: 2, smin: 3, smax: 4 }  );
 
-	drawRoom( 69, 15, 75, 25, { imin: 2, imax: 3, smin: 1, smax: 1, } );
+	drawRoom( 69, 15, 75, 25, { imin: 2, imax: 3, smin: 1, smax: 1 }  );
 	drawRoom( 76, 17, 76, 19 );
 	drawRoom( 72, 26, 75, 26 );
 
@@ -1709,27 +1783,27 @@ title = function() {
 	drawRoom( 90, 11, 93, 21 );
 	drawRoom( 94, 11, 94, 15 );
 
-	drawRoom( 99, 14, 104, 20, { gmin: 1, gmax: 1, smin: 1, smax: 2, cmin: 1, cmax: 1, } );
+	drawRoom( 99, 14, 104, 20, { gmin: 1, gmax: 1, smin: 1, smax: 2, cmin: 1, cmax: 1 }  );
 	drawRoom( 105, 14, 105, 15 );
 
-	drawRoom( 106, 14, 115, 20, { gmin: 1, gmax: 1, smin: 3, smax: 4, } );
+	drawRoom( 106, 14, 115, 20, { gmin: 1, gmax: 1, smin: 3, smax: 4 }  );
 
-	drawRoom( 117, 14, 126, 20, { gmin: 2, gmax: 2, cmin: 3, cmax: 5, } );
-	drawRoom( 128, 6, 138, 14, { gmin: 2, gmax: 3, cmin: 7, cmax: 10, } );
+	drawRoom( 117, 14, 126, 20, { gmin: 2, gmax: 2, cmin: 3, cmax: 5 }  );
+	drawRoom( 128, 6, 138, 14, { gmin: 2, gmax: 3, cmin: 7, cmax: 10 }  );
 
 	// Row 4
-	drawRoom( 12, 20, 36, 24 );
+	drawRoom( 12, 20, 36, 24, { imin: 4, imax: 5, gmin: 2, gmax: 2. } );
 	drawRoom( 37, 20, 37, 23 );
 
-	drawRoom( 98, 22, 100, 25, { gmin: 1, gmax: 2, cmin: 1, cmax: 2, } );
+	drawRoom( 98, 22, 100, 25, { gmin: 1, gmax: 2, cmin: 1, cmax: 2 }  );
 	drawRoom( 124, 21, 126, 21 );
 
-	drawRoom( 101, 22, 126, 24, { gmin: 1, gmax: 2, cmin: 2, cmax: 2, smin: 2, smax: 4, }   );
+	drawRoom( 101, 22, 126, 24, { gmin: 1, gmax: 2, cmin: 2, cmax: 2, smin: 2, smax: 4 }   );
 
-	drawRoom( 43, 38, 51, 40 );
+	drawRoom( 43, 38, 51, 40, { gmin: 1, gmax: 1, cmin: 1, cmax: 1 }  );
 
 	// Row 5
-	drawRoom( 44, 34, 65, 37 );
+	drawRoom( 44, 34, 65, 37, { cmin: 4, cmax: 5, smin: 3, smax: 4 }  );
 
 	// Entry hallway
 	drawRoom( 70, 27, 75, 29, { imin:2, imax:2 } );
@@ -1814,7 +1888,30 @@ title = function() {
 
 				switch ( ev.keyCode ) {
 					case 32: //space
-						if ( !player.combat ) player.combat = .01;
+						if ( !player.combat ) {
+							player.combat = .01;
+							player.is_attacking = true;
+						}
+						break;
+					case 88: // X
+
+						if ( player.p.x <= 100 && player.p.z >= 60 && player.p.z <= 130 ) {
+							player.infected = false;
+							prompt['say']( 'You have taken the ANTIDOTE and are now healed!' );
+						}
+
+						if ( player.p.x >= 1280 && player.p.x <= 1380 && player.p.z >= 60 && player.p.z <= 140 ) {
+							prompt['say']( 'Ahahhahahahahhahhahahahahahahaha<br><br>Click or press any key to restart.' );
+							player['health'] = 0;
+							setInterval(
+								function() {
+									for ( i1 = 0; i1 < 10; i1++ ) {
+										scene_objects.splice( Math.floor( Math.random() * (scene_objects[l]-1) ), 1 );
+									}
+								},
+								5
+							);
+						}
 						break;
 				}
 			});
