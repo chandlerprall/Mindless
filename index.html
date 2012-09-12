@@ -1,26 +1,41 @@
-<!DOCTYPE html><html><head><title>Lab 13</title><style>* {cursor: default;} body {-webkit-touch-callout: none;-webkit-user-select: none;-khtml-user-select: none;-moz-user-select: none;-ms-user-select: none;user-select: none;background:#222;width:100%;height:100%;margin:auto;} canvas {position:absolute;}
+<!DOCTYPE html><html><head><title>Lab 13</title><style>* {cursor: default;} body {overflow: hidden;-webkit-touch-callout: none;-webkit-user-select: none;-khtml-user-select: none;-moz-user-select: none;-ms-user-select: none;user-select: none;background:#fff;width:100%;height:100%;margin:auto;} canvas {position:absolute;}
 
 #d {
 	position:absolute;
 	z-index:1;
-	/*margin:auto;*/
 	left:20px;
 	bottom: 20px;
-	width:600px;
+	width:90%;
 	height:130px;
 	padding:16px 550px 16px 16px;
-	/* background:#fff; */
+	background-image: -moz-linear-gradient( center right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 1.0) );
+	background-image: -webkit-gradient(
+        linear, right top, left top,
+        from(rgba(0, 0, 0, 0)),
+        to(rgba(0, 0, 0, 1.0))
+    );
+	font-family:/*"Book Antiqua", Palatino, "Palatino Linotype", "Palatino LT STD", */ Courier, sans-serif;
+	color:#FFF;
+	display:none;
+}
+#d:after {content:"(Press any key to close)";font-size:11px;position:absolute;left:10px;bottom:-18px;color:#FFF;}
+#d.scientist {
+	background-image: -moz-linear-gradient( center right, rgba(226, 223, 222, 0), rgba(226, 223, 222, 1.0) );
 	background-image: -webkit-gradient(
           linear, right top, left top, from(rgba(226, 223, 222, 0)),
           to(rgba(226, 223, 222, 1.0))
         );
-	/* border:1px solid #333; */
-	font-family:/*"Book Antiqua", Palatino, "Palatino Linotype", "Palatino LT STD", */ Courier, sans-serif;
 	color:#333;
-	display:none;
-	/* border-radius:4px; */
 }
-#d:after {content:"(Press any key to close)";font-size:11px;position:absolute;left:10px;bottom:-18px;color:#FFF;}</style></head><body><canvas id="c"></canvas><div id="d"></div><script>
+#d.civilian {
+	background-image: -moz-linear-gradient( center right, rgba(80, 89, 43, 0), rgba(80, 89, 43, 1.0) );
+	background-image: -webkit-gradient(
+          linear, right top, left top, from(rgba(80, 89, 43, 0)),
+          to(rgba(80, 89, 43, 1.0))
+        );
+	color:#333;
+}
+</style></head><body><canvas id="c"></canvas><div id="d"></div><script>
 var l='length',p='prototype',sq=Math.sqrt, // shortcuts
 
 //Vector3
@@ -543,7 +558,7 @@ Geometry[p].computeBoundingSphere = function () {
 
 	}
 
-	this.boundingSphere = Math.sqrt( maxRadiusSq );
+	this.boundingSphere = sq( maxRadiusSq );
 
 };
 
@@ -599,11 +614,11 @@ noise = (function() {
 	SimplexNoise[p].noise = function(xin, yin) { 
 		var n0, n1, n2; // Noise contributions from the three corners 
 		// Skew the input space to determine which simplex cell we're in 
-		var F2 = 0.5*(Math.sqrt(3.0)-1.0); 
+		var F2 = 0.5*(sq(3.0)-1.0); 
 		var s = (xin+yin)*F2; // Hairy factor for 2D 
 		var i = Math.floor(xin+s); 
 		var j = Math.floor(yin+s); 
-		var G2 = (3.0-Math.sqrt(3.0))/6.0; 
+		var G2 = (3.0-sq(3.0))/6.0; 
 		var t = (i+j)*G2; 
 		var X0 = i-t; // Unskew the cell origin back to (x,y) space 
 		var Y0 = j-t; 
@@ -681,6 +696,8 @@ materials = {
 	'wall_0': [ 80, 70, 70, 1 ],
 	'wall_1': [ 85, 75, 70, 1 ],
 	'wall_2': [ 80, 75, 75, 1 ],
+
+	'terminal': [ 100, 90, 90, 1, 20, 80, 10, 1 ],
 
 	'player': [
 		76,100,107,1, //shirt
@@ -783,45 +800,91 @@ models = {
 				2,1,0,0,
 				3,2,0,0
 			]
+		),
+	'terminal': new Geometry(
+			[
+				-1,8,2,
+				1,8,2,
+				2,0,2,
+				-2,0,2,
+
+				-2,0,-2,
+				-1,10,0,
+
+				2,0,-2,
+				1,10,0
+			],
+			[
+				// South
+				2,1,0,0,
+				3,2,0,0,
+
+				// West
+				3,0,5,0,
+				5,4,3,0,
+
+				// North
+				4,5,7,0,
+				7,6,4,0,
+
+				// East
+				6,7,1,0,
+				1,2,6,0,
+
+				// Top
+				1,7,5,1,
+				5,0,1,1
+			]
 		)
 },
 
 players = [],
 player,
+terminal,
+score = 0,
 
 dialog = (function() {
 	var pieces = [	// Intro
 			{ t: 1, i: -5, w: 'scientist', '1': "Wait! Wait, please - you don't understand what's happening, please stop!", '2': "You don't get it . . ." },
 			{ t: 1, i: 2, w: 'civilian', '1': "Shit! Another one! Get back! I'm warning you!", '2': "Listen, I can't defend myself. Just please, think about what you're doing!" },
 			{ t: 1, i: 2, w: 'scientist', '1': "I saw what you did to those guards. What's the matter with you? Is that a fire poker?", '2': "I'm not getting through to you am I ..." },
-			{ t: 1, i: 2, w: 'civilian', '1': "I'm not getting through to you am I ...", '2': "I think if you step back and question what's going on, you'll put that thing down." },
+			{ t: 1, i: 2, w: 'civilian', '1': "None of this is even phasing you, is it?", '2': "I think if you step back and question what's going on, you'll put that thing down." },
 			{ t: 1, i: 3, w: 'scientist', '1': "Wait! We think you may be sick, we're only trying to help.", '2': "Can you hear us? You're hearing another voice, aren't you? Please stop. We can tell you what the voice means." },
 			{ t: 2, i: 3, w: 'civilian', '1': "... Are you hearing it right now?", '2': "You're being tricked." },
 			{ t: 2, i: 3, w: 'scientist', '1': "... Are you not going to kill us?<br>... You stopped listening for a second, didn't you? Can you hear me?", '2': "Is it talking again? I can get it to stop of you listen to me." },
 			{ t: 2, i: 3, w: 'scientist', '1': "Don't get too close! He's infected!", '2': "Yes, YOU. YOU are infected. Please, hear me out." },
-			// Agressive dialogue (bad setting)
-			{ a: true, t: 4, i: 3, w: 'scientist', '1': "CÕmon, would you put that thing down?  Does it look like thatÕs helping this situation?", '2': "You probably think IÕm trying to trick you.  Why are all the INFECTEDS thinking that?!" },
-			{ a: true, t: 8, i: 6, w: 'civilian', '1': "ItÕs funny - the crazier things get, the more IÕm able to roll with the punches.", '2': "text" },
-			{ a: true, t: 6, i: 8, w: 'scientist', '1': "You know, Einstein said, ÔI do not know with what weapons World War III will be fought, but World War IV will be fought with sticks and stones.", '2': "IÕm just saying, look at yourself.  Look at these guards.  Does this feel right to you?" },
-			{ a: true, t: 10, i: 1, w: 'scientist', '1': "PLEASE!  DonÕt kill the refugees.  DonÕt activate the self destruct.  DonÕt do whatever itÕs telling you, please . . .", '2': "WeÕre running out of guards . . . you win . . . just please donÕt kill all of us." },
-			// Insightful dialogue (good setting)
-			{ a: false, t: 5, i: 4, w: 'scientist', '1': "This lab is closed to civilians, but it doesnÕt seem to be stopping anyone from coming in.  You, for instance - you look like you just rolled out of bed.", '2': "I guess itÕs understandable in a situation like this." },
-			{ a: false, t: 8, i: 3, w: 'scientist', '1': "It was supposed to just be a high tech personal assistant, like that phone app that talks to you.  But it seems that once itÕs in your head, you canÕt tell the difference between it, and you.", '2': "The hard reset probably didnÕt help things either.  Let me guess, the last thing you remember is just standing around, this voice telling you what to do?" },
-			{ a: false, t: 6, i: 3, w: 'scientist', '1': "You look disoriented.  Did you get hit by the hard reset?", '2': "Just go back to your home, weÕll have everything back online soon." },
-			{ a: false, t: 5, i: 5, w: 'scientist', '1': "If it makes you feel any better, weÕre all pretty confused.", '2': "This is only hour one of the virus, you know?  And thereÕs no telling how far it has reached within the network." },
-			{ a: false, t: 8, i: 5, w: 'scientist', '1': "If things keep up like this, theyÕll blow the place, no questions asked.", '2': "They donÕt seem to understand that wonÕt stop the spread.  Plus theyÕd be blowing up the debugger along with us!" },
-			{ a: false, t: 6, i: 5, w: 'civilian', '1': "TheyÕve got an debugger off in the West-most room.  CanÕt get it out though, the scientists are being held in by the INFECTEDS.", '2': "I guess thereÕs too many of 'em for the guards.  ItÕs a really awful situation." },
-			{ a: false, t: 8, i: 7, w: 'civilian', '1': "Can you see over there?  My buddy is on the other side of this wall.  I can hear him.  IÕm afraid to leave though.", '2': "I think IÕll just accept this as a new paradigm to our relationship.  It hasnÕt been so bad." },
-			{ a: false, t: 9, i: 9, w: 'scientist', '1': "I stopped going to church . . . probably four years ago.  Sometimes I think that if I had been there this Sunday, I might have avoided this.", '2': "But it wouldnÕt have saved all of these people, would it?  See, thatÕs the problem with the whole thing.  I guess IÕd just rather be here fixing things myself." },
-			{ a: false, t: 7, i: 10, w: 'civilian', '1': "I got some M&Ms from the vending machine.  Why not, right?", '2': "CanÕt really taste them though.  I guess not even chocolate is gonna get my mind off the crazed maniacs trying to stab me." },
-			{ a: false, t: 10, i: 10, w: 'scientist', '1': "What a crappy internship this turned out to be.  My friend got a gig at Umbrella Corp; heÕs probably sitting around drinking coffee and complaining about spreadsheets or something.", '2': "Bio sciences is where itÕs at.  Not this dangerous tech startup business." },
-			{ a: false, t: 6, i: 10, w: 'scientist', '1': "We used to have a conference table in here.  The prompts broke them all though :/", '2': "I used to sit in here, bored out of my mind.  This is all pretty surreal for me." },
-			{ a: false, t: 6, i: 10, w: 'scientist', '1': "Scientist?  Try ENGINEER.  If I would have thought my computer science degree would have come to being stabbed by buggy software, I would have gone to art school.", '2': "You wouldnÕt guess it, but IÕm quite good with charcoal.  A lot better than QAing software.  If you know what I mean.  Sorry about your brain." }
-			//{ t: 1, i: 1, w: 'scientist', '1': "text", '2': "text" },
-			//{ t: 1, i: 1, w: 'scientist', '1': "text", '2': "text" },
-			//{ t: 1, i: 1, w: 'scientist', '1': "text", '2': "text" },
-			//{ t: 1, i: 1, w: 'scientist', '1': "text", '2': "text" },
-			//{ t: 1, i: 1, w: 'scientist', '1': "text", '2': "text" }
+			{ t: 2, i: 2, w: 'scientist', '1': "Come on, would you put that thing down?  Does it look like that's helping this situation?", '2': "You probably think I'm trying to trick you.  Why are all the INFECTEDS thinking that?!" },
+			{ t: 4, i: 5, w: 'civilian', '1': "It's funny - the crazier things get, the more I'm able to roll with the punches.", '2': "Trust me, you're nothing compared to the whole Prompt Virus thing." },
+			{ t: 4, i: 5, w: 'scientist', '1': "You know, Einstein said, 'I do not know with what weapons World War III will be fought, but World War IV will be fought with sticks and stones.", '2': "I'm just saying, look at yourself.  Look at these guards.  Does this feel right to you?" },
+			{ t: 4, i: 1, w: 'scientist', '1': "PLEASE!  Don't kill the refugees.  Don't activate the self destruct.  Don't do whatever it's telling you, please . . .", '2': "We're running out of guards . . . you win . . . just please don't kill all of us." },
+			{ t: 1, i: 4, w: 'scientist', '1': "This lab is closed to civilians, but it doesn't seem to be stopping anyone from coming in.  You, for instance - you look like you just rolled out of bed.", '2': "I guess it's understandable in a situation like this." },
+			{ t: 3, i: 1, w: 'scientist', '1': "It was supposed to just be a high tech personal assistant, like that phone app that talks to you.  But it seems that once it's in your head, you can't tell the difference between it, and you.", '2': "The hard reset probably didn't help things either.  Let me guess, the last thing you remember is just standing around, this voice telling you what to do?" },
+			{ t: 2, i: 1, w: 'scientist', '1': "You look disoriented.  Did you get hit by the hard reset?", '2': "Just go back to your home, we'll have everything back online soon." },
+			{ t: 3, i: 1, w: 'scientist', '1': "If it makes you feel any better, we're all pretty confused.", '2': "This is only hour one of the virus, you know?  And there's no telling how far it has reached within the network." },
+			{ t: 3, i: 2, w: 'scientist', '1': "If things keep up like this, they'll blow the place, no questions asked.", '2': "They don't seem to understand that won't stop the spread.  Plus they'd be blowing up the debugger along with us!" },
+			{ t: 2, i: 1, w: 'civilian', '1': "They've got an debugger off in the room to the far left.  Can't get it out though, the scientists are being held in by the INFECTEDS.", '2': "I guess there's too many of 'em for the guards.  It's a really awful situation." },
+			{ t: 3, i: 4, w: 'civilian', '1': "Can you see over there?  My buddy is on the other side of this wall.  I can hear him.  I'm afraid to leave though.", '2': "I think I'll just accept this as a new paradigm to our relationship.  It hasn't been so bad." },
+			{ t: 4, i: 5, w: 'scientist', '1': "I stopped going to church . . . probably four years ago.  Sometimes I think that if I had been there this Sunday, I might have avoided this.", '2': "But it wouldn't have saved all of these people, would it?  See, that's the problem with the whole thing.  I guess I'd just rather be here fixing things myself." },
+			{ t: 3, i: 3, w: 'civilian', '1': "I got some M&Ms from the vending machine.  Why not, right?", '2': "Can't really taste them though.  I guess not even chocolate is gonna get my mind off the crazed maniacs trying to stab me." },
+			{ t: 4, i: 5, w: 'scientist', '1': "What a crappy internship this turned out to be.  My friend got a gig at Umbrella Corp; he's probably sitting around drinking coffee and complaining about spreadsheets or something.", '2': "Bio sciences is where it's at.  Not this dangerous tech startup business." },
+			{ t: 3, i: 5, w: 'scientist', '1': "We used to have a conference table in here.  The prompts broke them all though :/", '2': "I used to sit in here, bored out of my mind.  This is all pretty surreal for me." },
+			{ t: 2, i: 3, w: 'scientist', '1': "Scientist?  Try ENGINEER.  If I would have thought my computer science degree would have come to being stabbed by buggy software, I would have gone to art school.", '2': "You wouldn't guess it, but I'm quite good with charcoal.  A lot better than QAing software.  If you know what I mean.  Sorry about your brain." },
+			{ t: 1, i: 3, w: 'civilian', '1': "This laboratory isn't even that old, and now it looks like we'll have to raze it to the ground.", '2': "I'm not kidding, there's a control room to the far right that could blow this whole place up with the touch of the button.  It's hard not to think about." },
+			{ t: 1, i: 4, w: 'civilian', '1': "That look in your eye is so frightening.  How is this so easy for you?", '2': "I've never seen anyone so detached from reality." },
+			{ t: 1, i: 2, w: 'civilian', '1': "All the <b>INFECTEDS</b> seem to be heading to the right, where the refugees are.  That's scary.", '2': "Well, some of them are going to the debugger room to the left.  If they kill the <b>SCIENTISTS</b> working to reverse this, we're really screwed." },
+			{ t: 1, i: 5, w: 'civilian', '1': "So many people with sharp sticks . . . I can't tell who's stabbing who.", '2': "You seem to be stabbing people who are just blocking your path.  No really, let me move . . ." },
+			{ t: 2, i: 1, w: 'scientist', '1': "Don't take it out on me!  I told them the code wasn't ready.  They pushed it anyway.", '2': "I kinda wish I could hear what you're hearing.  It would be easier to debug . . ." },
+			{ t: 4, i: 5, w: 'civilian', '1': "Sometimes I wonder what it's like to be a zombie.  Would you know what you're doing is weird?", '2': "I suppose not.  It would make more sense to me that you simply saw things differently.  Does that make sense?" },
+			{ t: 5, i: 5, w: 'scientist', '1': "I'd like to tell you about everything that happened here, but I've only been allocated 197 bytes of text.  Unfair, right?", '2': "Well GET USED TO IT.  This is life.  You need a novel, but you get 197 bytes.  The rest is up to you." },
+			{ t: 2, i: 3, w: 'civilian', '1': "You going left?  Or are you going right?  I need to know if I can trust you.", '2': "Still making up your mind maybe?  Take your time.  We're just being stabbed to death, no hurry." },
+			{ t: 3, i: 4, w: 'civilian', '1': "So a man walks into a bar, and stares into his phone the entire evening.  The bartender says nothing, he's checking his email.", '2': ". . . Get it?  Of course not; you're zoned out like every other early adopter who bought the brain implant." },
+			{ t: 3, i: 3, w: 'civilian', '1': "How's that remarkable new app treating you?  Having fun hearing voices, committing random acts of violence?", '2': "You forget how to talk after that thing wiped your brain?  No that's fine, just keep walking and stabbing at the air." },
+			{ t: 3, i: 2, w: 'scientist', '1': "People were amazed by the promise of thought-controlled web searches and task management.  Who wouldn't be?", '2': "In typical corporate fashion, we rushed the thing to market.  Now look at this mess." },
+			{ t: 4, i: 3, w: 'scientist', '1': "Lesson learned - no more brain-apps until we understand the brain better.  Boy, did we EVER miss some blind spots.", '2': "Can you just tell me what it's saying to you?  It might help us solve all this faster." },
+			{ t: 1, i: 3, w: 'scientist', '1': "If someone would just get to the room on the far left of the lab, we could get the debugger out and start reversing all this.", '2': "You wanna go?  You've got that pointy stick already.  Just plow through the <b>INFECTEDS</b> blocking the way." },
+			{ t: 3, i: 3, w: 'scientist', '1': "You're kinda in the way . . . It's nice you're all up and walking again, stabbing things - but we're trying to reverse a major crisis here if you don't mind.", '2': ". . . Not even a response?  This is worse than I thought." },
+			{ t: 4, i: 5, w: 'scientist', '1': "Sometimes programmers get tired, OK?  Sometimes they get worked too hard and and catch the flu and have to program while on cold medicine.", '2': "I'm not trying to excuse my actions, I'm just telling you because I know you can't hear me.  It's been a rough week around here." },
+			{ t: 1, i: 1, w: 'scientist', '1': "If you can hear me, say something.", '2': "That's what I thought.  These guys are completely brain dead." }
 		],
 		possibilities_sorter = function( a, b ) {
 			// Push the more important pieces to the top, with some randomness to keep things interesting
@@ -829,7 +892,12 @@ dialog = (function() {
 		},
 		times_interjected = 0,
 		second_speech,
-		i1;
+		i1,
+		focus = function( who ) {
+			cam.look_at_target.copy( who.p ).sub( player.p );
+			cam.look_at_target.y = 10;
+			cam.position_target.set( 5, 15, 5 );
+		};
 
 	return {
 		timeout: null,
@@ -862,9 +930,7 @@ dialog = (function() {
 			setTimeout(function() {
 				if ( who['health'] <= 0 ) return;
 
-				cam.look_at_target.copy( who.p ).sub( player.p );
-				cam.look_at_target.y = 10;
-				cam.position_target.set( 0, 10, 0 );
+				focus( who );
 			
 				prompt['say'](
 					'<i>"' + selection['1'] + '"</i>',
@@ -872,6 +938,7 @@ dialog = (function() {
 						if ( times_interjected > 3 ) {
 							dialog.timeout = setTimeout(
 								function() {
+									focus( who );
 									if ( who['health'] > 0 ) {
 										prompt['say']( '<i>"' + selection['2'] + '"</i>', null, who.type );
 									}
@@ -884,10 +951,11 @@ dialog = (function() {
 				);
 				if ( ++times_interjected <= 3 ) {
 					prompt['say'](
-						'Enemies will try to trick you. Click <b>SPACEBAR</b> to attack them.',
+						'Enemies will try to trick you. Click <b>SPACEBAR</b> to attack them, and continue to the room at the <b>FAR RIGHT</b>.',
 						function() {
 							dialog.timeout = setTimeout(
 								function() {
+									focus( who );
 									if ( who['health'] > 0 ) {
 										prompt['say']( '<i>"' + selection['2'] + '"</i>', null, who.type );
 									}
@@ -992,18 +1060,8 @@ attack = function( who, direction, damage ) {
 		if ( players[i2] === who ) { continue };
 
 		if ( v3.copy( players[i2].p ).sub( v2 ).lengthSq() <= 200 ) {
-			if (
-				who !== player // AI always stabs to kill
-				|| player.infected // infected player always stabs to kill
-				|| players[i2].type !== 'infected' // if it's a healed player and the stabee isn't infected, kill
-			) {
-				players[i2]['health'] -= damage;
-				if ( players[i2]['health'] < 0 ) players[i2]['health'] = 0;
-			} else {
-				players[i2].type = 'civilian';
-				players[i2].c = players[i2].buildMaterial( materials.civilian )
-				players[i2].infected = false;
-			}
+			players[i2]['health'] -= damage;
+			if ( players[i2]['health'] < 0 ) players[i2]['health'] = 0;
 			return; // only stab one person at a time
 		}
 	}
@@ -1032,7 +1090,7 @@ anim = function() {
 			has_walked = true;
 			prompt['say']( 'Earlier today an airborne virus escaped from the lab, which has infected nearly 50% of the city\'s residents.' );
 			prompt['say']( 'The INFECTED are not very strong, but are very smart. One by one they are capturing humans and killing them. This is their nest.');
-			prompt['say']( 'An ANTIDOTE is being held in a room at the EAST of the lab. You must find it and release it before everyone becomes INFECTED.');
+			prompt['say']( 'An ANTIDOTE is being held in a room to the FAR RIGHT. You must find it and release it before everyone becomes INFECTED.');
 		}
 	}
 
@@ -1077,7 +1135,7 @@ anim = function() {
 							v1,
 							players[i1] === player ? 100 : // player attacks with full strength
 											(
-												players[i1].type === 'guard' ? 20 // guards damage 20 points
+												players[i1].type === 'guard' ? 5 // guards damage 5 points
 												: 10 // everyone else does 10 damage
 											)
 						);
@@ -1109,7 +1167,7 @@ anim = function() {
 					if (
 						v3.x < 0 || v3.z < 0 || v3.x / 10 > map[0][l] - 1 || v3.z / 10 > map[l] - 1 // Map edges
 						||
-						map[Math.round( v3.z / 10 )][Math.round( v3.x / 10 )] === 0
+						map[Math.round( v3.z / 10 )][Math.round( v3.x / 10 )] !== 1
 					) {
 						continue;
 					}
@@ -1150,6 +1208,8 @@ anim = function() {
 					players[i1].k[0].ap[0] = .5;
 					players[i1].k[0].ap[1] = 0;
 				}
+
+				if ( !players[i1].infected ) score++;
 
 				players[i1].p.y += .5;
 				v2.copy( players[i1].p );
@@ -1192,12 +1252,12 @@ anim = function() {
 	render();
 
 	// Check for winning/losing conditions
-	if ( !seen_antidote && player.p.x <= 100 && player.p.z >= 60 && player.p.z <= 130 ) {
+	if ( !seen_antidote && player.p.x <= 80 && player.p.z >= 60 && player.p.z <= 130 ) {
 		seen_antidote = true;
-		prompt['say']( 'Press "x" to receive the ANTIDOTE!' );
+		prompt['say']( 'Press "x" to vote for hope and change!' );
 	}
 
-	if ( !seen_kerpow && player.p.x >= 1280 && player.p.x <= 1380 && player.p.z >= 60 && player.p.z <= 140 ) {
+	if ( !seen_kerpow && player.p.x >= 1300 && player.p.x <= 1320 && player.p.z >= 90 && player.p.z <= 110 ) {
 		seen_kerpow = true;
 		prompt['say']( 'Press "x" to rid the world of the virus!' );
 	}
@@ -1307,7 +1367,7 @@ projectGraph = function() {
 					cam.look_at_target.copy( o.p ).sub( player.p );
 					cam.look_at_target.y = 10;
 					cam.position_target.set( 0, 10, 0 );
-					prompt['say']( 'In the lab you will also encounter <b>SCIENTISTS</b>. They will attempt to escape if you chase them, will give you <b>HEALTH</b> if you kill them. There\'s one now. Try sneaking up on him and attacking.' );
+					prompt['say']( 'In the lab you will also encounter <b>SCIENTISTS</b>. They will attempt to escape if you chase them and will give you <b>HEALTH</b> if you kill them. There\'s one now. Try sneaking up on him and attacking.' );
 				}
 			}
 
@@ -1317,7 +1377,7 @@ projectGraph = function() {
 					cam.look_at_target.copy( o.p ).sub( player.p );
 					cam.look_at_target.y = 10;
 					cam.position_target.set( 0, 10, 0 );
-					prompt['say']( 'The <b>INFECTED</b> are not physically dangerous, but are very crafty and will lead you into traps. If you run into them, kill them or scare them away. There\'s a few now.' );
+					prompt['say']( 'The <b>INFECTED</b> are not physically dangerous, but are very crafty and will lead you into traps. Kill them on sight. There\'s a few now.' );
 				}
 			}
 			
@@ -1439,7 +1499,7 @@ expand = function( v1, v2 ) {
 
 	if ( det == 0 ) return;
 
-	idet = 1 / Math.sqrt( det );
+	idet = 1 / sq( det );
 
 	x *= idet; y *= idet;
 
@@ -1550,9 +1610,11 @@ render = function() {
 	readyFaces();
 	renderElements();
 
+	c.font = '11pt Courier';
+
+	// Draw the health bar
 	if ( player['health'] > 0 ) {
 		var health_start = b - (b * .9);
-		// Draw the health bar
 		c.fillStyle = '#b30';
 		c.fillRect(
 			health_start,
@@ -1560,19 +1622,27 @@ render = function() {
 			( b - health_start * 2 ) * ( player['health'] * .01 ),
 			Math.min( 20, e * .1 )
 		);
+		c.fillStyle = '#fff';
+		c.fillText( 'Health: ' + player['health'], b / 2 - 50, 25 );
+	}
+
+	// Draw score
+	if ( score > 0 ) {
+		c.fillStyle = '#fff';
+		c.fillText( 'Killed: ' + score, b - 100, 25 );
 	}
 },
 title = function() {
 	c.fillStyle = '#241D23';
 	c.fillRect(0,0,b,e);
 	c.font = '36pt Courier';
-	c.fillStyle = '#FFFFFF';
+	c.fillStyle = '#fff';
 	c.fillText( 'Problems of Method', b / 2 - 275, 100 );
 
 	c.font = '11pt Courier';
-	c.fillText( '1. Chandler Prall, Programmer', b - 300, e - 70 );
-	c.fillText( '2. Nick Anderson, Writer', b - 300, e - 50 );
-	c.fillText( '3. Shawn Gardner, Exec. Producer', b - 300, e - 30 );
+	c.fillText( 'Chandler Prall, Programmer', b - 300, e - 70 );
+	c.fillText( 'Nick Anderson,  Writer', b - 300, e - 50 );
+	c.fillText( 'Shawn Gardner,  Exec. Producer', b - 300, e - 30 );
 
 	var i1, i2, i3, drawRoom = function( x1, y1, x2, y2, options ) {
 		options = options || {};
@@ -1684,9 +1754,9 @@ title = function() {
 	};
 
 	// Generate map
-	for ( i1 = 0; i1 < 138; i1++ ) {
+	for ( i1 = 0; i1 < 139; i1++ ) {
 		map[i1] = [];
-		for ( i2 = 0; i2 < 138; i2++ ) {
+		for ( i2 = 0; i2 < 139; i2++ ) {
 			map[i1][i2] = 0;
 		}
 	}
@@ -1866,6 +1936,12 @@ title = function() {
 		}
 	}
 
+	var terminal = new Model( models['terminal'], materials['terminal'] );
+	terminal.p.set( 1310, 0, 100 );
+	map[10][131] = 2; // block player from walking through the terminal
+	terminal.r.y = -Math.PI / 2;
+	scene_objects.push( terminal );
+
 	player = createPerson( 'player', true );
 	player['infected'] = true;
 	player.p.set( 680, .3, 550 );
@@ -1896,17 +1972,42 @@ title = function() {
 					case 88: // X
 
 						if ( player.p.x <= 100 && player.p.z >= 60 && player.p.z <= 130 ) {
-							player.infected = false;
-							prompt['say']( 'You have taken the ANTIDOTE and are now healed!' );
+							var fade = 0;
+							setInterval(
+								function(){
+									player
+									fade += .01;
+									ca.style.opacity = 1 - fade;
+
+									if ( fade > 1 ) {
+										prompt['say']( 'You get a tingly feeling all over your body...<br><br>Click or press any key to play again.' );
+										player['health'] = -1;
+										fade = 1;
+									}
+								},
+								10
+							);
 						}
 
 						if ( player.p.x >= 1280 && player.p.x <= 1380 && player.p.z >= 60 && player.p.z <= 140 ) {
-							prompt['say']( 'Ahahhahahahahhahhahahahahahahaha<br><br>Click or press any key to restart.' );
+							prompt['say']( 'Bbbooooooooooooooooommmm<br><br>Click or press any key to play again.' );
 							player['health'] = 0;
+							setTimeout(
+								function() {
+									cam.position_target.set( 80, 150, 80 )
+								},
+								250
+							);
 							setInterval(
 								function() {
 									for ( i1 = 0; i1 < 10; i1++ ) {
 										scene_objects.splice( Math.floor( Math.random() * (scene_objects[l]-1) ), 1 );
+									}
+									if ( scene_objects[l] === 0 ) return;
+									for ( i1 = 0; i1 < 10; i1++ ) {
+										scene_objects[Math.floor( Math.random() * (scene_objects[l]-1) )].r.x += Math.random() * Math.PI - (Math.PI / 2);
+										scene_objects[Math.floor( Math.random() * (scene_objects[l]-1) )].r.y += Math.random() * Math.PI - (Math.PI / 2);
+										scene_objects[Math.floor( Math.random() * (scene_objects[l]-1) )].r.z += Math.random() * Math.PI - (Math.PI / 2);
 									}
 								},
 								5
