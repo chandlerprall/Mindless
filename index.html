@@ -33,7 +33,7 @@
           linear, right top, left top, from(rgba(80, 89, 43, 0)),
           to(rgba(80, 89, 43, 1.0))
         );
-	color:#333;
+	color:#FFF;
 }
 </style></head><body><canvas id="c"></canvas><div id="d"></div><script>
 var l='length',p='prototype',sq=Math.sqrt, // shortcuts
@@ -845,46 +845,48 @@ score = 0,
 
 dialog = (function() {
 	var pieces = [	// Intro
-			{ t: 1, i: -5, w: 'scientist', '1': "Wait! Wait, please - you don't understand what's happening, please stop!", '2': "You don't get it . . ." },
-			{ t: 1, i: 2, w: 'civilian', '1': "Shit! Another one! Get back! I'm warning you!", '2': "Listen, I can't defend myself. Just please, think about what you're doing!" },
-			{ t: 1, i: 2, w: 'scientist', '1': "I saw what you did to those guards. What's the matter with you? Is that a fire poker?", '2': "I'm not getting through to you am I ..." },
-			{ t: 1, i: 2, w: 'civilian', '1': "None of this is even phasing you, is it?", '2': "I think if you step back and question what's going on, you'll put that thing down." },
-			{ t: 1, i: 3, w: 'scientist', '1': "Wait! We think you may be sick, we're only trying to help.", '2': "Can you hear us? You're hearing another voice, aren't you? Please stop. We can tell you what the voice means." },
-			{ t: 2, i: 3, w: 'civilian', '1': "... Are you hearing it right now?", '2': "You're being tricked." },
-			{ t: 2, i: 3, w: 'scientist', '1': "... Are you not going to kill us?<br>... You stopped listening for a second, didn't you? Can you hear me?", '2': "Is it talking again? I can get it to stop of you listen to me." },
-			{ t: 2, i: 3, w: 'scientist', '1': "Don't get too close! He's infected!", '2': "Yes, YOU. YOU are infected. Please, hear me out." },
-			{ t: 2, i: 2, w: 'scientist', '1': "Come on, would you put that thing down?  Does it look like that's helping this situation?", '2': "You probably think I'm trying to trick you.  Why are all the INFECTEDS thinking that?!" },
-			{ t: 4, i: 5, w: 'civilian', '1': "It's funny - the crazier things get, the more I'm able to roll with the punches.", '2': "Trust me, you're nothing compared to the whole Prompt Virus thing." },
-			{ t: 4, i: 5, w: 'scientist', '1': "You know, Einstein said, 'I do not know with what weapons World War III will be fought, but World War IV will be fought with sticks and stones.", '2': "I'm just saying, look at yourself.  Look at these guards.  Does this feel right to you?" },
-			{ t: 4, i: 1, w: 'scientist', '1': "PLEASE!  Don't kill the refugees.  Don't activate the self destruct.  Don't do whatever it's telling you, please . . .", '2': "We're running out of guards . . . you win . . . just please don't kill all of us." },
-			{ t: 1, i: 4, w: 'scientist', '1': "This lab is closed to civilians, but it doesn't seem to be stopping anyone from coming in.  You, for instance - you look like you just rolled out of bed.", '2': "I guess it's understandable in a situation like this." },
-			{ t: 3, i: 1, w: 'scientist', '1': "It was supposed to just be a high tech personal assistant, like that phone app that talks to you.  But it seems that once it's in your head, you can't tell the difference between it, and you.", '2': "The hard reset probably didn't help things either.  Let me guess, the last thing you remember is just standing around, this voice telling you what to do?" },
-			{ t: 2, i: 1, w: 'scientist', '1': "You look disoriented.  Did you get hit by the hard reset?", '2': "Just go back to your home, we'll have everything back online soon." },
-			{ t: 3, i: 1, w: 'scientist', '1': "If it makes you feel any better, we're all pretty confused.", '2': "This is only hour one of the virus, you know?  And there's no telling how far it has reached within the network." },
-			{ t: 3, i: 2, w: 'scientist', '1': "If things keep up like this, they'll blow the place, no questions asked.", '2': "They don't seem to understand that won't stop the spread.  Plus they'd be blowing up the debugger along with us!" },
-			{ t: 2, i: 1, w: 'civilian', '1': "They've got an debugger off in the room to the far left.  Can't get it out though, the scientists are being held in by the INFECTEDS.", '2': "I guess there's too many of 'em for the guards.  It's a really awful situation." },
-			{ t: 3, i: 4, w: 'civilian', '1': "Can you see over there?  My buddy is on the other side of this wall.  I can hear him.  I'm afraid to leave though.", '2': "I think I'll just accept this as a new paradigm to our relationship.  It hasn't been so bad." },
-			{ t: 4, i: 5, w: 'scientist', '1': "I stopped going to church . . . probably four years ago.  Sometimes I think that if I had been there this Sunday, I might have avoided this.", '2': "But it wouldn't have saved all of these people, would it?  See, that's the problem with the whole thing.  I guess I'd just rather be here fixing things myself." },
-			{ t: 3, i: 3, w: 'civilian', '1': "I got some M&Ms from the vending machine.  Why not, right?", '2': "Can't really taste them though.  I guess not even chocolate is gonna get my mind off the crazed maniacs trying to stab me." },
-			{ t: 4, i: 5, w: 'scientist', '1': "What a crappy internship this turned out to be.  My friend got a gig at Umbrella Corp; he's probably sitting around drinking coffee and complaining about spreadsheets or something.", '2': "Bio sciences is where it's at.  Not this dangerous tech startup business." },
-			{ t: 3, i: 5, w: 'scientist', '1': "We used to have a conference table in here.  The prompts broke them all though :/", '2': "I used to sit in here, bored out of my mind.  This is all pretty surreal for me." },
-			{ t: 2, i: 3, w: 'scientist', '1': "Scientist?  Try ENGINEER.  If I would have thought my computer science degree would have come to being stabbed by buggy software, I would have gone to art school.", '2': "You wouldn't guess it, but I'm quite good with charcoal.  A lot better than QAing software.  If you know what I mean.  Sorry about your brain." },
-			{ t: 1, i: 3, w: 'civilian', '1': "This laboratory isn't even that old, and now it looks like we'll have to raze it to the ground.", '2': "I'm not kidding, there's a control room to the far right that could blow this whole place up with the touch of the button.  It's hard not to think about." },
-			{ t: 1, i: 4, w: 'civilian', '1': "That look in your eye is so frightening.  How is this so easy for you?", '2': "I've never seen anyone so detached from reality." },
-			{ t: 1, i: 2, w: 'civilian', '1': "All the <b>INFECTEDS</b> seem to be heading to the right, where the refugees are.  That's scary.", '2': "Well, some of them are going to the debugger room to the left.  If they kill the <b>SCIENTISTS</b> working to reverse this, we're really screwed." },
-			{ t: 1, i: 5, w: 'civilian', '1': "So many people with sharp sticks . . . I can't tell who's stabbing who.", '2': "You seem to be stabbing people who are just blocking your path.  No really, let me move . . ." },
-			{ t: 2, i: 1, w: 'scientist', '1': "Don't take it out on me!  I told them the code wasn't ready.  They pushed it anyway.", '2': "I kinda wish I could hear what you're hearing.  It would be easier to debug . . ." },
-			{ t: 4, i: 5, w: 'civilian', '1': "Sometimes I wonder what it's like to be a zombie.  Would you know what you're doing is weird?", '2': "I suppose not.  It would make more sense to me that you simply saw things differently.  Does that make sense?" },
-			{ t: 5, i: 5, w: 'scientist', '1': "I'd like to tell you about everything that happened here, but I've only been allocated 197 bytes of text.  Unfair, right?", '2': "Well GET USED TO IT.  This is life.  You need a novel, but you get 197 bytes.  The rest is up to you." },
-			{ t: 2, i: 3, w: 'civilian', '1': "You going left?  Or are you going right?  I need to know if I can trust you.", '2': "Still making up your mind maybe?  Take your time.  We're just being stabbed to death, no hurry." },
-			{ t: 3, i: 4, w: 'civilian', '1': "So a man walks into a bar, and stares into his phone the entire evening.  The bartender says nothing, he's checking his email.", '2': ". . . Get it?  Of course not; you're zoned out like every other early adopter who bought the brain implant." },
-			{ t: 3, i: 3, w: 'civilian', '1': "How's that remarkable new app treating you?  Having fun hearing voices, committing random acts of violence?", '2': "You forget how to talk after that thing wiped your brain?  No that's fine, just keep walking and stabbing at the air." },
-			{ t: 3, i: 2, w: 'scientist', '1': "People were amazed by the promise of thought-controlled web searches and task management.  Who wouldn't be?", '2': "In typical corporate fashion, we rushed the thing to market.  Now look at this mess." },
-			{ t: 4, i: 3, w: 'scientist', '1': "Lesson learned - no more brain-apps until we understand the brain better.  Boy, did we EVER miss some blind spots.", '2': "Can you just tell me what it's saying to you?  It might help us solve all this faster." },
-			{ t: 1, i: 3, w: 'scientist', '1': "If someone would just get to the room on the far left of the lab, we could get the debugger out and start reversing all this.", '2': "You wanna go?  You've got that pointy stick already.  Just plow through the <b>INFECTEDS</b> blocking the way." },
-			{ t: 3, i: 3, w: 'scientist', '1': "You're kinda in the way . . . It's nice you're all up and walking again, stabbing things - but we're trying to reverse a major crisis here if you don't mind.", '2': ". . . Not even a response?  This is worse than I thought." },
-			{ t: 4, i: 5, w: 'scientist', '1': "Sometimes programmers get tired, OK?  Sometimes they get worked too hard and and catch the flu and have to program while on cold medicine.", '2': "I'm not trying to excuse my actions, I'm just telling you because I know you can't hear me.  It's been a rough week around here." },
-			{ t: 1, i: 1, w: 'scientist', '1': "If you can hear me, say something.", '2': "That's what I thought.  These guys are completely brain dead." }
+			{ t: 1, i: -5, w: 'scientist', '1': "<b>SOLOMON ASCH:</b></br>Wait! Wait, please - you don't understand what's happening, please stop!", '2': "You don't get it . . ." },
+			{ t: 1, i: 2, w: 'civilian', '1': "<b>ANDY ROURKE:</b></br>Shit! Another one! Get back! I'm warning you!", '2': "Listen, I can't defend myself. Just please, think about what you're doing!" },
+			{ t: 1, i: 2, w: 'scientist', '1': "<b>FLOYD ALLPORT:</b></br>I saw what you did to those guards. What's the matter with you? Is that a fire poker?", '2': "I'm not getting through to you am I ..." },
+			{ t: 1, i: 2, w: 'civilian', '1': "<b>MIKE JOYCE:</b></br>None of this is even phasing you, is it?", '2': "I think if you step back and question what's going on, you'll put that thing down." },
+			{ t: 1, i: 3, w: 'scientist', '1': "<b>ALBERT BANDURA:</b></br>Wait! We think you may be sick, we're only trying to help.", '2': "Can you hear us? You're hearing another voice, aren't you? Please stop. We can tell you what the voice means." },
+			{ t: 2, i: 3, w: 'civilian', '1': "<b>JOHN MARR:</b></br>... Are you hearing it right now?", '2': "You're being tricked." },
+			{ t: 2, i: 3, w: 'scientist', '1': "<b>CARL HOVLAND:</b></br>... Are you not going to kill us?<br>... You stopped listening for a second, didn't you? Can you hear me?", '2': "Is it talking again? I can get it to stop of you listen to me." },
+			{ t: 2, i: 3, w: 'scientist', '1': "<b>STANLEY SCHACHTER:</b></br>Don't get too close! He's infected!", '2': "Yes, YOU. YOU are infected. Please, hear me out." },
+			{ t: 2, i: 2, w: 'scientist', '1': "<b>GUSTAVE LE BON:</b></br>Come on, would you put that thing down?  Does it look like that's helping this situation?", '2': "You probably think I'm trying to trick you.  Why are all the INFECTEDS thinking that?!" },
+			{ t: 4, i: 5, w: 'civilian', '1': "<b>IAN CURT:</b></br>It's funny - the crazier things get, the more I'm able to roll with the punches.", '2': "Trust me, you're nothing compared to the whole Prompt Virus thing." },
+			{ t: 4, i: 5, w: 'scientist', '1': "<b>MUZAFER SHERIF:</b></br>You know, Einstein said, 'I do not know with what weapons World War III will be fought, but World War IV will be fought with sticks and stones.", '2': "I'm just saying, look at yourself.  Look at these guards.  Does this feel right to you?" },
+			{ t: 4, i: 1, w: 'scientist', '1': "<b>WILLIAM MCDOUGALL:</b></br>PLEASE!  Don't kill the refugees.  Don't activate the self destruct.  Don't do whatever it's telling you, please . . .", '2': "We're running out of guards . . . you win . . . just please don't kill all of us." },
+			{ t: 1, i: 4, w: 'scientist', '1': "<b>NORMAN TRIPLETT:</b></br>This lab is closed to civilians, but it doesn't seem to be stopping anyone from coming in.  You, for instance - you look like you just rolled out of bed.", '2': "I guess it's understandable in a situation like this." },
+			{ t: 3, i: 1, w: 'scientist', '1': "<b>ROBERT SHILLER:</b></br>It was supposed to just be a high tech personal assistant, like that phone app that talks to you.  But it seems that once it's in your head, you can't tell the difference between it, and you.", '2': "The hard reset probably didn't help things either.  Let me guess, the last thing you remember is just standing around, this voice telling you what to do?" },
+			{ t: 2, i: 1, w: 'scientist', '1': "<b>ROD DICKINSON:</b></br>You look disoriented.  Did you get hit by the hard reset?", '2': "Just go back to your home, we'll have everything back online soon." },
+			{ t: 3, i: 1, w: 'scientist', '1': "<b>DERREN BROWN:</b></br>If it makes you feel any better, we're all pretty confused.", '2': "This is only hour one of the virus, you know?  And there's no telling how far it has reached within the network." },
+			{ t: 3, i: 2, w: 'scientist', '1': "<b>KURT LEWIN:</b></br>If things keep up like this, they'll blow the place, no questions asked.", '2': "They don't seem to understand that won't stop the spread.  Plus they'd be blowing up the debugger along with us!" },
+			{ t: 2, i: 1, w: 'civilian', '1': "<b>PETER HOOK:</b></br>They've got an debugger off in the room to the far left.  Can't get it out though, the scientists are being held in by the INFECTEDS.", '2': "I guess there's too many of 'em for the guards.  It's a really awful situation." },
+			{ t: 3, i: 4, w: 'civilian', '1': "<b>BERNARD SUMNER:</b></br>Can you see over there?  My buddy is on the other side of this wall.  I can hear him.  I'm afraid to leave though.", '2': "I think I'll just accept this as a new paradigm to our relationship.  It hasn't been so bad." },
+			{ t: 4, i: 5, w: 'scientist', '1': "<b>GUSTAV FECHNER:</b></br>I stopped going to church . . . probably four years ago.  Sometimes I think that if I had been there this Sunday, I might have avoided this.", '2': "But it wouldn't have saved all of these people, would it?  See, that's the problem with the whole thing.  I guess I'd just rather be here fixing things myself." },
+			{ t: 3, i: 3, w: 'civilian', '1': "<b>GILLIAN GILBERT:</b></br>I got some M&Ms from the vending machine.  Why not, right?", '2': "Can't really taste them though.  I guess not even chocolate is gonna get my mind off the crazed maniacs trying to stab me." },
+			{ t: 4, i: 5, w: 'scientist', '1': "<b>STEVE JONES:</b></br>What a crappy internship this turned out to be.  My friend got a gig at Umbrella Corp; he's probably sitting around drinking coffee and complaining about spreadsheets or something.", '2': "Bio sciences is where it's at.  Not this dangerous tech startup business." },
+			{ t: 3, i: 5, w: 'scientist', '1': "<b>MORTON DEUTSCH:</b></br>We used to have a conference table in here.  The prompts broke them all though :/", '2': "I used to sit in here, bored out of my mind.  This is all pretty surreal for me." },
+			{ t: 2, i: 3, w: 'scientist', '1': "<b>IVAN PAVLOV:</b></br>Scientist?  Try ENGINEER.  If I would have thought my computer science degree would have come to being stabbed by buggy software, I would have gone to art school.", '2': "You wouldn't guess it, but I'm quite good with charcoal.  A lot better than QAing software.  If you know what I mean.  Sorry about your brain." },
+			{ t: 1, i: 3, w: 'civilian', '1': "<b>PAUL COOK:</b></br>This laboratory isn't even that old, and now it looks like we'll have to raze it to the ground.", '2': "I'm not kidding, there's a control room to the far right that could blow this whole place up with the touch of the button.  It's hard not to think about." },
+			{ t: 1, i: 4, w: 'civilian', '1': "<b>THURSTON MOORE:</b></br>That look in your eye is so frightening.  How is this so easy for you?", '2': "I've never seen anyone so detached from reality." },
+			{ t: 1, i: 2, w: 'civilian', '1': "<b>WILLIAM REID:</b></br>All the <b>INFECTEDS</b> seem to be heading to the right, where the refugees are.  That's scary.", '2': "Well, some of them are going to the debugger room to the left.  If they kill the <b>SCIENTISTS</b> working to reverse this, we're really screwed." },
+			{ t: 1, i: 5, w: 'civilian', '1': "<b>JOHN RITCHIE:</b></br>So many people with sharp sticks . . . I can't tell who's stabbing who.", '2': "You seem to be stabbing people who are just blocking your path.  No really, let me move . . ." },
+			{ t: 2, i: 1, w: 'scientist', '1': "<b>PHILIP ZIMBARDO:</b></br>Don't take it out on me!  I told them the code wasn't ready.  They pushed it anyway.", '2': "I kinda wish I could hear what you're hearing.  It would be easier to debug . . ." },
+			{ t: 4, i: 5, w: 'civilian', '1': "<b>GLEN MATLOCK:</b></br>Sometimes I wonder what it's like to be a zombie.  Would you know what you're doing is weird?", '2': "I suppose not.  It would make more sense to me that you simply saw things differently.  Does that make sense?" },
+			{ t: 5, i: 5, w: 'scientist', '1': "<b>LEON FESTINGER:</b></br>I'd like to tell you about everything that happened here, but I've only been allocated 197 bytes of text.  Unfair, right?", '2': "Well GET USED TO IT.  This is life.  You need a novel, but you get 197 bytes.  The rest is up to you." },
+			{ t: 2, i: 3, w: 'civilian', '1': "<b>JIM REID:</b></br>You going left?  Or are you going right?  I need to know if I can trust you.", '2': "Still making up your mind maybe?  Take your time.  We're just being stabbed to death, no hurry." },
+			{ t: 3, i: 4, w: 'civilian', '1': "<b>JOHN LYDON:</b></br>So a man walks into a bar, and stares into his phone the entire evening.  The bartender says nothing, he's checking his email.", '2': ". . . Get it?  Of course not; you're zoned out like every other early adopter who bought the brain implant." },
+			{ t: 3, i: 3, w: 'civilian', '1': "<b>STEVEN PATRICK:</b></br>How's that remarkable new app treating you?  Having fun hearing voices, committing random acts of violence?", '2': "You forget how to talk after that thing wiped your brain?  No that's fine, just keep walking and stabbing at the air." },
+			{ t: 3, i: 2, w: 'scientist', '1': "<b>HERBERT BLUMER:</b></br>People were amazed by the promise of thought-controlled web searches and task management.  Who wouldn't be?", '2': "In typical corporate fashion, we rushed the thing to market.  Now look at this mess." },
+			{ t: 4, i: 3, w: 'scientist', '1': "<b>WILHELM WUNDT:</b></br>Lesson learned - no more brain-apps until we understand the brain better.  Boy, did we EVER miss some blind spots.", '2': "Can you just tell me what it's saying to you?  It might help us solve all this faster." },
+			{ t: 1, i: 3, w: 'scientist', '1': "<b>DIANA BAUMRIND:</b></br>If someone would just get to the room on the far left of the lab, we could get the debugger out and start reversing all this.", '2': "You wanna go?  You've got that pointy stick already.  Just plow through the <b>INFECTEDS</b> blocking the way." },
+			{ t: 3, i: 3, w: 'scientist', '1': "<b>EDWARD TITCHENER:</b></br>You're kinda in the way . . . It's nice you're all up and walking again, stabbing things - but we're trying to reverse a major crisis here if you don't mind.", '2': ". . . Not even a response?  This is worse than I thought." },
+			{ t: 4, i: 5, w: 'scientist', '1': "<b>JAMES CATTELL:</b></br>Sometimes programmers get tired, OK?  Sometimes they get worked too hard and and catch the flu and have to program while on cold medicine.", '2': "I'm not trying to excuse my actions, I'm just telling you because I know you can't hear me.  It's been a rough week around here." },
+			{ t: 1, i: 1, w: 'scientist', '1': "<b>THOMAS BLASS:</b></br>If you can hear me, say something.", '2': "That's what I thought.  These guys are completely brain dead." },
+			{ t: 3, i: 4, w: 'scientist', '1': "<b>STAN MILGRAM:</b></br>I don’t blame you, you know?  I don’t know what I would do in this situation either, all this information coming at me from all sides.", '2': "I’ve spent a lot of time studying how people work, how they interact with others.  How they listen to authority.  I’m not surprised by all of this at all." },
+			{ t: 4, i: 4, w: 'scientist', '1': "<b>NICK ANDERSON:</b></br>You have any kids, any family?  I have a girlfriend I'd really like to see again.  You're really lowering the chances of that happening.", '2': "If I could see Katy again, I'd tell her I'm sorry about all the late nights I spent here, digging my own grave.  You always think you're gonna have another chance . . ." }
 		],
 		possibilities_sorter = function( a, b ) {
 			// Push the more important pieces to the top, with some randomness to keep things interesting
@@ -922,8 +924,8 @@ dialog = (function() {
 			possibilities.sort( possibilities_sorter );
 			selection = possibilities[0];
 
-			// If this piece's importance is greater than 1 then ignore it 70% of the time
-			if ( selection.i > 1 && Math.random() >= .3 ) return;
+			// If this piece's importance is greater than 1 then ignore it 30% of the time
+			if ( selection.i > 1 && Math.random() >= .7 ) return;
 
 			pieces.splice( selection.idx, 1 );
 
@@ -960,7 +962,7 @@ dialog = (function() {
 										prompt['say']( '<i>"' + selection['2'] + '"</i>', null, who.type );
 									}
 								},
-								2000
+								1000
 							);
 						}
 					);
@@ -1717,7 +1719,7 @@ title = function() {
 		if ( options.imin > 0 && options.imax ) {
 			t1 = Math.floor( Math.random() * (options.imax - options.imin + 1) ) + options.imin;
 			for ( i1 = 0; i1 < t1; i1++ ) {
-				person = createPerson( 'infected', ( Math.random() > .9 ? true : false ) );
+				person = createPerson( 'infected', ( Math.random() > .6 ? true : false ) );
 				person.p.set(
 					( (Math.random() * (x2 - x1)) + x1 ) * 10,
 					.3,
