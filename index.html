@@ -1,82 +1,1931 @@
-<!DOCTYPE html><html><head><title>Lab 13</title><style>*{cursor:default;}body{overflow:hidden;-webkit-touch-callout:none;-webkit-user-select:none;-moz-user-select: none;-ms-user-select:none;background:#fff;width:100%;height:100%;margin:auto}#c{position:absolute}#d{position:absolute;z-index:1;left:20px;bottom:20px;width:90%;height:130px;padding:16px 550px 16px 16px;background-image:-moz-linear-gradient(center right,rgba(0,0,0,0),rgba(0,0,0,1.0));background-image:-webkit-gradient(linear,right top,left top,from(rgba(0,0,0,0)),to(rgba(0,0,0,1.0)));font-family:Courier, sans-serif;color:#FFF;display:none}#d:after{content:"(Press any key to close)";font-size:11px;position:absolute;left:10px;bottom:-18px;color:#FFF;}#d.scientist{background-image:-moz-linear-gradient(center right,rgba(226,223,222,0),rgba(226,223,222,1.0));background-image:-webkit-gradient(linear,right top,left top,from(rgba(226,223,222,0)),to(rgba(226,223,222,1.0)));color:#333}#d.civilian{background-image:-moz-linear-gradient(center right,rgba(80,89,43,0),rgba(80,89,43,1.0));background-image: -webkit-gradient(linear,right top,left top, from(rgba(80,89,43,0)),to(rgba(80,89,43,1.0)));color:#FFF}#t{max-width:500px}
+<!DOCTYPE html><html><head><title>Lab 13</title><style>*{cursor:default;}body{overflow:hidden;-webkit-touch-callout:none;-webkit-user-select:none;-moz-user-select: none;-ms-user-select:none;background:#fff;width:100%;height:100%;margin:auto}#c{position:absolute}#d{position:absolute;z-index:1;left:20px;bottom:20px;width:90%;height:130px;padding:16px 550px 16px 16px;background-image:-moz-linear-gradient(center right,rgba(0,0,0,0),rgba(0,0,0,1.0));background-image:-webkit-gradient(linear,right top,left top,from(rgba(0,0,0,0)),to(rgba(0,0,0,1.0)));font-family:/*"Book Antiqua", Palatino, "Palatino Linotype", "Palatino LT STD", */ Courier, sans-serif;color:#FFF;display:none}#d:after{content:"(Press any key to close)";font-size:11px;position:absolute;left:10px;bottom:-18px;color:#FFF;}#d.scientist{background-image:-moz-linear-gradient(center right,rgba(226,223,222,0),rgba(226,223,222,1.0));background-image:-webkit-gradient(linear,right top,left top,from(rgba(226,223,222,0)),to(rgba(226,223,222,1.0)));color:#333}#d.civilian{background-image:-moz-linear-gradient(center right,rgba(80,89,43,0),rgba(80,89,43,1.0));background-image: -webkit-gradient(linear,right top,left top, from(rgba(80,89,43,0)),to(rgba(80,89,43,1.0)));color:#FFF}#t{max-width:500px}
 </style></head><body><canvas id="c"></canvas><div id="d"><div id="t"></div></div><script>
-var d=void 0,g=!0,h=null,l=!1,n=Math.sqrt;function p(a,b,c){this.x=a||0;this.y=b||0;this.a=c||0}p.prototype.set=function(a,b,c){this.x=a;this.y=b;this.a=c;return this};p.prototype.n=function(){return new p(this.x,this.y,this.a)};p.prototype.sub=function(a){this.x-=a.x;this.y-=a.y;this.a-=a.a;return this};p.prototype.add=function(a){this.x+=a.x;this.y+=a.y;this.a+=a.a;return this};p.prototype.C=function(a){var b=this.x,c=this.y,e=this.a;this.x=c*a.a-e*a.y;this.y=e*a.x-b*a.a;this.a=b*a.y-c*a.x;return this};
-p.prototype.B=function(a){return this.x*a.x+this.y*a.y+this.a*a.a};p.prototype.normalize=function(){var a=n(this.x*this.x+this.y*this.y+this.a*this.a);this.x/=a;this.y/=a;this.a/=a;return this};p.prototype.length=function(){return n(this.w())};p.prototype.w=function(){return this.x*this.x+this.y*this.y+this.a*this.a};p.prototype.copy=function(a){this.x=a.x;this.y=a.y;this.a=a.a;return this};
-p.prototype.J=function(){var a=s[u].j.k,b=a[0],c=a[4],e=a[8],f=a[1],k=a[5],j=a[9],a=a[10];this.y=Math.asin(Math.min(Math.max(e,-1),1));0.99999>Math.abs(e)?(this.x=Math.atan2(-j,a),this.a=Math.atan2(-c,b)):(this.x=Math.atan2(f,k),this.a=0)};p.prototype.r=function(a){this.x*=a;this.y*=a;this.a*=a;return this};M4=function(a){this.k=a||[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]};
-M4.prototype.copy=function(a){var b=this.k,a=a.k;b[0]=a[0];b[1]=a[1];b[2]=a[2];b[3]=a[3];b[4]=a[4];b[5]=a[5];b[6]=a[6];b[7]=a[7];b[8]=a[8];b[9]=a[9];b[10]=a[10];b[11]=a[11];b[12]=a[12];b[13]=a[13];b[14]=a[14];b[15]=a[15]};
-M4.prototype.F=function(a){var b=this.k,c=y,e=new p(0,1,0),c=this.I().n().sub(a).normalize();0===c.length()&&(c.a=1);z.copy(e).C(c).normalize();0===z.length()&&(c.x+=1E-4,z.copy(e).C(c).normalize());A.copy(c).C(z);b[0]=z.x;b[4]=A.x;b[8]=c.x;b[1]=z.y;b[5]=A.y;b[9]=c.y;b[2]=z.a;b[6]=A.a;b[10]=c.a};
-M4.prototype.O=function(a){var b=this.k,c=a.k,e=c[0],f=c[4],k=c[8],j=c[12],q=c[1],i=c[5],o=c[9],r=c[13],m=c[2],t=c[6],v=c[10],w=c[14],x=c[3],C=c[7],D=c[11],c=c[15];b[0]=o*w*C-r*v*C+r*t*D-i*w*D-o*t*c+i*v*c;b[4]=j*v*C-k*w*C-j*t*D+f*w*D+k*t*c-f*v*c;b[8]=k*r*C-j*o*C+j*i*D-f*r*D-k*i*c+f*o*c;b[12]=j*o*t-k*r*t-j*i*v+f*r*v+k*i*w-f*o*w;b[1]=r*v*x-o*w*x-r*m*D+q*w*D+o*m*c-q*v*c;b[5]=k*w*x-j*v*x+j*m*D-e*w*D-k*m*c+e*v*c;b[9]=j*o*x-k*r*x-j*q*D+e*r*D+k*q*c-e*o*c;b[13]=k*r*m-j*o*m+j*q*v-e*r*v-k*q*w+e*o*w;b[2]=i*
-w*x-r*t*x+r*m*C-q*w*C-i*m*c+q*t*c;b[6]=j*t*x-f*w*x-j*m*C+e*w*C+f*m*c-e*t*c;b[10]=f*r*x-j*i*x+j*q*C-e*r*C-f*q*c+e*i*c;b[14]=j*i*m-f*r*m-j*q*t+e*r*t+f*q*w-e*i*w;b[3]=o*t*x-i*v*x-o*m*C+q*v*C+i*m*D-q*t*D;b[7]=f*v*x-k*t*x+k*m*C-e*v*C-f*m*D+e*t*D;b[11]=k*i*x-f*o*x-k*q*C+e*o*C+f*q*D-e*i*D;b[15]=f*o*m-k*i*m+k*q*t-e*o*t-f*q*v+e*i*v;this.r(1/a.X());return this};
-M4.prototype.r=function(a){var b=this.k;b[0]*=a;b[4]*=a;b[8]*=a;b[12]*=a;b[1]*=a;b[5]*=a;b[9]*=a;b[13]*=a;b[2]*=a;b[6]*=a;b[10]*=a;b[14]*=a;b[3]*=a;b[7]*=a;b[11]*=a;b[15]*=a;return this};
-M4.prototype.X=function(){var a=this.k,b=a[0],c=a[4],e=a[8],f=a[12],k=a[1],j=a[5],q=a[9],i=a[13],o=a[2],r=a[6],m=a[10],t=a[14],v=a[3],w=a[7],x=a[11],a=a[15];return f*q*r*v-e*i*r*v-f*j*m*v+c*i*m*v+e*j*t*v-c*q*t*v-f*q*o*w+e*i*o*w+f*k*m*w-b*i*m*w-e*k*t*w+b*q*t*w+f*j*o*x-c*i*o*x-f*k*r*x+b*i*r*x+c*k*t*x-b*j*t*x-e*j*o*a+c*q*o*a+e*k*r*a-b*q*r*a-c*k*m*a+b*j*m*a};
-M4.prototype.multiply=function(a,b){var c=a.k,e=b.k,f=this.k,k=c[0],j=c[4],q=c[8],i=c[12],o=c[1],r=c[5],m=c[9],t=c[13],v=c[2],w=c[6],x=c[10],C=c[14],D=c[3],ha=c[7],ia=c[11],c=c[15],ja=e[0],ka=e[4],la=e[8],ma=e[12],na=e[1],oa=e[5],pa=e[9],qa=e[13],ra=e[2],sa=e[6],ta=e[10],ua=e[14],va=e[3],wa=e[7],xa=e[11],e=e[15];f[0]=k*ja+j*na+q*ra+i*va;f[4]=k*ka+j*oa+q*sa+i*wa;f[8]=k*la+j*pa+q*ta+i*xa;f[12]=k*ma+j*qa+q*ua+i*e;f[1]=o*ja+r*na+m*ra+t*va;f[5]=o*ka+r*oa+m*sa+t*wa;f[9]=o*la+r*pa+m*ta+t*xa;f[13]=o*ma+r*
-qa+m*ua+t*e;f[2]=v*ja+w*na+x*ra+C*va;f[6]=v*ka+w*oa+x*sa+C*wa;f[10]=v*la+w*pa+x*ta+C*xa;f[14]=v*ma+w*qa+x*ua+C*e;f[3]=D*ja+ha*na+ia*ra+c*va;f[7]=D*ka+ha*oa+ia*sa+c*wa;f[11]=D*la+ha*pa+ia*ta+c*xa;f[15]=D*ma+ha*qa+ia*ua+c*e;return this};M4.prototype.Z=function(){var a=this.k;return n(Math.max(a[0]*a[0]+a[1]*a[1]+a[2]*a[2],Math.max(a[4]*a[4]+a[5]*a[5]+a[6]*a[6],a[8]*a[8]+a[9]*a[9]+a[10]*a[10])))};
-M4.prototype.A=function(a){var b=this.k,c=a.x,e=a.y,f=a.a,k=1/(b[3]*c+b[7]*e+b[11]*f+b[15]);a.x=(b[0]*c+b[4]*e+b[8]*f+b[12])*k;a.y=(b[1]*c+b[5]*e+b[9]*f+b[13])*k;a.a=(b[2]*c+b[6]*e+b[10]*f+b[14])*k};M4.prototype.L=function(a){var b=this.k,c=a.x,e=a.y,f=a.a,k=a.f;a.x=b[0]*c+b[4]*e+b[8]*f+b[12]*k;a.y=b[1]*c+b[5]*e+b[9]*f+b[13]*k;a.a=b[2]*c+b[6]*e+b[10]*f+b[14]*k;a.f=b[3]*c+b[7]*e+b[11]*f+b[15]*k};M4.prototype.M=function(a){var b=this.k;b[12]=a.x;b[13]=a.y;b[14]=a.a};var aa=new p;
-M4.prototype.I=function(){var a=this.k;return aa.set(a[12],a[13],a[14])};M4.prototype.R=function(a){var b=this.k,c=a.x,e=a.y,f=a.a,a=Math.cos(c),c=Math.sin(c),k=Math.cos(e),e=Math.sin(e),j=Math.cos(f),f=Math.sin(f),q=a*j,i=a*f,o=c*j,r=c*f;b[0]=k*j;b[4]=-k*f;b[8]=e;b[1]=i+o*e;b[5]=q-r*e;b[9]=-c*k;b[2]=r-q*e;b[6]=o+i*e;b[10]=a*k};
-M4.prototype.H=function(a){var b=this.k,a=a.k,c=new p,e=1/c.set(a[0],a[1],a[2]).length(),f=1/c.set(a[4],a[5],a[6]).length(),c=1/c.set(a[8],a[9],a[10]).length();b[0]=a[0]*e;b[1]=a[1]*e;b[2]=a[2]*e;b[4]=a[4]*f;b[5]=a[5]*f;b[6]=a[6]*f;b[8]=a[8]*c;b[9]=a[9]*c;b[10]=a[10]*c;return this};M4.prototype.ba=function(a,b,c,e){var f=this.k;f[0]=2/(b-a);f[4]=0;f[8]=(b+a)/(b-a);f[12]=0;f[1]=0;f[5]=2/(e-c);f[9]=(e+c)/(e-c);f[13]=0;f[2]=0;f[6]=0;f[10]=-251/249;f[14]=-500/249;f[3]=0;f[7]=0;f[11]=-1;f[15]=0;return this};
-M4.prototype.ca=function(){var a=B/E,b=1*Math.tan(35*Math.PI/360),c=-b;return this.ba(c*a,b*a,c,b)};V4=function(a,b,c,e){this.x=a;this.y=b;this.a=c;this.f=e};V4.prototype.set=function(a,b,c,e){this.x=a;this.y=b;this.a=c;this.f=e;return this};V4.prototype.Y=function(){var a=n(G.x*G.x+G.y*G.y+G.a*G.a);a?(this.x/=a,this.y/=a,this.a/=a,this.f/=a):(this.a=this.y=this.x=0,this.f=1)};V4.prototype.copy=function(a){this.x=a.x;this.y=a.y;this.a=a.a;this.f=a.f!==d?a.f:1;return this};
-V4.prototype.n=function(){return new V4(this.x,this.y,this.a,this.f)};FR=function(){this.Q=[new V4,new V4,new V4,new V4,new V4,new V4]};
-FR.prototype.fa=function(){var a=projectionScreenMatrix;H=this.Q;var b=a.k,a=b[0],c=b[1],e=b[2],f=b[3],k=b[4],j=b[5],q=b[6],i=b[7],o=b[8],r=b[9],m=b[10],t=b[11],v=b[12],w=b[13],x=b[14],b=b[15];H[0].set(f-a,i-k,t-o,b-v);H[1].set(f+a,i+k,t+o,b+v);H[2].set(f+c,i+j,t+r,b+w);H[3].set(f-c,i-j,t-r,b-w);H[4].set(f-e,i-q,t-m,b-x);H[5].set(f+e,i+q,t+m,b+x);for(u=0;6>u;u++)G=H[u],G.Y()};
-FR.prototype.contains=function(a){G=this.Q;I=a.j.k;for(var b=0;6>b;b++)if(H=G[b].x*I[12]+G[b].y*I[13]+G[b].a*I[14]+G[b].f,H<=-a.m.S*a.j.Z())return l;return g};F=function(a,b,c){this.b=a;this.j=b;this.G=c};F.prototype.n=function(){return new F([this.b[0].n(),this.b[1].n(),this.b[2].n()],this.j.n(),this.G.n())};F.prototype.W=function(){this.f=(this.b[0].f+this.b[1].f+this.b[2].f)/3;return this};
-Geometry=function(a,b){this.b=[];for(u=0;u<a.length;u+=3)this.b.push(new p(a[u],a[u+1],a[u+2]));this.l=[];for(u=0;u<b.length;u+=4)this.l.push(new F([b[u],b[u+1],b[u+2]],b[u+3]));var c;for(c=0;c<this.l.length;c++)this.l[c].G=this.b[this.l[c].b[1]].n().sub(this.b[this.l[c].b[0]]).C(this.b[this.l[c].b[2]].n().sub(this.b[this.l[c].b[0]])).normalize();this.V()};Geometry.prototype.V=function(){var a=0;for(u=0;u<this.b.length;u++){var b=this.b[u].w();b>a&&(a=b)}this.S=n(a)};
-Model=function(a,b){this.U=this.T(b);this.m=a;this.j=new M4;this.d=new p;this.t=new p;this.e=new p;this.o=[];this.p=[];this.h=[];this.u=l};Model.prototype.T=function(a){var b=[];for(u=0;u<a.length;u+=4)b.push(new V4(a[u],a[u+1],a[u+2],a[u+3]));return b};
-var J=document.getElementById("c"),K=J.getContext("2d"),ba=document.getElementById("d"),ca=document.getElementById("t"),L=window,B=L.innerWidth,E=L.innerHeight,da=L.requestAnimationFrame||L.mozRequestAnimationFrame||L.webkitRequestAnimationFrame||L.oRequestAnimationFrame||L.msRequestAnimationFrame||function(a){setTimeout(a,60)},M;
-function ea(){this.K=[[1,1,0],[-1,1,0],[1,-1,0],[-1,-1,0],[1,0,1],[-1,0,1],[1,0,-1],[-1,0,-1],[0,1,1],[0,-1,1],[0,1,-1],[0,-1,-1]];this.d=[];for(var a=0;256>a;a++)this.d[a]=Math.floor(256*Math.random());this.z=[];for(a=0;512>a;a++)this.z[a]=this.d[a&255]}ea.prototype.B=function(a,b,c){return a[0]*b+a[1]*c};
-ea.prototype.ea=function(a,b){var c,e,f;f=0.5*(n(3)-1);f*=a+b;var k=Math.floor(a+f),j=Math.floor(b+f),q=(3-n(3))/6;f=(k+j)*q;c=a-(k-f);var i=b-(j-f),o,r;c>i?(o=1,r=0):(o=0,r=1);e=c-o+q;var m=i-r+q;f=c-1+2*q;var q=i-1+2*q,t=k&255,j=j&255,k=this.z[t+this.z[j]]%12;o=this.z[t+o+this.z[j+r]]%12;r=this.z[t+1+this.z[j+1]]%12;j=0.5-c*c-i*i;0>j?c=0:(j*=j,c=j*j*this.B(this.K[k],c,i));i=0.5-e*e-m*m;0>i?e=0:(i*=i,e=i*i*this.B(this.K[o],e,m));m=0.5-f*f-q*q;0>m?f=0:(m*=m,f=m*m*this.B(this.K[r],f,q));return 70*
-(c+e+f)};var fa=new ea;M=fa.ea.bind(fa);
-var ga=(new M4).ca(),ya=new M4([1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]),za=new M4([1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]),Aa=new p(0,10,0),Ba=new p(0,20,-35),Ca=new p(0,0,-15),Da=new p(0,10,0),N=[],Ea=[],Fa=[],O=[],P={floor_0:[35,30,25,1],floor_1:[40,35,30,1],floor_2:[35,30,35,1],wall_0:[80,70,70,1],wall_1:[85,75,70,1],wall_2:[80,75,75,1],terminal:[100,90,90,1,20,80,10,1],player:[76,100,107,1,204,204,204,1,241,219,203,1,149,149,149,1,149,149,149,1,74,15,0,1,149,149,149,1,35,49,56,1],guard:[52,61,89,1,33,34,
-38,1,224,173,166,1,149,149,149,1,149,149,149,1,52,61,89,1,149,149,149,1,89,88,87,1],scientist:[230,230,230,1,77,77,77,1,245,224,205,1,149,149,149,1,149,149,149,1,179,179,179,1,149,149,149,1,77,77,77,1],civilian:[80,89,43,1,51,39,22,1,241,219,203,1,149,149,149,1,149,149,149,1,229,237,150,1,149,149,149,1,73,56,32,1],infected:[87,32,0,1,241,244,206,1,241,244,206,1,149,149,149,1,149,149,149,1,207,158,118,1,149,149,149,1,44,28,21,1],poker:[69,51,32,1]},Ga=[[0,0.5,0,0,0.5,0,0,0.1,0,0,-0.3,0,0,-0.3,0,-0.1,
--0.2,0.1,0,0.1,0,0,0.1,0,0,0.1,0,0,0.1,0,0,0,0,0,0,0,0,0.1,0,0,0.1,1.2,0.1,0.3,0.1,0,0.5,0.1,0.1,0.3,0,0,-0.3,-0.1,0,-0.3,-0.1,0,0.5,0.1,0,0.7,5,0,0.7,5,0,-0.4,5.1,0,-0.4,5.1,0,0.2,-1,0,0.2,-1,0,0.3,-1,0,0.3,-1,-0.2,-0.1,2.6,-0.2,-0.3,2.6,-0.2,-0.3,2.5,-0.2,-0.1,2.6,0,0.1,-0.2,0,0.1,-0.2,0,0,-0.2,0,0,-0.2,0.1,0.2,1.2,0.1,0.3,1.1,-0.1,0,1.2,0,0,1.1,0,0.1,0,0,0.1,0,0,0.1,0,0,0.1,0,0,0.1,0,0,0.1,0,0,0.1,0,0,0.1,0,0,0.1,0,0,0.1,0,0,0.1,0,0,0.1,0,0,0.1,0,0,0.1,0,0,0.1,0,0,0.1,0,0,0.1,0,0,0.1,0,0,0.1,0,
-0,0.1,0,0,0.1,0,0,0.1,0,0,0.1,0,0,0.1,0,0,0.1,0,0,0.1,0,0,0.1,0,0,0.1,0,0,-0.4,-5.3,0,0.2,-5.3,0,0.2,-5.3,0,-0.4,-5.3,0,-0.7,2.4,0,-0.7,2.4,0,-0.3,2.5,0,-0.3,2.5,0,0.3,-2.7,0,0.3,-2.7,0,0.7,-2.6,0,0.7,-2.6,0,0.3,4.7,0,0.3,4.7,0,0.6,4.6,0,0.6,4.6,0,-0.4,-5.1,0,-0.4,-5.1,0,-0.2,-5.1,0,-0.2,-5.1],[0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0.5,0.3,0.1,0,0.1,0.1,0,0.1,0.1,-0.5,-0.3,0.1,-0.5,-0.3,0.1,0,0.1,0,0,1.2,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,
-0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,2.9,-4.3,0,2.9,-4.3,0,3.2,-4,0,3.1,-4,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,1.4,-2,0.1,1.4,-2,0.1,0.9,-2.3,0.1,0.9,-2.3,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,
-0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1]],Ha=[[0,0,0.9,0,-1.5,1,0,-1.5,1,0,0,0.9,0,0,0.8,0,0,0.8,0,-1.5,0.9,0,-1.5,0.9,0,-2,1,0,-2,1,0,-2,0.9,0,-2,0.9],[0.07,2.8,-3,0.07,2.2,-3,0.06,2.2,-3,0.06,2.8,-3,0.07,2.8,-3,0.06,2.8,-3,0.06,2.2,-3.1,0.07,2.17,-3.1,0.06,2,-3,0.06,2,-3,0.06,2,-3,0.06,2,-3]],Q={person:new Geometry([-0.4,7,-0.6,-1,7,-0.6,-1.2,11.3,-0.6,
-0.4,7.4,-0.6,1,7.4,-0.6,-1.3,11.6,-0.6,0.3,11.9,-0.6,1.5,11.5,-0.6,1.2,11.3,-0.6,-0.2,11.9,-0.6,0.9,11.5,0.5,1.5,11.6,0.5,0.2,11.9,0.5,-0.2,11.9,-0.6,-1.5,11.4,0.4,1,6.8,0.3,-1,11.4,0.5,-1,7.2,0.5,-0.4,7.2,0.5,0.4,6.8,0.3,0.9,0,-1.7,0.5,0,-1.7,0.5,0.3,-3.2,0.9,0.3,-3.2,1.7,7.3,0.3,1.4,7.3,0.3,1.4,7.3,0,1.7,7.3,0,-1.3,7.6,-1.6,-1.2,7.7,-1.8,-1,7.7,-1.7,-1,7.5,-1.5,1.6,9.3,-0.1,1.2,9.2,-0.1,1.6,9.3,0.4,1.2,9.3,0.4,-1.5,9.2,-0.3,-1.1,9.2,-0.2,-1.4,9.3,-0.8,-1,9.3,-0.7,0.3,13.6,0.4,0.3,13.6,-0.4,-0.3,
-13.6,-0.5,-0.3,13.6,0.4,0.2,12.1,0.2,-0.2,12.1,0.2,0.3,12.1,-0.3,-0.2,12.1,-0.3,0.3,12.1,0.3,-0.3,12.1,0.3,0.4,12.1,-0.4,-0.3,12.1,-0.4,0.5,12.8,0.7,-0.5,12.8,0.7,0.5,12.8,-0.7,-0.5,12.8,-0.8,-0.3,12.8,-0.8,-0.1,12.8,-0.8,0.2,12.8,-0.7,0.4,12.8,-0.7,0.5,13.1,0.7,-0.5,13.1,0.7,0.5,13.1,-0.7,0.4,13.1,-0.7,-0.5,13.1,-0.8,-0.3,13.1,-0.8,-0.1,13.1,-0.8,0.2,13.1,-0.7,-0.9,0.4,3.4,-0.9,0,1.9,-0.4,0,1.9,-0.4,0.4,3.4,0.9,4.4,-2.3,0.5,4.4,-2.3,0.9,4.1,-1.8,0.5,4.1,-1.8,-0.9,3.8,1,-0.4,3.8,1,-0.9,3.7,0.4,-0.4,
-3.7,0.4,0.9,0.6,-2.1,0.5,0.6,-2.1,0.9,0.5,-1.7,0.5,0.5,-1.7,-0.9,1,3.2,-0.4,1,3.2,-0.9,0.8,2.7,-0.4,0.8,2.7],[0,1,2,0,3,0,2,0,4,3,2,0,4,2,5,0,6,7,8,0,9,6,8,0,5,9,8,0,4,5,8,0,10,11,12,0,10,12,13,0,10,13,14,0,15,10,14,0,15,14,16,0,16,17,18,0,16,18,19,0,15,16,19,0,20,21,22,1,22,23,20,1,17,16,2,0,2,1,17,0,14,13,9,0,9,5,14,0,24,25,26,2,26,27,24,2,15,4,8,0,8,10,15,0,28,29,30,2,30,31,28,2,8,7,32,0,32,33,8,0,7,11,34,0,34,32,7,0,11,10,35,0,35,34,11,0,10,8,33,3,33,35,10,3,16,14,36,0,36,37,16,0,14,5,38,0,38,
-36,14,0,5,2,39,0,39,38,5,0,2,16,37,4,37,39,2,4,33,32,27,2,27,26,33,2,32,34,24,2,24,27,32,2,34,35,25,2,25,24,34,2,35,33,26,2,26,25,35,2,37,36,28,2,28,31,37,2,36,38,29,2,29,28,36,2,38,39,30,2,30,29,38,2,39,37,31,2,31,30,39,2,11,7,6,0,6,12,11,0,40,41,42,5,42,43,40,5,13,12,44,2,44,45,13,2,12,6,46,2,46,44,12,2,6,9,47,2,47,46,6,2,9,13,45,2,45,47,9,2,45,44,48,2,48,49,45,2,44,46,50,2,50,48,44,2,46,47,51,2,51,50,46,2,47,45,49,2,49,51,47,2,49,48,52,2,52,53,49,2,48,50,54,2,54,52,48,2,50,51,55,2,50,55,56,2,50,
-56,57,2,50,57,58,2,50,58,59,2,50,59,54,2,51,49,53,2,53,55,51,2,53,52,60,5,60,61,53,5,52,54,62,5,62,60,52,5,59,63,62,2,62,54,59,2,55,53,61,5,61,64,55,5,61,60,40,5,40,43,61,5,60,62,41,5,41,40,60,5,65,64,42,2,66,65,42,2,67,66,42,2,63,67,42,2,62,63,42,2,62,42,41,2,64,61,43,5,43,42,64,5,55,64,65,2,65,56,55,2,56,65,66,5,66,57,56,5,57,66,67,2,67,58,57,2,58,67,63,5,63,59,58,5,18,0,3,6,3,19,18,6,68,69,70,1,70,71,68,1,3,4,72,7,72,73,3,7,4,15,74,7,74,72,4,7,15,19,75,7,75,74,15,7,19,3,73,7,73,75,19,7,18,17,76,
-7,76,77,18,7,17,1,78,7,78,76,17,7,1,0,79,7,79,78,1,7,0,18,77,7,77,79,0,7,73,72,80,7,80,81,73,7,72,74,82,7,82,80,72,7,74,75,83,7,83,82,74,7,75,73,81,7,81,83,75,7,77,76,84,7,84,85,77,7,76,78,86,7,86,84,76,7,78,79,87,7,87,86,78,7,79,77,85,7,85,87,79,7,81,80,23,1,23,22,81,1,80,82,20,1,20,23,80,1,82,83,21,1,21,20,82,1,83,81,22,1,22,21,83,1,85,84,68,1,68,71,85,1,84,86,69,1,69,68,84,1,86,87,70,1,70,69,86,1,87,85,71,1,71,70,87,1]),poker:new Geometry([1.5,7.4,-0.3,1.5,8,-3.7,1.6,8,-3.7,1.6,7.4,-0.3,1.5,7.7,
--0.3,1.6,7.7,-0.3,1.6,8.3,-3.7,1.5,8.3,-3.7,1.6,8.4,-4.9,1.5,8.4,-4.9,1.5,8.4,-4.9,1.6,8.4,-4.9],[0,1,2,0,2,3,0,0,4,5,6,0,6,7,4,0,0,3,5,0,5,4,0,0,3,2,6,0,6,5,3,0,8,9,10,0,10,11,8,0,1,0,4,0,4,7,1,0,2,1,9,0,9,8,2,0,1,7,10,0,10,9,1,0,7,6,11,0,11,10,7,0,6,2,8,0,8,11,6,0]),tile:new Geometry([-4.7,0,-4.7,4.7,0,-4.7,4.7,0,4.7,-4.7,0,4.7],[2,1,0,0,3,2,0,0]),wall:new Geometry([-5,10,-5,5,10,-5,5,0,-5,-5,0,-5],[2,1,0,0,3,2,0,0]),terminal:new Geometry([-1,8,2,1,8,2,2,0,2,-2,0,2,-2,0,-2,-1,10,0,2,0,-2,1,10,0],
-[2,1,0,0,3,2,0,0,3,0,5,0,5,4,3,0,4,5,7,0,7,6,4,0,6,7,1,0,1,2,6,0,1,7,5,1,5,0,1,1])},s=[],R,Ia=0;function S(a){Da.copy(a.d).sub(R.d);Da.y=10;Ca.set(10,25,10)}
-var Ja,T=[{e:1,q:-5,f:"scientist",1:"<b>SOLOMON ASCH:</b><br>Get back! I'm warning you!",2:"Listen, I can't defend myself. Think about what you're doing!"},{e:1,q:3,f:"scientist",1:"<b>ALBERT BANDURA:</b><br>Wait! We think you may be sick, we're only trying to help.",2:"Can you hear us? You're hearing another voice, aren't you?"},{e:2,q:3,f:"scientist",1:"<b>STANLEY SCHACHTER:</b><br>Don't get too close! He's infected!",2:"Yes, YOU. YOU are infected."},{e:2,q:2,f:"scientist",1:"<b>GUSTAVE LE BON:</b><br>Come on, would you put that thing down?",
-2:"You probably think I'm trying to trick you. Why are all the INFECTEDS thinking that?!"},{e:3,q:1,f:"scientist",1:"<b>STAN MILGRAM:</b><br>PLEASE! Don't kill the refugees. Don't activate the self destruct. Don't do whatever it's telling you, please . . .",2:"We're running out of guards . . . you win . . ."},{e:2,q:1,f:"scientist",1:"<b>ROBERT SHILLER:</b><br>It was supposed to just be a high tech personal assistant, like that phone app that talks to you. But it seems that once it's in your head, you can't tell the difference between it, and you.",
-2:"The hard reset probably didn't help things either. Let me guess, the last thing you remember is just standing around, this voice telling you what to do?"},{e:1,q:1,f:"scientist",1:"<b>ROD DICKINSON:</b><br>You look disoriented. Did you get hit by the hard reset?",2:"Can you just tell me what it's saying to you? It might help us solve all this faster."},{e:3,q:2,f:"scientist",1:"<b>KURT LEWIN:</b><br>If things keep up like this, they'll blow the place, no questions asked.",2:"That won't stop the spread! Plus they'd be blowing up the debugger along with us!"},
-{e:1,q:1,f:"civilian",1:"<b>PETER HOOK:</b><br>They've got an debugger off in the room to the far left. Can't get it out though, the scientists are being held in by the INFECTEDS.",2:"I guess there's too many of 'em for the guards . . . just terrible."},{e:2,q:3,f:"scientist",1:"<b>IVAN PAVLOV:</b><br>If I would have thought my computer science degree would have come to being stabbed by buggy software, I would have gone to art school.",2:"You wouldn't guess it, but I'm quite good with charcoal. A lot better than QAing software."},
-{e:1,q:3,f:"civilian",1:"<b>PAUL COOK:</b><br>This laboratory isn't even that old, and now it looks like we'll have to destroy it.",2:"I'm not kidding, there's a control room to the far right that could blow this whole place up."},{e:4,q:5,f:"scientist",1:"<b>GUSTAV FECHNER:</b><br>I stopped going to church . . . probably four years ago. Sometimes I think that if I had been there this Sunday, I might have avoided this.",2:"But it wouldn't have saved all of these people, would it? See, that's the problem with the whole thing. I guess I'd just rather be here fixing things myself."},
-{e:4,q:3,f:"civilian",1:"<b>GLEN MATLOCK:</b><br>Sometimes I wonder what it's like to be a zombie. Would you know what you're doing is weird?",2:"I suppose not. It would make more sense to me that you simply saw things differently. Does that make sense?"}];function Ka(a,b){return a.q+Math.random()-b.q*Math.random()}var La=0,U;
-Ja={timeout:h,speak:function(a,b){if(0!==T.length){var c=[],e;for(U=0;U<T.length;U++)if(!(T[U].e>a||T[U].f!==b.type)&&!(T[U].p!==d&&T.p!==R.aa))T[U].$=U,c.push(T[U]);0!==c.length&&(c.sort(Ka),e=c[0],1<e.q&&0.8<=Math.random()||(T.splice(e.$,1),setTimeout(function(){0>=b.health||(S(b),prompt.say("<i>"+e["1"].replace("<br>",'<br>"')+'"</i>',function(){3<La&&(Ja.timeout=setTimeout(function(){0<b.health&&(S(b),prompt.say('<i>"'+e["2"]+'"</i>',h,b.type))},2E3))},b.type),3>=++La&&prompt.say("Enemies will try to trick you. Click <b>SPACEBAR</b> to attack them, and continue to the room at the <b>FAR RIGHT</b>.",
-function(){Ja.timeout=setTimeout(function(){0<b.health&&(S(b),prompt.say('<i>"'+e["2"]+'"</i>',h,b.type))},1E3)}))},100)))}}};
-var prompt=new function(){this.callback=h;this.prompt_time=0;this.stack=[];this.status=l;this.say=function(a,b,c){this.stack.push({message:a,callback:b,"class":c||""})};this.display=function(){0<this.stack.length&&(this.prompt_time=(new Date).getTime(),this.status=g,H=this.stack.splice(0,1)[0],ca.innerHTML=H.message,ba.className=H["class"],this.callback=H.callback,ba.style.display="block")};this.clear=function(){(new Date).getTime()>this.prompt_time+500&&(-1===R.health&&location.reload(),this.status=
-l,ba.style.display="none",Ca.set(-40,80,80),Da.set(0,10,0),this.callback instanceof Function&&(this.callback(),this.callback=h))}},u,V,W,H,G,I,z=new p,A=new p,y=new p,X=new p,Y=new V4,Z=new V4,$=new V4,Ma=new M4,Na=l,Oa=l,Pa=l,Qa=l,Ra=l,Sa=l,Ta=l,Ua,Va,Wa;
-function Xa(){Va=(new Date).getTime();Wa=Va-Ua;Ua=Va;Na||(z.set(680,0.3,550),900<z.sub(R.d).w()&&(Na=g,prompt.say("Earlier today an airborne virus escaped from the lab, which has infected nearly 50% of the city's residents."),prompt.say("The INFECTED are not very strong, but are very smart. One by one they are capturing humans and killing them. This is their nest."),prompt.say("An ANTIDOTE is being held in a room to the FAR RIGHT. You must find it and release it before everyone becomes INFECTED.")));
-if(!prompt.status){prompt.display();u=0;a:for(;u<s.length;u++)if(0<s[u].health){z.copy(s[u].e).sub(s[u].d);if(s[u]!==R&&s[u].u)for(V=0;V<s.length;V++)if(s[u]!==s[V],0<s[V].health&&s[u].infected!==s[V].infected&&0<s[u].o.length&&!s[u].v&&100>=A.copy(s[V].d).sub(s[u].d).w()){s[u].v=0.01;s[u].D=g;break}if(s[u].v){s[u].v+=0.1*(Wa/16);2<=s[u].v&&(s[u].v=0);if(s[u].D&&0.4<=s[u].v){s[u].D=l;var a=s[u],b=s[u]===R?100:"guard"===s[u].type?5:10;A.set(0,0,-1);Ma.H(a.j);Ma.A(A);A.r(10);A.add(a.d);for(V=0;V<s.length;V++)if(!(s[V].infected===
-a.infected&&a!==R)&&!(0>=s[V].health)&&s[V]!==a&&200>=y.copy(s[V].d).sub(A).w()){s[V].health-=b;0>s[V].health&&(s[V].health=0);break}}s[u].h[1]=s[u].v;1<s[u].h[1]&&(s[u].h[1]=2-s[u].h[1]);0<s[u].o.length&&(s[u].o[0].h[1]=s[u].h[1])}if(0.3<Math.abs(z.x)||0.3<Math.abs(z.a))if(H=s[u]===R?0.025*Wa:0.019*Wa,A.copy(s[u].d),A.x+=Math.min(0.3<Math.abs(z.x)?H*(0<z.x?1:-1):0,Math.abs(s[u].e.x-s[u].d.x)),A.a+=Math.min(0.3<Math.abs(z.a)?H*(0<z.a?1:-1):0,Math.abs(s[u].e.a-s[u].d.a)),y.copy(s[u].d),y.x+=0.3<Math.abs(z.x)?
-5*(0<z.x?1:-1):0,y.a+=0.3<Math.abs(z.a)?5*(0<z.a?1:-1):0,!(0>y.x||0>y.a||y.x/10>O[0].length-1||y.a/10>O.length-1||1!==O[Math.round(y.a/10)][Math.round(y.x/10)])){for(V=0;V<s.length;V++)if(!(0>=s[V].health)&&s[u]!==s[V]&&(X.copy(A).sub(s[V].d),20>=X.w()))continue a;s[u].d.x=A.x;s[u].d.a=A.a;s[u].j.F(A.n());s[u].t.J();s[u].N?(s[u].h[0]-=0.075,0>s[u].h[0]&&(s[u].N=l)):(s[u].h[0]+=0.075,1<s[u].h[0]&&(s[u].N=g));0<s[u].o.length&&(s[u].o[0].h[0]=1-s[u].h[0])}}else if(0===s[u].health&&(s[u].health=-1,s[u].h[0]=
-0.5,s[u].h[1]=0,0<s[u].o.length&&(s[u].o[0].h[0]=0.5,s[u].o[0].h[1]=0),s[u].aa||Ia++,s[u].d.y+=0.5,A.copy(s[u].d),A.x+=0.02*Math.random()-0.01,A.y=10,A.a+=0.02*Math.random()-0.01,s[u].j.F(A),s[u].t.J(),"scientist"===s[u].type&&(R.health+=20,100<R.health&&(R.health=100)),s[u]===R))Ca.set(-15,30,15),prompt.say("You have been killed. Click or press any key to restart.")}z.copy(Ca).sub(Ba).r(0.015);1<z.w()&&z.r(1/z.length());Ba.add(z.r(Wa/16));z.copy(Da).sub(Aa).r(0.015);1<z.w()&&z.r(1/z.length());Aa.add(z.r(Wa/
-16));z.copy(R.d).add(Ba);ya.M(z);z.copy(R.d).add(Aa);ya.F(z);render();if(80>=R.d.x&&60<=R.d.a&&130>=R.d.a)for(u=0;u<s.length;u++)if(!Sa&&"scientist"===s[u].type&&80>=s[u].d.x&&60<=s[u].d.a&&130>=s[u].d.a){Sa=g;s[u].u=g;A.copy(R.d);A.y=0.3;s[u].j.F(A);s[u].t.J();S(s[u]);render();prompt.say("<i>\"ID#43657 - Gregory! I'm so sorry about this. The app you downloaded, the mental assistant - there's something wrong with it. It's been giving you instructions, but you were coherent enough to question it. Thank god.\"</i>",
-h,"scientist");prompt.say('<i>"We need you as a tool to convert the <b>INFECTEDS</b> - to show them which reality to believe. We need you on our side."</i>',function(){var a=0;setInterval(function(){a=a+0.01;J.style.opacity=1-a;if(a>1){a=1;R.health=-1}},10)},"scientist");prompt.say('<i>". . . You trust us, right?"</i>',h,"scientist");break}!Ta&&(1300<=R.d.x&&1320>=R.d.x&&90<=R.d.a&&110>=R.d.a)&&(Ta=g,prompt.say('Press "x" to rid the world of the virus.'));da(Xa)}var Ya=0;
-FSorter=function(a,b){return b.f-a.f};expand=function(a,b){var c=b.x-a.x,e=b.y-a.y,f=c*c+e*e;0!=f&&(f=1/n(f),c*=f,e*=f,b.x+=c,b.y+=e,a.x-=c,a.y-=e)};createPerson=function(a,b){var c=new Model(Q.person,P[a]);c.type=a;c.h[0]=0;c.h[1]=0;c.p=Ga;c.P=l;c.D=l;c.health=100;c.infected="infected"===a;b&&(c.o.push(new Model(Q.poker,P.poker)),c.o[0].h[0]=c.o[0].h[1]=0,c.o[0].p=Ha);return c};
-renderElements=function(){Fa.sort(FSorter);u=0;for(H=Fa.length;u<H;u++){G=Fa[u];G.b[0].x*=B/2;G.b[0].y*=E/2;G.b[0].x+=B/2;G.b[0].y+=E/2;G.b[1].x*=B/2;G.b[1].y*=E/2;G.b[1].x+=B/2;G.b[1].y+=E/2;G.b[2].x*=B/2;G.b[2].y*=E/2;G.b[2].x+=B/2;G.b[2].y+=E/2;var a=(new p(0.2,0.8,0.6)).normalize();light_value=Math.min(Math.max(a.B(G.G),0)+0.3,1);expand(G.b[0],G.b[1]);expand(G.b[1],G.b[2]);expand(G.b[2],G.b[0]);z.set(Math.round(G.j.x*light_value),Math.round(G.j.y*light_value),Math.round(G.j.a*light_value));G.da.u||
-z.r(0.4);K.fillStyle="rgba("+Math.round(z.x)+","+Math.round(z.y)+","+Math.round(z.a)+","+G.j.f+")";K.beginPath();K.moveTo(G.b[0].x,E-G.b[0].y);K.lineTo(G.b[1].x,E-G.b[1].y);K.lineTo(G.b[2].x,E-G.b[2].y);K.lineTo(G.b[0].x,E-G.b[0].y);K.closePath();K.fill()}};
-isVisible=function(a){var b=R.d;z.copy(a).sub(b);a=z.length();if(70<a)return l;z.normalize();A.copy(b);for(b=0;b<a-1;b++){if(O[Math.round(A.a/10)]!==d&&O[Math.round(A.a/10)][Math.round(A.x/10)]!==d&&0===O[Math.round(A.a/10)][Math.round(A.x/10)])return l;A.add(z)}return g};FR=new FR;projectionScreenMatrix=new M4;
-prepareScene=function(){za.O(ya);projectionScreenMatrix.multiply(ga,za);FR.fa();Ea.length=0;var a,b;Ya+=1;5==Ya&&(Ya=0);for(u=0;u<N.length;u++)if(a=N[u],a.j.M(a.d),a.j.R(a.t),FR.contains(a)){0===Ya&&(a.u=isVisible(a.d));if(("scientist"===a.type||"civilian"===a.type)&&a.u&&!a.P&&100>=z.copy(a.d).sub(R.d).w())a.P=g,z.copy(a.d).sub(new p(680,0.3,340)),H=z.length()/10,G=8>=H?0:20>=H?1:35>=H?2:50>=H?3:4,Ja.speak(G,a);if(a.type&&a!==R&&a.u&&0.8<Math.random())if(0<a.o.length&&a.infected!==R.infected)a.e.copy(R.d);
-else if(a.infected!==R.infected)0===Ya&&(a.e.copy(a.d).sub(R.d).normalize().r(5).add(a.d),a.e.x+=50*M(a.e.x/5,a.e.a/5),a.e.a+=50*M(a.e.x/5+50,a.e.a/5+50));else if(0<a.o.length){a.e.x=-1E3;for(V=0;V<s.length;V++)if(s[V]!==R&&0<s[V].health&&s[V].u&&s[V].infected!==a.infected&&2500>=z.copy(s[V].d).sub(a.d).w()){a.e.copy(s[V].d);break}-1E3===a.e.x&&(a.e.x+=50*M(a.d.x/5,a.d.a/5),a.e.a+=50*M(a.d.x/5+50,a.d.a/5+50))}else a.e.x+=50*M(a.d.x/5,a.d.a/5),a.e.a+=50*M(a.d.x/5+50,a.d.a/5+50);"guard"===a.type&&a.u&&
-!Oa&&(Oa=g,S(a),prompt.say("The scientists here want to study the virus at any cost. As such, the lab's <b>GUARDS</b> will attempt to stop you. There's one now.<br><br> Press <b>SPACEBAR</b> when an enemy is in front of you to attack them."));"scientist"===a.type&&a.u&&!Pa&&(Pa=g,S(a),prompt.say("In the lab you will also encounter <b>SCIENTISTS</b>. They will attempt to escape if you chase them and will give you <b>HEALTH</b> if you kill them. There's one now. Try sneaking up on him and attacking."));
-"civilian"===a.type&&a.u&&!Qa&&(Qa=g,S(a),prompt.say("The <b>INFECTED</b> are not physically dangerous, but are very crafty and will lead you into traps. Kill them on sight. There's a few now."));"infected"===a.type&&a.u&&!Ra&&(Ra=g,S(a),prompt.say("A few civilians have maintained their sanity, and are on your side. Do not hurt them, they will help you defeat <b>GUARDS</b> and the <b>INFECTED</b>."));Ea.push(a);for(V=0;V<a.o.length;V++)b=a.o[V],b.j.M(b.d),b.j.R(b.t),b.j.multiply(a.j,b.j),b.u=a.u,
-Ea.push(b)}};grad=K.createRadialGradient(B/2,E/2,0,B/2,E/2,B/2);
-render=function(){K.fillStyle="#000";K.fillRect(0,0,B,E);prepareScene();u=Fa.length=0;for(H=Ea.length;u<H;u++){G=Ea[u];Ma.H(G.j);var a;for(V=0;V<G.m.l.length;V++){z.copy(G.m.b[G.m.l[V].b[0]]);A.copy(G.m.b[G.m.l[V].b[1]]);y.copy(G.m.b[G.m.l[V].b[2]]);for(W=0;W<G.p.length;W++)X.set(G.p[W][3*G.m.l[V].b[0]],G.p[W][3*G.m.l[V].b[0]+1],G.p[W][3*G.m.l[V].b[0]+2]),z.add(X.r(G.h[W])),X.set(G.p[W][3*G.m.l[V].b[1]],G.p[W][3*G.m.l[V].b[1]+1],G.p[W][3*G.m.l[V].b[1]+2]),A.add(X.r(G.h[W])),X.set(G.p[W][3*G.m.l[V].b[2]],
-G.p[W][3*G.m.l[V].b[2]+1],G.p[W][3*G.m.l[V].b[2]+2]),y.add(X.r(G.h[W]));G.j.A(z);G.j.A(A);G.j.A(y);Y.copy(z);Z.copy(A);$.copy(y);projectionScreenMatrix.L(Y);projectionScreenMatrix.L(Z);projectionScreenMatrix.L($);Y.x/=Y.f;Y.y/=Y.f;if(!(5>Y.a||250<Y.a))if(Z.x/=Z.f,Z.y/=Z.f,!(5>Y.a||250<Y.a))if($.x/=$.f,$.y/=$.f,!(5>Y.a||250<Y.a))if(a=0>($.x-Y.x)*(Z.y-Y.y)-($.y-Y.y)*(Z.x-Y.x))z.copy(G.m.l[V].G),Ma.A(z),I=(new F([Y.n(),Z.n(),$.n()],G.U[G.m.l[V].j],z.n())).W(),I.da=G,(G.u||!(0<G.p.length))&&Fa.push(I)}}renderElements();
-K.fillStyle=grad;K.rect(0,0,B,E);K.fill();K.font="11pt Courier";0<R.health&&(a=B-0.9*B,K.fillStyle="#b30",K.fillRect(a,10,(B-2*a)*0.01*R.health,Math.min(20,0.1*E)),K.fillStyle="#fff",K.fillText("Health: "+R.health,B/2-50,25));0<Ia&&(K.fillStyle="#fff",K.fillText("Killed: "+Ia,B-100,25))};
-title=function(){function a(a,e,j,q,i){var i=i||{},o;for(b=e;b<=q;b++)for(c=a;c<=j;c++)O[b][c]=1;var r={s:"scientist",c:"civilian",g:"guard",i:"infected"},m;for(m in r)if(0<i[m+"min"]&&i[m+"max"]){H=Math.floor(Math.random()*(i[m+"max"]-i[m+"min"]+1))+i[m+"min"];for(b=0;b<H;b++)o=l,"g"===m&&(o=g),"i"===m&&0.6<Math.random()&&(o=g),o=createPerson(r[m],o),o.d.set(10*(Math.random()*(j-a)+a),0.3,10*(Math.random()*(q-e)+e)),o.e.set(10*(Math.random()*(j-a)+a),0.3,10*(Math.random()*(q-e)+e)),s.push(o),N.push(o)}}
-K.fillStyle="#241D23";K.fillRect(0,0,B,E);K.font="36pt Courier";K.fillStyle="#fff";K.fillText("Mindless",B/2-135,100);K.font="11pt Courier";K.fillText("Chandler Prall, Programmer",B-300,E-70);K.fillText("Nick Anderson,  Writer",B-300,E-50);K.fillText("Shawn Gardner,  Exec. Producer",B-300,E-30);var b,c;for(b=0;139>b;b++){O[b]=[];for(c=0;139>c;c++)O[b][c]=0}a(12,0,20,6,{imin:1,imax:1,smin:2,smax:2,cmin:1,cmax:1});a(16,7,20,7);a(22,0,31,6,{smin:3,smax:3,cmin:2,cmax:3});a(22,7,26,7);a(32,3,32,6);a(33,
-0,42,6,{smin:4,smax:5});a(38,7,42,7);a(44,0,53,6,{gmin:1,gmax:1,cmin:4,cmax:4});a(46,7,48,7);a(55,0,64,9,{gmin:1,gmax:1,smin:4,smax:4});a(57,10,59,10);a(66,0,76,9,{gmin:1,gmax:1,smin:4,smax:4});a(72,10,74,10);a(78,0,81,10,{imin:1,imax:1,cmin:2,cmax:2,smin:2,smax:2});a(82,0,97,4,{smin:1,smax:2,cmin:1,cmax:2});a(83,5,97,9,{gmin:1,gmax:1,cmin:1,cmax:1});a(99,0,104,4,{gmin:1,gmax:1,smin:1,smax:2,cmin:2,cmax:2});a(106,0,115,4,{gmin:1,gmax:1,smin:3,smax:4});a(99,5,115,6);a(104,7,106,7);a(117,0,126,6,{gmin:1,
-gmax:1,cmin:3,cmax:4});a(121,7,123,7);a(0,6,10,13,{smin:3,smax:6});a(11,9,11,10);a(12,8,17,14,{imin:7,imax:10});a(18,8,26,11);a(27,8,27,10);a(19,12,26,14);a(21,15,26,15);a(28,8,36,18,{cmin:3,cmax:4,smin:2,smax:2});a(37,10,37,12);a(32,19,34,19);a(38,8,53,13,{gmin:1,gmax:1,smin:1,smax:2,cmin:1,cmax:1});a(54,11,81,13,{imin:2,imax:2,smin:2,smax:3,cmin:1,cmax:1});a(57,14,59,14);a(78,14,81,14);a(98,8,126,12,{gmin:2,gmax:3,smin:2,smax:3,cmin:1,cmax:1});a(104,13,106,13);a(120,13,122,13);a(127,9,127,11);a(128,
-6,138,14,{cmin:10,cmax:12});a(95,10,97,25);a(12,16,28,18,{gmin:1,gmax:1,imin:1,imax:1});a(12,19,21,19);a(38,15,42,40,{gmin:1,gmax:1,imin:1,imax:1,smin:3,smax:4});a(43,20,43,23);a(44,15,48,32,{gmin:1,gmax:1,imin:1,imax:1,cmin:2,cmax:3});a(49,15,49,19);a(50,15,54,32,{gmin:1,gmax:1,smin:2,smax:2,cmin:1,cmax:1});a(55,26,61,32,{cmin:2,cmax:2,smin:1,smax:1});a(62,27,65,32);a(56,15,67,25,{gmin:1,gmax:1,smin:3,smax:4});a(69,15,75,25,{imin:1,imax:2,smin:1,smax:1});a(76,17,76,19);a(72,26,75,26);a(77,15,81,
-29,{imin:1,imax:2,smin:2,smax:3,gmin:1,gmax:1});a(82,17,82,19);a(78,30,80,30);a(83,11,86,29,{gmin:1,gmax:1,smin:2,smax:2,cmin:1,cmax:1});a(87,11,88,28,{gmin:1,gmax:1,smin:2,smax:2,cmin:1,cmax:1});a(89,22,93,28,{gmin:1,gmax:1,smin:1,smax:1,imin:1,imax:2});a(90,11,93,21);a(94,11,94,15);a(99,14,104,20,{gmin:1,gmax:1,smin:1,smax:2,cmin:1,cmax:2});a(105,14,105,15);a(106,14,115,20,{gmin:1,gmax:1,smin:3,smax:4,cmin:1,cmax:1});a(117,14,126,20,{gmin:1,gmax:1,cmin:3,cmax:5});a(12,20,36,24,{imin:2,imax:3,gmin:1,
-gmax:1,cmin:1,cmax:1});a(37,20,37,23);a(98,22,100,25,{gmin:1,gmax:1,cmin:1,cmax:2});a(124,21,126,21);a(101,22,126,24,{gmin:1,gmax:1,cmin:2,cmax:3,smin:2,smax:4});a(43,38,51,40,{gmin:1,gmax:1,cmin:1,cmax:2});a(44,34,65,37,{cmin:4,cmax:5,smin:3,smax:4});a(70,27,75,29,{imin:2,imax:2});a(67,27,69,30,{cmin:2,cmax:2});a(67,31,69,35);a(67,36,69,36,{smin:1,smax:1});a(67,37,69,40);a(67,41,69,42,{gmin:1,gmax:1});a(67,43,69,56);a(71,31,81,37,{smin:2,smax:2,imin:3,imax:5});for(b=0;b<O[0].length;b++)for(c=0;c<
-O.length;c++){switch(O[c][b]){case 1:H=new Model(Q.tile,P["floor_"+Math.floor(3*Math.random())]),H.d.set(10*b,0,10*c),N.push(H)}if(0!==O[c][b]){if(O[c-1]===d||0===O[c-1][b])H=new Model(Q.wall,P["wall_"+Math.floor(3*Math.random())]),H.d.set(10*b,0,10*c),N.push(H);if(O[c+1]===d||0===O[c+1][b])H=new Model(Q.wall,P["wall_"+Math.floor(3*Math.random())]),H.d.set(10*b,0,10*c),H.t.set(0,Math.PI,0),N.push(H);if(O[c][b-1]===d||0===O[c][b-1])H=new Model(Q.wall,P["wall_"+Math.floor(3*Math.random())]),H.d.set(10*
-b,0,10*c),H.t.set(0,Math.PI/2,0),N.push(H);if(O[c][b+1]===d||0===O[c][b+1])H=new Model(Q.wall,P["wall_"+Math.floor(3*Math.random())]),H.d.set(10*b,0,10*c),H.t.set(0,Math.PI/-2,0),N.push(H)}}var e=new Model(Q.terminal,P.terminal);e.d.set(1310,0,100);O[10][131]=2;e.t.y=-Math.PI/2;N.push(e);R=createPerson("player",g);R.infected=g;R.d.set(680,0.3,550);R.e.copy(R.d);s.push(R);N.push(R);K.font="14pt Monospace";K.fillText("Click to start",B/2-100,200);document.addEventListener("click",function k(){document.removeEventListener("click",
-k);grad.addColorStop(0,"rgba( 0, 0, 0, 0 )");grad.addColorStop(0.7,"rgba( 0, 0, 0, .3 )");grad.addColorStop(1,"rgba( 0, 0, 0, .8 )");document.addEventListener("keydown",function(a){if(prompt.status)prompt.clear();else switch(a.keyCode){case 32:R.v||(R.v=0.01,R.D=g);break;case 88:1280<=R.d.x&&(1380>=R.d.x&&60<=R.d.a&&140>=R.d.a)&&(prompt.say("C:> cd root<br>$[root] /RUN self_destruct.exe<br>-m'Humans Eliminated'<br><br>(Play Again)"),R.health=0,setTimeout(function(){Ca.set(80,150,80)},250),setInterval(function(){for(b=
-0;10>b;b++)N.splice(Math.floor(Math.random()*(N.length-1)),1);if(0!==N.length)for(b=0;10>b;b++)N[Math.floor(Math.random()*(N.length-1))].t.x+=Math.random()*Math.PI-Math.PI/2,N[Math.floor(Math.random()*(N.length-1))].t.y+=Math.random()*Math.PI-Math.PI/2,N[Math.floor(Math.random()*(N.length-1))].t.a+=Math.random()*Math.PI-Math.PI/2},5))}});setTimeout(function(){Ca.set(-40,80,80)},1E3);document.addEventListener("click",function(a){if(prompt.status)prompt.clear();else{clearTimeout(Ja.timeout);var a=new p(2*
-((a.clientX-J.offsetLeft)/B)-1,2*-((a.clientY-J.offsetTop)/E)+1,0.5),b=(new M4).O(ga);(new M4).multiply((new M4).H(ya),b).A(a);a.normalize();a.r(-ya.I().y/a.y);a.add(ya.I().n());R.e.set(a.x,0.3,a.a)}});prompt.say("Welcome to <b>Biochemical Lab #13</b>. Left click on the map to walk.");Ua=(new Date).getTime();Xa()})};J.width=B;J.height=E;title();
+var l='length',p='prototype',sq=Math.sqrt, // shortcuts
+
+//Vector3
+V3 = function( x, y, z ) {
+	this.x = x || 0;
+	this.y = y || 0;
+	this.z = z || 0;
+};
+V3[p].set = function( x, y, z ) {
+	this.x = x;
+	this.y = y;
+	this.z = z;
+	return this;
+};
+V3[p].clone = function() {
+	return new V3( this.x, this.y, this.z );
+};
+V3[p].sub = function( v ) {
+	this.x -= v.x;
+	this.y -= v.y;
+	this.z -= v.z;
+	return this;
+};
+V3[p].add = function( v ) {
+	this.x += v.x;
+	this.y += v.y;
+	this.z += v.z;
+	return this;
+};
+V3[p].cross = function( v ) {
+	var x = this.x,
+		y = this.y,
+		z = this.z;
+
+	this.x=y*v.z-z*v.y;
+	this.y=z*v.x-x*v.z;
+	this.z=x*v.y-y*v.x;
+	return this;
+};
+V3[p].dot = function( v ) {
+	return this.x * v.x + this.y * v.y + this.z * v.z;
+};
+V3[p].normalize = function() {
+	var length = sq( this.x * this.x + this.y * this.y + this.z * this.z );
+
+	this.x /= length;
+	this.y /= length;
+	this.z /= length;
+
+	return this;
+};
+V3[p].length = function() {
+	return sq( this.lengthSq() );
+};
+V3[p].lengthSq = function() {
+	return this.x * this.x + this.y * this.y + this.z * this.z;
+};
+V3[p].copy = function( v ) {
+	this.x = v.x;
+	this.y = v.y;
+	this.z = v.z;
+	return this;
+};
+V3[p].getRotationFromMatrix = function( m ) {
+	function clamp( x ) {
+
+		return Math.min( Math.max( x, -1 ), 1 );
+
+	}
+
+	var te = m.e;
+	var m11 = te[0], m12 = te[4], m13 = te[8];
+	var m21 = te[1], m22 = te[5], m23 = te[9];
+	var m31 = te[2], m32 = te[6], m33 = te[10];
+	
+	this.y = Math.asin( clamp( m13 ) );
+
+	if ( Math.abs( m13 ) < 0.99999 ) {
+
+		this.x = Math.atan2( - m23, m33 );
+		this.z = Math.atan2( - m12, m11 );
+
+	} else {
+
+		this.x = Math.atan2( m21, m22 );
+		this.z = 0;
+
+	}
+	
+	return this;
+};
+V3[p].multiplyScalar = function( s ) {
+	this.x *= s;
+	this.y *= s;
+	this.z *= s;
+
+	return this;
+};
+
+//Matrix4
+M4 = function( e ) {
+	this.e = e || [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]; // Matrix elements
+};
+M4[p].copy = function( m ) {
+	var t1 = this.e, t2 = m.e;
+	t1[0] = t2[0];
+	t1[1] = t2[1];
+	t1[2] = t2[2];
+	t1[3] = t2[3];
+	t1[4] = t2[4];
+	t1[5] = t2[5];
+	t1[6] = t2[6];
+	t1[7] = t2[7];
+	t1[8] = t2[8];
+	t1[9] = t2[9];
+	t1[10] = t2[10];
+	t1[11] = t2[11];
+	t1[12] = t2[12];
+	t1[13] = t2[13];
+	t1[14] = t2[14];
+	t1[15] = t2[15];
+};
+M4[p].lookAt = function( t ) {
+	var te = this.e;
+
+	var x = v1;
+	var y = v2;
+	var z = v3;
+	var up = new V3( 0, 1, 0 );
+
+	z = this.getPosition().clone().sub( t ).normalize();
+
+	if ( z.length() === 0 ) {
+
+		z.z = 1;
+
+	}
+
+	x.copy( up ).cross( z ).normalize();
+	
+	if ( x.length() === 0 ) {
+
+		z.x += 0.0001;
+		x.copy( up ).cross( z ).normalize();
+
+	}
+	
+	y.copy( z ).cross( x );
+
+	te[0] = x.x; te[4] = y.x; te[8] = z.x;
+	te[1] = x.y; te[5] = y.y; te[9] = z.y;
+	te[2] = x.z; te[6] = y.z; te[10] = z.z;
+
+	return this;
+};
+M4[p].getInverse = function( m ) {
+	var te = this.e,
+		me = m.e,
+
+		n11 = me[0], n12 = me[4], n13 = me[8], n14 = me[12],
+		n21 = me[1], n22 = me[5], n23 = me[9], n24 = me[13],
+		n31 = me[2], n32 = me[6], n33 = me[10], n34 = me[14],
+		n41 = me[3], n42 = me[7], n43 = me[11], n44 = me[15];
+
+	te[0] = n23*n34*n42 - n24*n33*n42 + n24*n32*n43 - n22*n34*n43 - n23*n32*n44 + n22*n33*n44;
+	te[4] = n14*n33*n42 - n13*n34*n42 - n14*n32*n43 + n12*n34*n43 + n13*n32*n44 - n12*n33*n44;
+	te[8] = n13*n24*n42 - n14*n23*n42 + n14*n22*n43 - n12*n24*n43 - n13*n22*n44 + n12*n23*n44;
+	te[12] = n14*n23*n32 - n13*n24*n32 - n14*n22*n33 + n12*n24*n33 + n13*n22*n34 - n12*n23*n34;
+	te[1] = n24*n33*n41 - n23*n34*n41 - n24*n31*n43 + n21*n34*n43 + n23*n31*n44 - n21*n33*n44;
+	te[5] = n13*n34*n41 - n14*n33*n41 + n14*n31*n43 - n11*n34*n43 - n13*n31*n44 + n11*n33*n44;
+	te[9] = n14*n23*n41 - n13*n24*n41 - n14*n21*n43 + n11*n24*n43 + n13*n21*n44 - n11*n23*n44;
+	te[13] = n13*n24*n31 - n14*n23*n31 + n14*n21*n33 - n11*n24*n33 - n13*n21*n34 + n11*n23*n34;
+	te[2] = n22*n34*n41 - n24*n32*n41 + n24*n31*n42 - n21*n34*n42 - n22*n31*n44 + n21*n32*n44;
+	te[6] = n14*n32*n41 - n12*n34*n41 - n14*n31*n42 + n11*n34*n42 + n12*n31*n44 - n11*n32*n44;
+	te[10] = n12*n24*n41 - n14*n22*n41 + n14*n21*n42 - n11*n24*n42 - n12*n21*n44 + n11*n22*n44;
+	te[14] = n14*n22*n31 - n12*n24*n31 - n14*n21*n32 + n11*n24*n32 + n12*n21*n34 - n11*n22*n34;
+	te[3] = n23*n32*n41 - n22*n33*n41 - n23*n31*n42 + n21*n33*n42 + n22*n31*n43 - n21*n32*n43;
+	te[7] = n12*n33*n41 - n13*n32*n41 + n13*n31*n42 - n11*n33*n42 - n12*n31*n43 + n11*n32*n43;
+	te[11] = n13*n22*n41 - n12*n23*n41 - n13*n21*n42 + n11*n23*n42 + n12*n21*n43 - n11*n22*n43;
+	te[15] = n12*n23*n31 - n13*n22*n31 + n13*n21*n32 - n11*n23*n32 - n12*n21*n33 + n11*n22*n33;
+	this.multiplyScalar( 1 / m.determinant() );
+
+	return this;
+};
+M4[p].multiplyScalar = function( s ) {
+	var te = this.e;
+
+	te[0] *= s; te[4] *= s; te[8] *= s; te[12] *= s;
+	te[1] *= s; te[5] *= s; te[9] *= s; te[13] *= s;
+	te[2] *= s; te[6] *= s; te[10] *= s; te[14] *= s;
+	te[3] *= s; te[7] *= s; te[11] *= s; te[15] *= s;
+
+	return this;
+};
+M4[p].determinant = function() {
+	var te = this.e,
+
+		n11 = te[0], n12 = te[4], n13 = te[8], n14 = te[12],
+		n21 = te[1], n22 = te[5], n23 = te[9], n24 = te[13],
+		n31 = te[2], n32 = te[6], n33 = te[10], n34 = te[14],
+		n41 = te[3], n42 = te[7], n43 = te[11], n44 = te[15];
+
+	return (
+		n14 * n23 * n32 * n41-
+		n13 * n24 * n32 * n41-
+		n14 * n22 * n33 * n41+
+		n12 * n24 * n33 * n41+
+
+		n13 * n22 * n34 * n41-
+		n12 * n23 * n34 * n41-
+		n14 * n23 * n31 * n42+
+		n13 * n24 * n31 * n42+
+
+		n14 * n21 * n33 * n42-
+		n11 * n24 * n33 * n42-
+		n13 * n21 * n34 * n42+
+		n11 * n23 * n34 * n42+
+
+		n14 * n22 * n31 * n43-
+		n12 * n24 * n31 * n43-
+		n14 * n21 * n32 * n43+
+		n11 * n24 * n32 * n43+
+
+		n12 * n21 * n34 * n43-
+		n11 * n22 * n34 * n43-
+		n13 * n22 * n31 * n44+
+		n12 * n23 * n31 * n44+
+
+		n13 * n21 * n32 * n44-
+		n11 * n23 * n32 * n44-
+		n12 * n21 * n33 * n44+
+		n11 * n22 * n33 * n44
+	);
+};
+M4[p].multiply = function( a, b ) {
+	var ae = a.e,
+		be = b.e,
+		te = this.e,
+
+		a11 = ae[0], a12 = ae[4], a13 = ae[8], a14 = ae[12],
+		a21 = ae[1], a22 = ae[5], a23 = ae[9], a24 = ae[13],
+		a31 = ae[2], a32 = ae[6], a33 = ae[10], a34 = ae[14],
+		a41 = ae[3], a42 = ae[7], a43 = ae[11], a44 = ae[15],
+
+		b11 = be[0], b12 = be[4], b13 = be[8], b14 = be[12],
+		b21 = be[1], b22 = be[5], b23 = be[9], b24 = be[13],
+		b31 = be[2], b32 = be[6], b33 = be[10], b34 = be[14],
+		b41 = be[3], b42 = be[7], b43 = be[11], b44 = be[15];
+
+	te[0] = a11 * b11 + a12 * b21 + a13 * b31 + a14 * b41;
+	te[4] = a11 * b12 + a12 * b22 + a13 * b32 + a14 * b42;
+	te[8] = a11 * b13 + a12 * b23 + a13 * b33 + a14 * b43;
+	te[12] = a11 * b14 + a12 * b24 + a13 * b34 + a14 * b44;
+
+	te[1] = a21 * b11 + a22 * b21 + a23 * b31 + a24 * b41;
+	te[5] = a21 * b12 + a22 * b22 + a23 * b32 + a24 * b42;
+	te[9] = a21 * b13 + a22 * b23 + a23 * b33 + a24 * b43;
+	te[13] = a21 * b14 + a22 * b24 + a23 * b34 + a24 * b44;
+
+	te[2] = a31 * b11 + a32 * b21 + a33 * b31 + a34 * b41;
+	te[6] = a31 * b12 + a32 * b22 + a33 * b32 + a34 * b42;
+	te[10] = a31 * b13 + a32 * b23 + a33 * b33 + a34 * b43;
+	te[14] = a31 * b14 + a32 * b24 + a33 * b34 + a34 * b44;
+
+	te[3] = a41 * b11 + a42 * b21 + a43 * b31 + a44 * b41;
+	te[7] = a41 * b12 + a42 * b22 + a43 * b32 + a44 * b42;
+	te[11] = a41 * b13 + a42 * b23 + a43 * b33 + a44 * b43;
+	te[15] = a41 * b14 + a42 * b24 + a43 * b34 + a44 * b44;
+
+	return this;
+};
+M4[p].getMaxScaleOnAxis = function() {
+	var te = this.e;
+
+	var tx = te[0] * te[0] + te[1] * te[1] + te[2] * te[2];
+	var ty = te[4] * te[4] + te[5] * te[5] + te[6] * te[6];
+	var tz = te[8] * te[8] + te[9] * te[9] + te[10] * te[10];
+
+	return sq( Math.max( tx, Math.max( ty, tz ) ) );
+};
+M4[p].multiplyV3 = function( v ) {
+	var te = this.e;
+
+	var vx = v.x, vy = v.y, vz = v.z;
+	var d = 1 / ( te[3] * vx + te[7] * vy + te[11] * vz + te[15] );
+
+	v.x = ( te[0] * vx + te[4] * vy + te[8] * vz + te[12] ) * d;
+	v.y = ( te[1] * vx + te[5] * vy + te[9] * vz + te[13] ) * d;
+	v.z = ( te[2] * vx + te[6] * vy + te[10] * vz + te[14] ) * d;
+
+	return v;
+};
+M4[p].multiplyV4 = function( v ) {
+	var te = this.e;
+	var vx = v.x, vy = v.y, vz = v.z, vw = v.w;
+
+	v.x = te[0] * vx + te[4] * vy + te[8] * vz + te[12] * vw;
+	v.y = te[1] * vx + te[5] * vy + te[9] * vz + te[13] * vw;
+	v.z = te[2] * vx + te[6] * vy + te[10] * vz + te[14] * vw;
+	v.w = te[3] * vx + te[7] * vy + te[11] * vz + te[15] * vw;
+
+	return v;
+};
+M4[p].setPosition = function( v ) {
+	var te = this.e;
+
+	te[12] = v.x;
+	te[13] = v.y;
+	te[14] = v.z;
+
+	return this;
+};
+var _gp1 = new V3;
+M4[p].getPosition = function() {
+	var te = this.e;
+	return _gp1.set( te[12], te[13], te[14] );
+};
+M4[p].setRotation = function( v ) {
+	var te = this.e;
+
+	var x = v.x, y = v.y, z = v.z;
+	var a = Math.cos( x ), b = Math.sin( x );
+	var c = Math.cos( y ), d = Math.sin( y );
+	var e = Math.cos( z ), f = Math.sin( z );
+	
+	var ae = a * e, af = a * f, be = b * e, bf = b * f;
+
+	te[0] = c * e;
+	te[4] = - c * f;
+	te[8] = d;
+
+	te[1] = af + be * d;
+	te[5] = ae - bf * d;
+	te[9] = - b * c;
+
+	te[2] = bf - ae * d;
+	te[6] = be + af * d;
+	te[10] = a * c;
+	
+	return this;
+};
+M4[p].extractRotation = function( m ) {
+	var te = this.e;
+	var me = m.e;
+
+	var vector = new V3;
+
+	var scaleX = 1 / vector.set( me[0], me[1], me[2] ).length();
+	var scaleY = 1 / vector.set( me[4], me[5], me[6] ).length();
+	var scaleZ = 1 / vector.set( me[8], me[9], me[10] ).length();
+
+	te[0] = me[0] * scaleX;
+	te[1] = me[1] * scaleX;
+	te[2] = me[2] * scaleX;
+
+	te[4] = me[4] * scaleY;
+	te[5] = me[5] * scaleY;
+	te[6] = me[6] * scaleY;
+
+	te[8] = me[8] * scaleZ;
+	te[9] = me[9] * scaleZ;
+	te[10] = me[10] * scaleZ;
+
+	return this;
+};
+M4[p].makeFrustum = function ( left, right, bottom, top, near, far ) {
+
+	var te = this.e;
+	var x = 2 * near / ( right - left );
+	var y = 2 * near / ( top - bottom );
+
+	var a = ( right + left ) / ( right - left );
+	var b = ( top + bottom ) / ( top - bottom );
+	var c = - ( far + near ) / ( far - near );
+	var d = - 2 * far * near / ( far - near );
+
+	te[0] = x; te[4] = 0; te[8] = a; te[12] = 0;
+	te[1] = 0; te[5] = y; te[9] = b; te[13] = 0;
+	te[2] = 0; te[6] = 0; te[10] = c; te[14] = d;
+	te[3] = 0; te[7] = 0; te[11] = - 1; te[15] = 0;
+
+	return this;
+
+};
+M4[p].makePerspective = function ( fov, aspect, near, far ) {
+
+	var ymax = near * Math.tan( fov * Math.PI / 360 );
+	var ymin = - ymax;
+	var xmin = ymin * aspect;
+	var xmax = ymax * aspect;
+
+	return this.makeFrustum( xmin, xmax, ymin, ymax, near, far );
+};
+
+//Vector4
+V4 = function( x, y, z, w ) {
+	this.x = x;
+	this.y = y;
+	this.z = z;
+	this.w = w;
+};
+V4[p].set = function( x, y, z, w ) {
+	this.x = x;
+	this.y = y;
+	this.z = z;
+	this.w = w;
+	return this;
+};
+V4[p].divideScalar = function( s ) {
+	if ( s ) {
+		this.x /= s;
+		this.y /= s;
+		this.z /= s;
+		this.w /= s;
+	} else {
+		this.x = 0;
+		this.y = 0;
+		this.z = 0;
+		this.w = 1;
+	}
+	return this;
+};
+V4[p].copy = function( v ) {
+	this.x = v.x;
+	this.y = v.y;
+	this.z = v.z;
+	this.w = ( v.w !== undefined ) ? v.w : 1;
+
+	return this;
+}
+V4[p].clone = function( v ){
+	return new V4( this.x, this.y, this.z, this.w );
+}
+
+//Frustum
+FR = function() {
+	this.planes = [ new V4, new V4, new V4, new V4, new V4, new V4 ];
+};
+FR[p].setFromMatrix = function( m ) {
+	t1 = this.planes;
+	var	me = m.e,
+		me0 = me[0], me1 = me[1], me2 = me[2], me3 = me[3],
+		me4 = me[4], me5 = me[5], me6 = me[6], me7 = me[7],
+		me8 = me[8], me9 = me[9], me10 = me[10], me11 = me[11],
+		me12 = me[12], me13 = me[13], me14 = me[14], me15 = me[15];
+
+	t1[ 0 ].set( me3 - me0, me7 - me4, me11 - me8, me15 - me12 );
+	t1[ 1 ].set( me3 + me0, me7 + me4, me11 + me8, me15 + me12 );
+	t1[ 2 ].set( me3 + me1, me7 + me5, me11 + me9, me15 + me13 );
+	t1[ 3 ].set( me3 - me1, me7 - me5, me11 - me9, me15 - me13 );
+	t1[ 4 ].set( me3 - me2, me7 - me6, me11 - me10, me15 - me14 );
+	t1[ 5 ].set( me3 + me2, me7 + me6, me11 + me10, me15 + me14 );
+
+	for (i1=0;i1<6;i1++){
+		t2 = t1[i1];
+		t2.divideScalar( sq( t2.x * t2.x + t2.y * t2.y + t2.z * t2.z ) );
+	}
+};
+FR[p].contains = function( o ) {
+	t2 = this.planes;
+	t3 = o.m.e;
+
+	for ( var i2 = 0; i2 < 6; i2 ++ ) {
+		t1 = t2[ i2 ].x * t3[12] + t2[ i2 ].y * t3[13] + t2[ i2 ].z * t3[14] + t2[ i2 ].w;
+		if ( t1 <= - o.g.boundingSphere * o.m.getMaxScaleOnAxis() ) return false;
+	}
+
+	return true;
+};
+
+//Face
+F = function( v, m, n ) {
+	this.v=v; // list of V3s
+	this.m=m; // material (V4)
+	this.n=n; // F normal
+};
+F[p].clone = function() {
+	return new F(
+		[ this.v[0].clone(), this.v[1].clone(), this.v[2].clone() ],
+		this.m.clone(),
+		this.n.clone(),
+		this.c.clone()
+	)
+};
+F[p].computeW = function() {
+	this.w = ( this.v[0].w + this.v[1].w + this.v[2].w ) / 3;
+	return this;
+};
+
+Geometry = function( v, f ) {
+	// vertices
+	this.v = [];
+	for ( i1 = 0; i1 < v[l]; i1 += 3 ) {
+		this.v.push( new V3( v[i1], v[i1+1], v[i1+2] ) );
+	}
+
+	// faces
+	this.f = [];
+	for ( i1 = 0; i1 < f[l]; i1 += 4 ) {
+		this.f.push( new F( [f[i1], f[i1+1], f[i1+2]], f[i1+3] ) );
+	}
+
+	var i;
+	for ( i = 0; i < this.f[l]; i++ ) {
+		this.f[i].n = this.v[this.f[i].v[1]].clone().sub( this.v[this.f[i].v[0]] ).cross(
+			this.v[this.f[i].v[2]].clone().sub( this.v[this.f[i].v[0]] )
+		).normalize();
+	}
+
+	this.computeBoundingSphere();
+};
+Geometry[p].computeBoundingSphere = function () {
+
+	var maxRadiusSq = 0;
+
+	for ( i1 = 0; i1 < this.v[l]; i1++ ) {
+
+		var radiusSq = this.v[i1].lengthSq();
+		if ( radiusSq > maxRadiusSq ) maxRadiusSq = radiusSq;
+
+	}
+
+	this.boundingSphere = sq( maxRadiusSq );
+
+};
+
+Model = function( g, c ) {
+	// materials
+	this.c = this.buildMaterial( c );
+
+	this.g = g; // geometry
+	this.m = new M4; //matrix
+	this.p = new V3; //position
+	this.r = new V3; //rotation
+	this.t = new V3; //target, used for players
+	this.k = []; //children
+	this.a = []; //animation sets
+	this.ap = []; //animation progress
+	this.iv = false; // is visible
+};
+Model[p].buildMaterial = function( c ) {
+	var material = [];
+	for ( i1 = 0; i1 < c[l]; i1 += 4 ) {
+		material.push( new V4( c[i1], c[i1+1], c[i1+2], c[i1+3] ) );
+	}
+	return material;
+};
+
+var ca = document.getElementById('c'), c = ca.getContext('2d'),
+d = document.getElementById( 'd' ),
+t = document.getElementById( 't' ),
+w = window,
+b = w.innerWidth, e = w.innerHeight, //canvas width, height
+raf = 'equestAnimationFrame',
+a = w['r'+raf] || w['mozR'+raf] || w['webkitR'+raf] || w['oR'+raf] || w['msR'+raf] || function(callback) { setTimeout( callback, 60 ) },
+
+noise = (function() {
+	var SimplexNoise = function() {
+		this.grad3 = [[1,1,0],[-1,1,0],[1,-1,0],[-1,-1,0], 
+		    [1,0,1],[-1,0,1],[1,0,-1],[-1,0,-1], 
+		    [0,1,1],[0,-1,1],[0,1,-1],[0,-1,-1]]; 
+		this.p = [];
+		for (var i=0; i<256; i++) {
+		 this.p[i] = Math.floor(Math.random()*256);
+		}
+		// To remove the need for index wrapping, double the permutation table length 
+		this.perm = []; 
+		for(var i=0; i<512; i++) {
+			this.perm[i]=this.p[i & 255];
+		}
+	}
+
+	SimplexNoise[p].dot = function(g, x, y) { 
+		return g[0]*x + g[1]*y;
+	};
+
+	SimplexNoise[p].noise = function(xin, yin) { 
+		var n0, n1, n2; // Noise contributions from the three corners 
+		// Skew the input space to determine which simplex cell we're in 
+		var F2 = 0.5*(sq(3.0)-1.0); 
+		var s = (xin+yin)*F2; // Hairy factor for 2D 
+		var i = Math.floor(xin+s); 
+		var j = Math.floor(yin+s); 
+		var G2 = (3.0-sq(3.0))/6.0; 
+		var t = (i+j)*G2; 
+		var X0 = i-t; // Unskew the cell origin back to (x,y) space 
+		var Y0 = j-t; 
+		var x0 = xin-X0; // The x,y distances from the cell origin 
+		var y0 = yin-Y0; 
+		// For the 2D case, the simplex shape is an equilateral triangle. 
+		// Determine which simplex we are in. 
+		var i1, j1; // Offsets for second (middle) corner of simplex in (i,j) coords 
+		if(x0>y0) {i1=1; j1=0;} // lower triangle, XY order: (0,0)->(1,0)->(1,1) 
+		else {i1=0; j1=1;} // upper triangle, YX order: (0,0)->(0,1)->(1,1) 
+		// A step of (1,0) in (i,j) means a step of (1-c,-c) in (x,y), and 
+		// a step of (0,1) in (i,j) means a step of (-c,1-c) in (x,y), where 
+		// c = (3-sqrt(3))/6 
+		var x1 = x0 - i1 + G2; // Offsets for middle corner in (x,y) unskewed coords 
+		var y1 = y0 - j1 + G2; 
+		var x2 = x0 - 1.0 + 2.0 * G2; // Offsets for last corner in (x,y) unskewed coords 
+		var y2 = y0 - 1.0 + 2.0 * G2; 
+		// Work out the hashed gradient indices of the three simplex corners 
+		var ii = i & 255; 
+		var jj = j & 255; 
+		var gi0 = this.perm[ii+this.perm[jj]] % 12; 
+		var gi1 = this.perm[ii+i1+this.perm[jj+j1]] % 12; 
+		var gi2 = this.perm[ii+1+this.perm[jj+1]] % 12; 
+		// Calculate the contribution from the three corners 
+		var t0 = 0.5 - x0*x0-y0*y0; 
+		if(t0<0) n0 = 0.0; 
+		else { 
+			t0 *= t0; 
+			n0 = t0 * t0 * this.dot(this.grad3[gi0], x0, y0); // (x,y) of grad3 used for 2D gradient 
+		} 
+		var t1 = 0.5 - x1*x1-y1*y1; 
+		if(t1<0) n1 = 0.0; 
+		else { 
+			t1 *= t1; 
+			n1 = t1 * t1 * this.dot(this.grad3[gi1], x1, y1); 
+		}
+		var t2 = 0.5 - x2*x2-y2*y2; 
+		if(t2<0) n2 = 0.0; 
+		else { 
+			t2 *= t2; 
+			n2 = t2 * t2 * this.dot(this.grad3[gi2], x2, y2); 
+		} 
+		// Add contributions from each corner to get the final noise value. 
+		// The result is scaled to return values in the interval [-1,1]. 
+		return 70.0 * (n0 + n1 + n2); 
+	};
+
+	var noise = new SimplexNoise;
+	return noise.noise.bind( noise );
+})(),
+
+cam = {
+	p: new M4().makePerspective( 35, b / e, 1, 250 ),
+	m: new M4( [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1] ), //world matrix
+	i: new M4( [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1] ), //matrix world inverse
+	near: 5,
+	far: 250,
+	look_at: new V3( 0, 10, 0 ),
+	position: new V3( 0, 20, -35 ),
+	position_target: new V3( 0, 0, -15 ),
+	look_at_target: new V3( 0, 10, 0 )
+},
+
+scene_objects=[],
+scene_renderables=[],
+scene_elements=[],
+
+map = [],
+
+materials = {
+	'floor_0': [ 35, 30, 25, 1 ],
+	'floor_1': [ 40, 35, 30, 1 ],
+	'floor_2': [ 35, 30, 35, 1 ],
+
+	'wall_0': [ 80, 70, 70, 1 ],
+	'wall_1': [ 85, 75, 70, 1 ],
+	'wall_2': [ 80, 75, 75, 1 ],
+
+	'terminal': [ 100, 90, 90, 1, 20, 80, 10, 1 ],
+
+	'player': [
+		76,100,107,1, //shirt
+		204,204,204,1, //shoes
+		241,219,203,1, //skin
+		149,149,149,1, // nada
+		149,149,149,1, // nada
+		74,15,0,1, // eyes & hair
+		149,149,149,1, // nada
+		35,49,56,1 // pants
+	],
+	'guard': [
+		52,61,89,1, //shirt
+		33,34,38,1, //shoes
+		224,173,166,1, //skin
+		149,149,149,1, // nada
+		149,149,149,1, // nada
+		52,61,89,1, // eyes & hair
+		149,149,149,1, // nada
+		89,88,87,1 // pants
+	],
+	'scientist': [
+		230,230,230,1, //shirt
+		77,77,77,1, //shoes
+		245,224,205,1, //skin
+		149,149,149,1, // nada
+		149,149,149,1, // nada
+		179,179,179,1, // eyes & hair
+		149,149,149,1, // nada
+		77,77,77,1 // pants
+	],
+	'civilian': [
+		80,89,43,1, //shirt
+		51,39,22,1, //shoes
+		241,219,203,1, //skin
+		149,149,149,1, // nada
+		149,149,149,1, // nada
+		229,237,150,1, // eyes & hair
+		149,149,149,1, // nada
+		73,56,32,1 // pants
+	],
+	'infected': [
+		87,32,0,1, //shirt
+		241,244,206,1, //shoes
+		241,244,206,1, //skin
+		149,149,149,1, // nada
+		149,149,149,1, // nada
+		207,158,118,1, // eyes & hair
+		149,149,149,1, // nada
+		44,28,21,1 // pants
+	],
+
+	'poker': [69,51,32,1]
+},
+
+animations = {
+	'person': [
+		// Walking
+		[0,0.5,0,0,0.5,0,0,0.1,0,0,-0.3,0,0,-0.3,0,-0.1,-0.2,0.1,0,0.1,0,0,0.1,0,0,0.1,0,0,0.1,0,0,0,0,0,0,0,0,0.1,0,0,0.1,1.2,0.1,0.3,0.1,0,0.5,0.1,0.1,0.3,0,0,-0.3,-0.1,0,-0.3,-0.1,0,0.5,0.1,0,0.7,5,0,0.7,5,0,-0.4,5.1,0,-0.4,5.1,0,0.2,-1,0,0.2,-1,0,0.3,-1,0,0.3,-1,-0.2,-0.1,2.6,-0.2,-0.3,2.6,-0.2,-0.3,2.5,-0.2,-0.1,2.6,0,0.1,-0.2,0,0.1,-0.2,0,0,-0.2,0,0,-0.2,0.1,0.2,1.2,0.1,0.3,1.1,-0.1,0,1.2,0,0,1.1,0,0.1,0,0,0.1,0,0,0.1,0,0,0.1,0,0,0.1,0,0,0.1,0,0,0.1,0,0,0.1,0,0,0.1,0,0,0.1,0,0,0.1,0,0,0.1,0,0,0.1,0,0,0.1,0,0,0.1,0,0,0.1,0,0,0.1,0,0,0.1,0,0,0.1,0,0,0.1,0,0,0.1,0,0,0.1,0,0,0.1,0,0,0.1,0,0,0.1,0,0,0.1,0,0,0.1,0,0,0.1,0,0,-0.4,-5.3,0,0.2,-5.3,0,0.2,-5.3,0,-0.4,-5.3,0,-0.7,2.4,0,-0.7,2.4,0,-0.3,2.5,0,-0.3,2.5,0,0.3,-2.7,0,0.3,-2.7,0,0.7,-2.6,0,0.7,-2.6,0,0.3,4.7,0,0.3,4.7,0,0.6,4.6,0,0.6,4.6,0,-0.4,-5.1,0,-0.4,-5.1,0,-0.2,-5.1,0,-0.2,-5.1],
+		// Combat
+		[0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0.5,0.3,0.1,0,0.1,0.1,0,0.1,0.1,-0.5,-0.3,0.1,-0.5,-0.3,0.1,0,0.1,0,0,1.2,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,2.9,-4.3,0,2.9,-4.3,0,3.2,-4,0,3.1,-4,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,1.4,-2,0.1,1.4,-2,0.1,0.9,-2.3,0.1,0.9,-2.3,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1,0.1,0,0.1]
+	],
+	'poker': [
+		// Walking
+		[0,0.02,0.91,0,-1.49,0.97,0,-1.49,0.97,0,0.02,0.91,0,0.01,0.79,0,0.01,0.79,0,-1.49,0.85,0,-1.49,0.85,0,-2,0.95,0,-2,0.95,0,-2,0.93,0,-2,0.93],
+		// Combat
+		[0.07,2.77,-2.98,0.07,2.16,-3.04,0.06,2.16,-3.04,0.06,2.77,-2.98,0.07,2.77,-3.03,0.06,2.77,-3.03,0.06,2.17,-3.09,0.07,2.17,-3.09,0.06,1.96,-3.07,0.06,1.96,-3.07,0.06,1.97,-3.08,0.06,1.97,-3.08]
+	]
+},
+
+models = {
+	'person': new Geometry(
+		[-0.4,7,-0.6,-1,7,-0.6,-1.2,11.3,-0.6,0.4,7.4,-0.6,1,7.4,-0.6,-1.3,11.6,-0.6,0.3,11.9,-0.6,1.5,11.5,-0.6,1.2,11.3,-0.6,-0.2,11.9,-0.6,0.9,11.5,0.5,1.5,11.6,0.5,0.2,11.9,0.5,-0.2,11.9,-0.6,-1.5,11.4,0.4,1,6.8,0.3,-1,11.4,0.5,-1,7.2,0.5,-0.4,7.2,0.5,0.4,6.8,0.3,0.9,0,-1.7,0.5,0,-1.7,0.5,0.3,-3.2,0.9,0.3,-3.2,1.7,7.3,0.3,1.4,7.3,0.3,1.4,7.3,0,1.7,7.3,0,-1.3,7.6,-1.6,-1.2,7.7,-1.8,-1,7.7,-1.7,-1,7.5,-1.5,1.6,9.3,-0.1,1.2,9.2,-0.1,1.6,9.3,0.4,1.2,9.3,0.4,-1.5,9.2,-0.3,-1.1,9.2,-0.2,-1.4,9.3,-0.8,-1,9.3,-0.7,0.3,13.6,0.4,0.3,13.6,-0.4,-0.3,13.6,-0.5,-0.3,13.6,0.4,0.2,12.1,0.2,-0.2,12.1,0.2,0.3,12.1,-0.3,-0.2,12.1,-0.3,0.3,12.1,0.3,-0.3,12.1,0.3,0.4,12.1,-0.4,-0.3,12.1,-0.4,0.5,12.8,0.7,-0.5,12.8,0.7,0.5,12.8,-0.7,-0.5,12.8,-0.8,-0.3,12.8,-0.8,-0.1,12.8,-0.8,0.2,12.8,-0.7,0.4,12.8,-0.7,0.5,13.1,0.7,-0.5,13.1,0.7,0.5,13.1,-0.7,0.4,13.1,-0.7,-0.5,13.1,-0.8,-0.3,13.1,-0.8,-0.1,13.1,-0.8,0.2,13.1,-0.7,-0.9,0.4,3.4,-0.9,0,1.9,-0.4,0,1.9,-0.4,0.4,3.4,0.9,4.4,-2.3,0.5,4.4,-2.3,0.9,4.1,-1.8,0.5,4.1,-1.8,-0.9,3.8,1,-0.4,3.8,1,-0.9,3.7,0.4,-0.4,3.7,0.4,0.9,0.6,-2.1,0.5,0.6,-2.1,0.9,0.5,-1.7,0.5,0.5,-1.7,-0.9,1,3.2,-0.4,1,3.2,-0.9,0.8,2.7,-0.4,0.8,2.7],
+		[0,1,2,0,3,0,2,0,4,3,2,0,4,2,5,0,6,7,8,0,9,6,8,0,5,9,8,0,4,5,8,0,10,11,12,0,10,12,13,0,10,13,14,0,15,10,14,0,15,14,16,0,16,17,18,0,16,18,19,0,15,16,19,0,20,21,22,1,22,23,20,1,17,16,2,0,2,1,17,0,14,13,9,0,9,5,14,0,24,25,26,2,26,27,24,2,15,4,8,0,8,10,15,0,28,29,30,2,30,31,28,2,8,7,32,0,32,33,8,0,7,11,34,0,34,32,7,0,11,10,35,0,35,34,11,0,10,8,33,3,33,35,10,3,16,14,36,0,36,37,16,0,14,5,38,0,38,36,14,0,5,2,39,0,39,38,5,0,2,16,37,4,37,39,2,4,33,32,27,2,27,26,33,2,32,34,24,2,24,27,32,2,34,35,25,2,25,24,34,2,35,33,26,2,26,25,35,2,37,36,28,2,28,31,37,2,36,38,29,2,29,28,36,2,38,39,30,2,30,29,38,2,39,37,31,2,31,30,39,2,11,7,6,0,6,12,11,0,40,41,42,5,42,43,40,5,13,12,44,2,44,45,13,2,12,6,46,2,46,44,12,2,6,9,47,2,47,46,6,2,9,13,45,2,45,47,9,2,45,44,48,2,48,49,45,2,44,46,50,2,50,48,44,2,46,47,51,2,51,50,46,2,47,45,49,2,49,51,47,2,49,48,52,2,52,53,49,2,48,50,54,2,54,52,48,2,50,51,55,2,50,55,56,2,50,56,57,2,50,57,58,2,50,58,59,2,50,59,54,2,51,49,53,2,53,55,51,2,53,52,60,5,60,61,53,5,52,54,62,5,62,60,52,5,59,63,62,2,62,54,59,2,55,53,61,5,61,64,55,5,61,60,40,5,40,43,61,5,60,62,41,5,41,40,60,5,65,64,42,2,66,65,42,2,67,66,42,2,63,67,42,2,62,63,42,2,62,42,41,2,64,61,43,5,43,42,64,5,55,64,65,2,65,56,55,2,56,65,66,5,66,57,56,5,57,66,67,2,67,58,57,2,58,67,63,5,63,59,58,5,18,0,3,6,3,19,18,6,68,69,70,1,70,71,68,1,3,4,72,7,72,73,3,7,4,15,74,7,74,72,4,7,15,19,75,7,75,74,15,7,19,3,73,7,73,75,19,7,18,17,76,7,76,77,18,7,17,1,78,7,78,76,17,7,1,0,79,7,79,78,1,7,0,18,77,7,77,79,0,7,73,72,80,7,80,81,73,7,72,74,82,7,82,80,72,7,74,75,83,7,83,82,74,7,75,73,81,7,81,83,75,7,77,76,84,7,84,85,77,7,76,78,86,7,86,84,76,7,78,79,87,7,87,86,78,7,79,77,85,7,85,87,79,7,81,80,23,1,23,22,81,1,80,82,20,1,20,23,80,1,82,83,21,1,21,20,82,1,83,81,22,1,22,21,83,1,85,84,68,1,68,71,85,1,84,86,69,1,69,68,84,1,86,87,70,1,70,69,86,1,87,85,71,1,71,70,87,1]
+	),
+	'poker': new Geometry(
+		[1.45,7.44,-0.3,1.45,8.05,-3.71,1.63,8.05,-3.71,1.63,7.44,-0.3,1.45,7.72,-0.25,1.63,7.72,-0.25,1.63,8.32,-3.66,1.45,8.32,-3.66,1.56,8.36,-4.86,1.52,8.36,-4.86,1.52,8.42,-4.85,1.56,8.42,-4.85],
+		[0,1,2,0,2,3,0,0,4,5,6,0,6,7,4,0,0,3,5,0,5,4,0,0,3,2,6,0,6,5,3,0,8,9,10,0,10,11,8,0,1,0,4,0,4,7,1,0,2,1,9,0,9,8,2,0,1,7,10,0,10,9,1,0,7,6,11,0,11,10,7,0,6,2,8,0,8,11,6,0]
+	),
+	'tile': new Geometry(
+			[
+				-4.7,0,-4.7,
+				4.7,0,-4.7,
+				4.7,0,4.7,
+				-4.7,0,4.7
+			],
+			[
+				2,1,0,0,
+				3,2,0,0
+			]
+		),
+	'wall': new Geometry(
+			[
+				-5,10,-5,
+				5,10,-5,
+				5,0,-5,
+				-5,0,-5
+			],
+			[
+				2,1,0,0,
+				3,2,0,0
+			]
+		),
+	'terminal': new Geometry(
+			[
+				-1,8,2,
+				1,8,2,
+				2,0,2,
+				-2,0,2,
+
+				-2,0,-2,
+				-1,10,0,
+
+				2,0,-2,
+				1,10,0
+			],
+			[
+				// South
+				2,1,0,0,
+				3,2,0,0,
+
+				// West
+				3,0,5,0,
+				5,4,3,0,
+
+				// North
+				4,5,7,0,
+				7,6,4,0,
+
+				// East
+				6,7,1,0,
+				1,2,6,0,
+
+				// Top
+				1,7,5,1,
+				5,0,1,1
+			]
+		)
+},
+
+players = [],
+player,
+terminal,
+score = 0,
+
+focus = function( who ) {
+	cam.look_at_target.copy( who.p ).sub( player.p );
+	cam.look_at_target.y = 10;
+	cam.position_target.set( 10, 25, 10 );
+},
+
+dialog = (function() {
+	var pieces = [	// Intro
+			{ t: 1, i: -5, w: 'scientist', '1': "<b>SOLOMON ASCH:</b><br>Get back! I'm warning you!", '2': "Listen, I can't defend myself. Just please, think about what you're doing!" },
+			{ t: 1, i: 3, w: 'scientist', '1': "<b>ALBERT BANDURA:</b><br>Wait! We think you may be sick, we're only trying to help.", '2': "Can you hear us? You're hearing another voice, aren't you?" },
+			{ t: 2, i: 3, w: 'scientist', '1': "<b>STANLEY SCHACHTER:</b><br>Don't get too close! He's infected!", '2': "Yes, YOU. YOU are infected." },
+			{ t: 2, i: 2, w: 'scientist', '1': "<b>GUSTAVE LE BON:</b><br>Come on, would you put that thing down? Does it look like that's helping this situation?", '2': "You probably think I'm trying to trick you. Why are all the INFECTEDS thinking that?!" },
+			{ t: 3, i: 1, w: 'scientist', '1': "<b>WILLIAM MCDOUGALL:</b><br>PLEASE! Don't kill the refugees. Don't activate the self destruct. Don't do whatever it's telling you, please . . .", '2': "We're running out of guards . . . you win . . . just please don't kill all of us." },
+			{ t: 2, i: 1, w: 'scientist', '1': "<b>ROBERT SHILLER:</b><br>It was supposed to just be a high tech personal assistant, like that phone app that talks to you. But it seems that once it's in your head, you can't tell the difference between it, and you.", '2': "The hard reset probably didn't help things either. Let me guess, the last thing you remember is just standing around, this voice telling you what to do?" },
+			{ t: 1, i: 1, w: 'scientist', '1': "<b>ROD DICKINSON:</b><br>You look disoriented. Did you get hit by the hard reset?", '2': "We'll have everything back online soon." },
+			{ t: 3, i: 1, w: 'scientist', '1': "<b>STAN MILGRAM:</b><br>If it makes you feel any better, we're all pretty confused.", '2': "This is only hour one of the virus . . . there's no telling how far it has reached within the network." },
+			{ t: 3, i: 2, w: 'scientist', '1': "<b>KURT LEWIN:</b><br>If things keep up like this, they'll blow the place, no questions asked.", '2': "That won't stop the spread! Plus they'd be blowing up the debugger along with us!" },
+			{ t: 1, i: 1, w: 'civilian', '1': "<b>PETER HOOK:</b><br>They've got an debugger off in the room to the far left. Can't get it out though, the scientists are being held in by the INFECTEDS.", '2': "I guess there's too many of 'em for the guards. It's a really awful situation." },
+			{ t: 4, i: 5, w: 'scientist', '1': "<b>GUSTAV FECHNER:</b><br>I stopped going to church . . . probably four years ago. Sometimes I think that if I had been there this Sunday, I might have avoided this.", '2': "But it wouldn't have saved all of these people, would it? See, that's the problem with the whole thing. I guess I'd just rather be here fixing things myself." },
+			{ t: 2, i: 3, w: 'scientist', '1': "<b>IVAN PAVLOV:</b><br>If I would have thought my computer science degree would have come to being stabbed by buggy software, I would have gone to art school.", '2': "You wouldn't guess it, but I'm quite good with charcoal. A lot better than QAing software. If you know what I mean. Sorry about your brain." },
+			{ t: 1, i: 3, w: 'civilian', '1': "<b>PAUL COOK:</b><br>This laboratory isn't even that old, and now it looks like we'll have to destroy it.", '2': "I'm not kidding, there's a control room to the far right that could blow this whole place up with the touch of the button." },
+			{ t: 1, i: 2, w: 'civilian', '1': "<b>WILLIAM REID:</b><br>All the <b>INFECTEDS</b> seem to be heading to the right, where the refugees are. That's scary.", '2': "Well, some of them are going to the debugger room to the left. If they kill the <b>SCIENTISTS</b> working to reverse this, we're really screwed." },
+			{ t: 2, i: 1, w: 'scientist', '1': "<b>PHILIP ZIMBARDO:</b><br>Don't take it out on me! I told them the code wasn't ready. They pushed it anyway.", '2': "I kinda wish I could hear what you're hearing. It would be easier to debug . . ." },
+			{ t: 4, i: 5, w: 'civilian', '1': "<b>GLEN MATLOCK:</b><br>Sometimes I wonder what it's like to be a zombie. Would you know what you're doing is weird?", '2': "I suppose not. It would make more sense to me that you simply saw things differently. Does that make sense?" },
+			{ t: 2, i: 3, w: 'civilian', '1': "<b>JIM REID:</b><br>You going left? Or are you going right? I need to know if I can trust you.", '2': "Still making up your mind maybe? Take your time. We're just being stabbed to death, no hurry." },
+			{ t: 3, i: 3, w: 'civilian', '1': "<b>JOHN LYDON:</b><br>So a man walks into a bar, and stares into his phone the entire evening. The bartender says nothing, he's checking his email.", '2': ". . . Get it? Of course not; you're zoned out like every other early adopter who bought the brain implant." },
+			{ t: 3, i: 3, w: 'civilian', '1': "<b>STEVEN PATRICK:</b><br>How's that remarkable new app treating you? Having fun hearing voices, committing random acts of violence?", '2': "You forget how to talk after that thing wiped your brain? No that's fine, just keep walking and stabbing at the air." },
+			{ t: 3, i: 2, w: 'scientist', '1': "<b>HERBERT BLUMER:</b><br>People were amazed by the promise of thought-controlled web searches and task management. Who wouldn't be?", '2': "In typical corporate fashion, we rushed the thing to market. Now look at this mess." },
+			{ t: 4, i: 3, w: 'scientist', '1': "<b>WILHELM WUNDT:</b><br>Lesson learned - no more brain-apps until we understand the brain better. Boy, did we EVER miss some blind spots.", '2': "Can you just tell me what it's saying to you? It might help us solve all this faster." },
+			{ t: 1, i: 3, w: 'scientist', '1': "<b>DIANA BAUMRIND:</b><br>If someone would just get to the room on the far left of the lab, we could get the debugger out and start reversing all this.", '2': "You wanna go? You've got that pointy stick already. Just plow through the <b>INFECTEDS</b> blocking the way." },
+			{ t: 1, i: 1, w: 'scientist', '1': "<b>THOMAS BLASS:</b><br>If you can hear me, say something.", '2': "That's what I thought. These guys are completely brain dead." },
+			{ t: 4, i: 4, w: 'scientist', '1': "<b>NICK ANDERSON:</b><br>You have any kids, any family? I have a girlfriend I'd really like to see again. You're really lowering the chances of that happening.", '2': "If I could see Katy again, I’d take her back to Osteria Marco for another first date. Just one more night would be enough for me." }
+		],
+		possibilities_sorter = function( a, b ) {
+			// Push the more important pieces to the top, with some randomness to keep things interesting
+			return ( a.i + Math.random() ) - ( b.i * Math.random() );
+		},
+		times_interjected = 0,
+		second_speech,
+		i1;
+
+	return {
+		timeout: null,
+		speak: function( timing, who ) {
+			if ( pieces[l] === 0 ) return;
+
+			var possibilities = [],
+				selection;
+
+			for ( i1 = 0; i1 < pieces[l]; i1++ ) {
+				// Make sure we are ready for this dialog and it's being said by the right person
+				if ( pieces[i1].t > timing || pieces[i1].w !== who.type ) continue;
+
+				// Check if the player needs to be [un]infected for this dialog
+				if ( pieces[i1].a !== undefined && pieces.a !== player.infected ) continue;
+
+				pieces[i1].idx = i1; // remember what array index this piece is in
+				possibilities.push( pieces[i1] );
+			}
+
+			if ( possibilities[l] === 0 ) return;
+			possibilities.sort( possibilities_sorter );
+			selection = possibilities[0];
+
+			// If this piece's importance is greater than 1 then ignore it 20% of the time
+			if ( selection.i > 1 && Math.random() >= .8 ) return;
+
+			pieces.splice( selection.idx, 1 );
+
+			setTimeout(function() {
+				if ( who['health'] <= 0 ) return;
+
+				focus( who );
+
+				prompt['say'](
+					'<i>' + selection['1'].replace( '<br>', '<br>"' ) + '"</i>',
+					function() {
+						if ( times_interjected > 3 ) {
+							dialog.timeout = setTimeout(
+								function() {
+									if ( who['health'] > 0 ) {
+										focus( who );
+										prompt['say']( '<i>"' + selection['2'] + '"</i>', null, who.type );
+									}
+								},
+								2000
+							);
+						}
+					},
+					who.type
+				);
+				if ( ++times_interjected <= 3 ) {
+					prompt['say'](
+						'Enemies will try to trick you. Click <b>SPACEBAR</b> to attack them, and continue to the room at the <b>FAR RIGHT</b>.',
+						function() {
+							dialog.timeout = setTimeout(
+								function() {
+									if ( who['health'] > 0 ) {
+										focus( who );
+										prompt['say']( '<i>"' + selection['2'] + '"</i>', null, who.type );
+									}
+								},
+								1000
+							);
+						}
+					);
+				}
+			}, 100);
+		}
+	};
+})(),
+
+prompt = new (function() {
+	this['callback'] = null;
+	this['prompt_time'] = 0;
+	this['stack'] = [];
+	this['status'] = false;
+	this['say'] = function( message, callback, className ) {
+		this['stack'].push({ 'message': message, 'callback': callback, 'class': className || '' });
+	};
+	this['display'] = function() {
+		if ( this.stack[l] > 0 ) {
+			this['prompt_time'] = (new Date).getTime();
+			this['status'] = true;
+			t1 = this['stack'].splice( 0, 1 )[0];
+			t.innerHTML = t1['message'];
+			d.className = t1['class'];
+			this['callback'] = t1['callback'];
+			d.style.display = 'block';
+		}
+	};
+	this['clear'] = function() {
+		if ( (new Date).getTime() > this['prompt_time'] + 500 ) {
+			if ( player['health'] === -1 ) {
+				// Player is dead, we are clearing the death message
+				location.reload();
+			}
+
+			this.status = false;
+			d.style.display = 'none';
+			cam.position_target.set( -40, 80, 80 );
+			cam.look_at_target.set( 0, 10, 0 );
+
+			if ( this['callback'] instanceof Function ) {
+				this['callback']();
+				this['callback'] = null;
+			}
+		}
+	};
+})(),
+
+// Temporary variables
+i1,i2,i3,
+t1,t2,t3,
+v1 = new V3, v2 = new V3, v3 = new V3, v4 = new V3,
+v4_1 = new V4, v4_2 = new V4, v4_3 = new V4,
+m1 = new M4,
+
+run = function() {
+	document.addEventListener(
+		'click',
+		function( ev ) {
+			if ( prompt['status'] ) {
+				prompt['clear']();
+				return;
+			}
+
+			clearTimeout( dialog.timeout );
+
+			var vector = new V3(
+				( (ev.clientX - ca.offsetLeft) / b ) * 2 - 1,
+				- ( (ev.clientY - ca.offsetTop) / e ) * 2 + 1,
+				.5
+			);
+			
+			var inverse = new M4().getInverse( cam.p ),
+				rotator = new M4().multiply( new M4().extractRotation( cam.m ), inverse );
+			rotator.multiplyV3( vector );
+			vector.normalize();
+
+			vector.multiplyScalar( -cam.m.getPosition().y / vector.y );
+			vector.add( cam.m.getPosition().clone() );
+			player.t.set( vector.x, .3, vector.z );
+		}
+	);
+	prompt['say']( 'Welcome to <b>Biochemical Lab #13</b>. Left click on the map to walk.' );
+	last_anim = (new Date).getTime();
+	anim();
+},
+attack = function( who, direction, damage ) {
+	v2.set( 0, 0, -1 );
+	m1.extractRotation( who.m );
+	m1.multiplyV3( v2 );
+	v2.multiplyScalar( 10 );
+	v2.add( who.p );
+
+	for ( i2 = 0; i2 < players[l]; i2++ ) {
+		if ( players[i2]['infected'] === who['infected'] && who !== player ) continue;
+		if ( players[i2]['health'] <= 0 ) { continue };
+		if ( players[i2] === who ) { continue };
+
+		if ( v3.copy( players[i2].p ).sub( v2 ).lengthSq() <= 200 ) {
+			players[i2]['health'] -= damage;
+			if ( players[i2]['health'] < 0 ) players[i2]['health'] = 0;
+			return; // only stab one person at a time
+		}
+	}
+	
+},
+
+// Message flags
+has_walked = false,
+first_guard = false,
+first_scientist = false,
+first_civilian = false,
+first_infected = false,
+
+seen_kerpow = false,
+
+last_anim, now, delta,
+anim = function() {
+	now = (new Date).getTime();
+	delta = now - last_anim;
+	last_anim = now;
+
+	if ( !has_walked ) {
+		v1.set( 680, .3, 550 );
+		if ( v1.sub( player.p ).lengthSq() > 900 ) {
+			has_walked = true;
+			prompt['say']( 'Earlier today an airborne virus escaped from the lab, which has infected nearly 50% of the city\'s residents.' );
+			prompt['say']( 'The INFECTED are not very strong, but are very smart. One by one they are capturing humans and killing them. This is their nest.');
+			prompt['say']( 'An ANTIDOTE is being held in a room to the FAR RIGHT. You must find it and release it before everyone becomes INFECTED.');
+		}
+	}
+
+	if ( !prompt['status'] ) {
+		prompt['display']();
+
+		// move players
+		player_movement:
+		for ( i1 = 0; i1 < players[l]; i1++ ) {
+
+			if ( players[i1]['health'] > 0 ) {
+
+				// direction faced
+				v1.copy( players[i1].t ).sub( players[i1].p );
+
+				// if this is an AI person, check for action
+				if ( players[i1] !== player && players[i1].iv ) {
+					for ( i2 = 0; i2 < players[l]; i2++ ) {
+						if (
+							players[i1] !== players[i2],
+							players[i2]['health'] > 0 // player isn't already dead
+							&& players[i1]['infected'] !== players[i2]['infected'] // player is not on AI's side
+							&& players[i1].k[l] > 0 // AI is armed
+							&& !players[i1].combat // not already striking
+							&& v2.copy( players[i2].p ).sub( players[i1].p ).lengthSq() <= 100 // player is within range
+						) {
+							players[i1].combat = .01;
+							players[i1].is_attacking = true;
+							break;
+						}
+					}
+				}
+
+				// Combat animation
+				if ( players[i1].combat ) {
+					players[i1].combat += .1 * ( delta / 16 );
+					if ( players[i1].combat >= 2 ) players[i1].combat = 0;
+					if ( players[i1].is_attacking && players[i1].combat >= .4 ) {
+						players[i1].is_attacking = false;
+						attack(
+							players[i1],
+							v1,
+							players[i1] === player ? 100 : // player attacks with full strength
+											(
+												players[i1].type === 'guard' ? 5 // guards damage 5 points
+												: 10 // everyone else does 10 damage
+											)
+						);
+					}
+
+					players[i1].ap[1] = players[i1].combat;
+					if ( players[i1].ap[1] > 1 ) players[i1].ap[1] = 2 - players[i1].ap[1];
+
+					if ( players[i1].k[l] > 0 )
+						players[i1].k[0].ap[1] = players[i1].ap[1];
+				}
+
+				// Walking
+				if ( Math.abs( v1.x ) > .3 || Math.abs( v1.z ) > .3 ) {
+					// Player speed is .025, AI is .019
+					t1 = ( players[i1] === player ) ? .025 * delta : .019 * delta;
+
+					// v2 is where the player will be
+					v2.copy( players[i1].p )
+					v2.x += Math.min( Math.abs( v1.x ) > .3 ? t1 * (v1.x > 0 ? 1 : -1) : 0, Math.abs( players[i1].t.x - players[i1].p.x ) );
+					v2.z += Math.min( Math.abs( v1.z ) > .3 ? t1 * (v1.z > 0 ? 1 : -1) : 0, Math.abs( players[i1].t.z - players[i1].p.z ) );
+
+					// v3 is for collisions
+					v3.copy( players[i1].p )
+					v3.x += Math.abs( v1.x ) > .3 ? 5 * (v1.x > 0 ? 1 : -1) : 0;
+					v3.z += Math.abs( v1.z ) > .3 ? 5 * (v1.z > 0 ? 1 : -1) : 0;
+
+					// Check map bounds
+					if (
+						v3.x < 0 || v3.z < 0 || v3.x / 10 > map[0][l] - 1 || v3.z / 10 > map[l] - 1 // Map edges
+						||
+						map[Math.round( v3.z / 10 )][Math.round( v3.x / 10 )] !== 1
+					) {
+						continue;
+					}
+					
+					// Check against player positions
+					for ( i2 = 0; i2 < players[l]; i2++ ) {
+						if ( players[i2]['health'] <= 0 ) continue;
+						if ( players[i1] === players[i2] ) continue;
+						v4.copy( v2 ).sub( players[i2].p );
+						if ( v4.lengthSq() <= 20 ) continue player_movement;
+					}
+
+					// Do move!
+					players[i1].p.x = v2.x;
+					players[i1].p.z = v2.z;
+					players[i1].m.lookAt( v2.clone() );
+					players[i1].r.getRotationFromMatrix( players[i1].m );
+					
+					// Walking animation
+					if ( !players[i1].a_desc ) {
+						players[i1].ap[0] += 0.075;
+						if ( players[i1].ap[0] > 1 ) players[i1].a_desc = true;
+					} else {
+						players[i1].ap[0] -= 0.075;
+						if ( players[i1].ap[0] < 0 ) players[i1].a_desc = false;
+					}
+					if ( players[i1].k[l] > 0 )
+						players[i1].k[0].ap[0] = 1 - players[i1].ap[0];
+				}
+
+			} else if ( players[i1]['health'] === 0 ) {
+				players[i1]['health'] = -1;
+
+				// Player has died
+				players[i1].ap[0] = .5;
+				players[i1].ap[1] = 0;
+
+				if ( players[i1].k[l] > 0 ) {
+					players[i1].k[0].ap[0] = .5;
+					players[i1].k[0].ap[1] = 0;
+				}
+
+				if ( !players[i1].infected ) score++;
+
+				players[i1].p.y += .5;
+				v2.copy( players[i1].p );
+				v2.x += Math.random() * .02 - .01;
+				v2.y = 10;
+				v2.z += Math.random() * .02 - .01;
+				players[i1].m.lookAt( v2 );
+				players[i1].r.getRotationFromMatrix( players[i1].m );
+
+				if ( players[i1]['type'] === 'scientist' ) {
+					player['health'] += 20;
+					if ( player['health'] > 100 ) player['health'] = 100;
+				}
+
+				if ( players[i1] === player ) {
+					// The dead guy is our heroic player
+					cam.position_target.set( -15, 30, 15 );
+					prompt['say']( 'You have been killed. Click or press any key to restart.' );
+				}
+			}
+		}
+	}
+	
+
+	// set camera position
+	v1.copy( cam.position_target ).sub( cam.position ).multiplyScalar( .015 );
+	if ( v1.lengthSq() > 1 ) v1.multiplyScalar( 1 / v1.length() );
+	cam.position.add( v1.multiplyScalar( delta / 16 ) );
+
+	v1.copy( cam.look_at_target ).sub( cam.look_at ).multiplyScalar( .015 );
+	if ( v1.lengthSq() > 1 ) v1.multiplyScalar( 1 / v1.length() );
+	cam.look_at.add( v1.multiplyScalar( delta / 16 ) );
+
+	v1.copy( player.p ).add( cam.position );
+	cam.m.setPosition( v1 );
+
+	v1.copy( player.p ).add( cam.look_at );
+	cam.m.lookAt( v1 );
+
+	render();
+
+	// Check for winning/losing conditions
+	if ( player.p.x <= 80 && player.p.z >= 60 && player.p.z <= 130 ) {
+		// Find a scientist in the room
+		for ( i1 = 0; i1 < players[l]; i1++ ) {
+			if ( players[i1].type === 'scientist' && players[i1].p.x <= 80 && players[i1].p.z >= 60 && players[i1].p.z <= 130 ) {
+				players[i1].iv = true;
+				v2.copy( player.p );
+				v2.y = .3;
+				players[i1].m.lookAt( v2 );
+				players[i1].r.getRotationFromMatrix( players[i1].m );
+				focus( players[i1] );
+				render();
+				prompt['say']( '<i>"ID#43657 - Gregory! I\'m so sorry about this. The app you downloaded, the mental assistant - there\'s something wrong with it. It\'s been giving you instructions, but you were coherent enough to question it. Thank god."</i>', null, 'scientist' );
+				prompt['say']( '<i>"We need you as a tool to convert the <b>INFECTEDS</b> - to show them which reality to believe. We need you on our side."</i>', function() {
+						var fade = 0;
+						setInterval(
+							function(){
+								fade += .01;
+								ca.style.opacity = 1 - fade;
+
+								if ( fade > 1 ) {
+									fade = 1;
+									player['health'] = -1;
+								}
+							},
+							10
+						);
+					}, 'scientist' );
+				prompt['say']( '<i>". . . You trust us, right?"</i>', null, 'scientist' );
+				break;
+			}
+		}
+	}
+
+	if ( !seen_kerpow && player.p.x >= 1300 && player.p.x <= 1320 && player.p.z >= 90 && player.p.z <= 110 ) {
+		seen_kerpow = true;
+		prompt['say']( 'Press "x" to rid the world of the virus.' );
+	}
+
+	a( anim ); // rAF loop
+},
+calculateVisibilty = 0,
+projectGraph = function() {
+	scene_renderables[l] = 0;
+	var o, c;
+	
+	calculateVisibilty += 1;
+	if ( calculateVisibilty == 5 ) calculateVisibilty = 0;
+
+	for ( i1 = 0; i1 < scene_objects[l]; i1++ ){ //loop over all scene objects
+		o = scene_objects[i1];
+		o.m.setPosition( o.p );
+		o.m.setRotation( o.r );
+		if( FR.contains( o ) ) {
+			if ( calculateVisibilty === 0 ) o.iv = isVisible( player.p, o.p );
+
+			// Display some dialog
+			if (
+				( o.type === 'scientist' || o.type === 'civilian' ) // must be a scientist or a civilian
+				&& o.iv // must be visible
+				&& !o.has_been_seen // must not have been seen before
+				&& v1.copy( o.p ).sub( player.p ).lengthSq() <= 100 // player must be within 1 tile
+			) {
+				o.has_been_seen = true;
+				// Calculate which dialog ring the AI is in
+				v1.copy( o.p ).sub( new V3( 680, .3, 340 ) ); // 680, 340 is the center of dialog rings
+				t1 = v1.length() / 10;
+				if ( t1 <= 8 ) {
+					// Within 8 tiles, no dialog
+					t2 = 0;
+				} else if ( t1 <= 20 ) {
+					// Within 20 tiles
+					t2 = 1;
+				} else if ( t1 <= 35 ) {
+					// Within 35 tiles
+					t2 = 2;
+				} else if ( t1 <= 50 ) {
+					// Within 50 tiles
+					t2 = 3;
+				} else {
+					// > 50 tiles
+					t2 = 4;
+				}
+				dialog['speak']( t2, o );
+			}
+
+			if (
+				o.type // is a character
+				&& o !== player // not the player
+				&& o.iv // is visible
+				&& Math.random() > .8 // making things look smoother
+			) {
+				if ( o.k[l] > 0 && o['infected'] !== player['infected'] ) {
+					// Person is not on the player's side and is armed, attack!
+					o.t.copy( player.p );
+				} else if ( o['infected'] !== player['infected'] ) {
+					// Person is not on the player's side and isn't armed, run!!
+					if ( calculateVisibilty === 0 ) {
+						o.t.copy( o.p ).sub( player.p ).normalize().multiplyScalar( 5 ).add( o.p );
+						o.t.x += 50 * noise( o.t.x / 5, o.t.z / 5 );
+						o.t.z += 50 * noise( o.t.x / 5 + 50, o.t.z / 5 + 50 );
+					}
+				} else if ( o.k[l] > 0 ) {
+					// AI and player are on the same side and AI is armed, search for a target
+					o.t.x = -1000;
+					for ( i2 = 0; i2 < players[l]; i2++ ) {
+						if (
+							players[i2] !== player
+							&& players[i2]['health'] > 0
+							&& players[i2].iv
+							&& players[i2]['infected'] !== o['infected']
+							&& v1.copy( players[i2].p ).sub( o.p ).lengthSq() <= 2500
+						) {
+							o.t.copy( players[i2].p );
+							break;
+						}
+					}
+					if ( o.t.x === -1000 ) {
+						o.t.x += 50 * noise( o.p.x / 5, o.p.z / 5 );
+						o.t.z += 50 * noise( o.p.x / 5 + 50, o.p.z / 5 + 50 );
+					}
+				} else {
+					// AI is on player's side and isn't armed, wander aimlessly
+					o.t.x += 50 * noise( o.p.x / 5, o.p.z / 5 );
+					o.t.z += 50 * noise( o.p.x / 5 + 50, o.p.z / 5 + 50 );
+				}
+			}
+
+			if ( o.type === 'guard' && o.iv ) {
+				if ( !first_guard ) {
+					first_guard = true;
+					focus( o );
+					prompt['say']( 'The scientists here want to study the virus at any cost. As such, the lab\'s <b>GUARDS</b> will attempt to stop you. There\'s one now.<br><br> Press <b>SPACEBAR</b> when an enemy is in front of you to attack them.' );
+				}
+			}
+
+			if ( o.type === 'scientist' && o.iv ) {
+				if ( !first_scientist ) {
+					first_scientist = true;
+					focus( o );
+					prompt['say']( 'In the lab you will also encounter <b>SCIENTISTS</b>. They will attempt to escape if you chase them and will give you <b>HEALTH</b> if you kill them. There\'s one now. Try sneaking up on him and attacking.' );
+				}
+			}
+
+			if ( o.type === 'civilian' && o.iv ) {
+				if ( !first_civilian ) {
+					first_civilian = true;
+					focus( o );
+					prompt['say']( 'The <b>INFECTED</b> are not physically dangerous, but are very crafty and will lead you into traps. Kill them on sight. There\'s a few now.' );
+				}
+			}
+			
+			if ( o.type === 'infected' && o.iv ) {
+				if ( !first_infected ) {
+					first_infected = true;
+					focus( o );
+					prompt['say']( 'A few civilians have maintained their sanity, and are on your side. Do not hurt them, they will help you defeat <b>GUARDS</b> and the <b>INFECTED</b>.' );
+				}
+			}
+
+			scene_renderables.push( o );
+			
+			for ( i2 = 0; i2 < o.k[l]; i2++ ) {
+				c = o.k[i2];
+				c.m.setPosition( c.p );
+				c.m.setRotation( c.r );
+				c.m.multiply( o.m, c.m );
+
+				c.iv = o.iv;
+				scene_renderables.push( c );
+			}
+		}
+	}
+},
+readyFaces = function() {
+	scene_elements[l]=0;
+	for( i1 = 0, t1 = scene_renderables[l]; i1 < t1; i1++ ) {
+
+		t2 = scene_renderables[i1];
+		m1.extractRotation(t2.m);
+
+		var _vertices = [],
+			visible;
+		for ( i2 = 0; i2 < t2.g.f[l]; i2++ ) {
+			// Move vertex to world position
+			v1.copy( t2.g.v[ t2.g.f[i2].v[0] ] );
+			v2.copy( t2.g.v[ t2.g.f[i2].v[1] ] );
+			v3.copy( t2.g.v[ t2.g.f[i2].v[2] ] );
+			
+			// Apply animations
+			for ( i3 = 0; i3 < t2.a[l]; i3++ ) {
+				v4.set(
+					t2.a[i3][ t2.g.f[i2].v[0] * 3 ],
+					t2.a[i3][ t2.g.f[i2].v[0] * 3 + 1 ],
+					t2.a[i3][ t2.g.f[i2].v[0] * 3 + 2 ]
+				);
+				v1.add( v4.multiplyScalar( t2.ap[i3] ) );
+
+				v4.set(
+					t2.a[i3][ t2.g.f[i2].v[1] * 3 ],
+					t2.a[i3][ t2.g.f[i2].v[1] * 3 + 1 ],
+					t2.a[i3][ t2.g.f[i2].v[1] * 3 + 2 ]
+				);
+				v2.add( v4.multiplyScalar( t2.ap[i3] ) );
+
+				v4.set(
+					t2.a[i3][ t2.g.f[i2].v[2] * 3 ],
+					t2.a[i3][ t2.g.f[i2].v[2] * 3 + 1 ],
+					t2.a[i3][ t2.g.f[i2].v[2] * 3 + 2 ]
+				);
+				v3.add( v4.multiplyScalar( t2.ap[i3] ) );
+			}
+
+			t2.m.multiplyV3( v1 );
+			t2.m.multiplyV3( v2 );
+			t2.m.multiplyV3( v3 );
+
+			// Compute screen position
+			v4_1.copy( v1 );
+			v4_2.copy( v2 );
+			v4_3.copy( v3 );
+
+			projectionScreenMatrix.multiplyV4( v4_1 );
+			projectionScreenMatrix.multiplyV4( v4_2 );
+			projectionScreenMatrix.multiplyV4( v4_3 );
+
+			v4_1.x /= v4_1.w;
+			v4_1.y /= v4_1.w;
+			//v4_1.visible = v4_1.z > near && v4_1.z < far;
+			if ( v4_1.z < cam.near || v4_1.z > cam.far ) continue;
+			v4_2.x /= v4_2.w;
+			v4_2.y /= v4_2.w;
+			if ( v4_1.z < cam.near || v4_1.z > cam.far ) continue;
+			//v4_2.visible = v4_2.z > near && v4_2.z < far;
+			v4_3.x /= v4_3.w;
+			v4_3.y /= v4_3.w;
+			if ( v4_1.z < cam.near || v4_1.z > cam.far ) continue;
+			//v4_3.visible = v4_3.z > near && v4_3.z < far;
+
+			visible = ( ( v4_3.x - v4_1.x ) * ( v4_2.y - v4_1.y ) - ( v4_3.y - v4_1.y ) * ( v4_2.x - v4_1.x ) ) < 0;
+
+			if (!visible) continue;
+
+			v1.copy( t2.g.f[i2].n );
+			m1.multiplyV3( v1 );
+
+			t3 = new F(
+				[ v4_1.clone(), v4_2.clone(), v4_3.clone() ],
+				t2.c[ t2.g.f[i2].m ],
+				v1.clone()
+			).computeW();
+
+			t3.model = t2;
+			if ( !t2.iv && t2.a.length > 0 ) continue;
+			scene_elements.push( t3 );
+		}
+	}
+}
+FSorter = function( a, b ) {
+	return ( b.w ) - ( a.w );
+},
+expand = function( v1, v2 ) {
+	// For dealing with canvas anti-aliasing
+	var x = v2.x - v1.x, y = v2.y - v1.y,
+	det = x * x + y * y, idet;
+
+	if ( det == 0 ) return;
+
+	idet = 1 / sq( det );
+
+	x *= idet; y *= idet;
+
+	v2.x += x; v2.y += y;
+	v1.x -= x; v1.y -= y;
+},
+createPerson = function( type, armed ) {
+	var person = new Model(
+		models['person'],
+		materials[type]
+	);
+	person.type = type;
+	person.ap[0] = 0;
+	person.ap[1] = 0;
+	person.a = animations.person;
+	person.has_been_seen = false;
+	person.is_attacking = false;
+
+	person['health'] = 100;
+	person['infected'] = ( type === 'infected' );
+
+	if ( armed ) {
+		person.k.push(new Model(
+			models['poker'],
+			materials['poker']
+		));
+		person.k[0].ap[0] = person.k[0].ap[1] = 0;
+		person.k[0].a = animations.poker;
+	}
+
+	return person;
+};
+renderElements = function() {
+	scene_elements.sort( FSorter );
+	for( i1=0, t1 = scene_elements[l]; i1 < t1; i1++ ) {
+		t2 = scene_elements[i1];
+
+		t2.v[0].x *= (b/2); t2.v[0].y *= (e/2);
+		t2.v[0].x += (b/2); t2.v[0].y += (e/2);
+
+		t2.v[1].x *= (b/2); t2.v[1].y *= (e/2);
+		t2.v[1].x += (b/2); t2.v[1].y += (e/2);
+
+		t2.v[2].x *= (b/2); t2.v[2].y *= (e/2);
+		t2.v[2].x += (b/2); t2.v[2].y += (e/2);
+
+		var light_normal = new V3( .2,.8,.6 ).normalize();
+		var ambient_term = .3;
+		light_value = Math.min( Math.max( light_normal.dot( t2.n ), 0 ) + ambient_term, 1 );
+		
+		// damn antialiasing
+		expand( t2.v[0], t2.v[1] );
+		expand( t2.v[1], t2.v[2] );
+		expand( t2.v[2], t2.v[0] );
+
+		v1.set(
+			Math.round( t2.m.x * light_value ),
+			Math.round( t2.m.y * light_value ),
+			Math.round( t2.m.z * light_value )
+		);
+		if ( !t2.model.iv ) v1.multiplyScalar( .4 );
+
+		c.fillStyle = 'rgba(' + Math.round( v1.x ) + ',' + Math.round( v1.y ) + ',' + Math.round( v1.z ) + ',' + t2.m.w + ')';
+		c.beginPath();
+		c.moveTo(t2.v[0].x,e-t2.v[0].y);
+		c.lineTo(t2.v[1].x,e-t2.v[1].y);
+		c.lineTo(t2.v[2].x,e-t2.v[2].y);
+		c.lineTo(t2.v[0].x,e-t2.v[0].y);
+		c.closePath();
+		c.fill();
+	}
+},
+isVisible = function( eye, point ) {
+	var i1, i2, distance;
+	// Walk on the map from eye to point
+	v1.copy( point ).sub( eye ); // eye vector
+	distance = v1.length();
+
+	if ( distance > 70 ) return false;
+
+	v1.normalize();
+
+	v2.copy( eye ); // v2 holds the current position on the map to check
+	for ( i1 = 0; i1 < distance - 1; i1++ ) {
+		if (map[ Math.round( v2.z / 10 ) ] !== undefined && map[ Math.round( v2.z / 10 ) ][ Math.round( v2.x / 10 ) ] !== undefined ) {
+			if ( map[ Math.round( v2.z / 10 ) ][ Math.round( v2.x / 10 ) ] === 0 ) {
+				return false;
+			}
+		}
+		v2.add( v1 );
+	}
+
+	return true;
+},
+FR = new FR,
+projectionScreenMatrix = new M4, //projection screen matrix
+prepareScene = function() {
+	cam.i.getInverse( cam.m );
+	projectionScreenMatrix.multiply( cam.p, cam.i );
+	FR.setFromMatrix( projectionScreenMatrix );
+	projectGraph();
+},
+grad = c.createRadialGradient( b / 2, e / 2, 0, b / 2, e / 2, b / 2 );
+render = function() {
+	// clear the screen
+	c.fillStyle = '#000';
+	c.fillRect(0,0,b,e);
+	prepareScene();
+	readyFaces();
+	renderElements();
+
+	// Vignette
+	c.fillStyle = grad;
+	c.rect(0, 0, b, e);
+	c.fill();
+
+
+	c.font = '11pt Courier';
+
+	// Draw the health bar
+	if ( player['health'] > 0 ) {
+		var health_start = b - (b * .9);
+		c.fillStyle = '#b30';
+		c.fillRect(
+			health_start,
+			10,
+			( b - health_start * 2 ) * ( player['health'] * .01 ),
+			Math.min( 20, e * .1 )
+		);
+		c.fillStyle = '#fff';
+		c.fillText( 'Health: ' + player['health'], b / 2 - 50, 25 );
+	}
+
+	// Draw score
+	if ( score > 0 ) {
+		c.fillStyle = '#fff';
+		c.fillText( 'Killed: ' + score, b - 100, 25 );
+	}
+},
+title = function() {
+	c.fillStyle = '#241D23';
+	c.fillRect(0,0,b,e);
+	c.font = '36pt Courier';
+	c.fillStyle = '#fff';
+	c.fillText( 'Mindless', b / 2 - 135, 100 );
+
+	c.font = '11pt Courier';
+	c.fillText( 'Chandler Prall, Programmer', b - 300, e - 70 );
+	c.fillText( 'Nick Anderson,  Writer', b - 300, e - 50 );
+	c.fillText( 'Shawn Gardner,  Exec. Producer', b - 300, e - 30 );
+
+	var i1, i2, i3, drawRoom = function( x1, y1, x2, y2, options ) {
+		options = options || {};
+
+		var person, people = [];
+
+		// Create tiles
+		for ( i1 = y1; i1 <= y2; i1++ ) {
+			for ( i2 = x1; i2 <= x2; i2++ ) {
+				map[i1][i2] = 1;
+			}
+		}
+
+		var types = {
+			's': 'scientist',
+			'c': 'civilian',
+			'g': 'guard',
+			'i': 'infected'
+		};
+
+		// Populate room
+		for ( var type in types ) {
+			if ( options[type + 'min'] > 0 && options[type + 'max'] ) {
+				t1 = Math.floor( Math.random() * (options[type + 'max'] - options[type + 'min'] + 1) ) + options[type + 'min'];
+				for ( i1 = 0; i1 < t1; i1++ ) {
+					var armed = false;
+					if ( type === 'g' ) armed = true;
+					if ( type === 'i' && Math.random() > .6 ) armed = true;
+					person = createPerson( types[type], armed );
+					person.p.set(
+						( (Math.random() * (x2 - x1)) + x1 ) * 10,
+						.3,
+						( (Math.random() * (y2 - y1)) + y1 ) * 10
+					);
+					person.t.set(
+						( (Math.random() * (x2 - x1)) + x1 ) * 10,
+						.3,
+						( (Math.random() * (y2 - y1)) + y1 ) * 10
+					);
+					players.push( person );
+					scene_objects.push( person );
+				}
+			}
+		}
+	};
+
+	// Generate map
+	for ( i1 = 0; i1 < 139; i1++ ) {
+		map[i1] = [];
+		for ( i2 = 0; i2 < 139; i2++ ) {
+			map[i1][i2] = 0;
+		}
+	}
+
+	// Row 1
+	drawRoom( 12, 0, 20, 6, { 'imin': 1, 'imax': 1, 'smin': 2, 'smax': 2, 'cmin': 1, 'cmax': 1 } );
+	drawRoom( 16, 7, 20, 7 );
+
+	drawRoom( 22, 0, 31, 6, { 'smin': 3, 'smax': 3, 'cmin': 2, 'cmax': 3 } );
+	drawRoom( 22, 7, 26, 7 );
+	drawRoom( 32, 3, 32, 6 );
+
+	drawRoom( 33, 0, 42, 6, { 'smin': 4, 'smax': 5 } );
+	drawRoom( 38, 7, 42, 7 );
+
+	drawRoom( 44, 0, 53, 6, { 'gmin': 1, 'gmax': 1, 'cmin': 4, 'cmax': 4 } );
+	drawRoom( 46, 7, 48, 7 );
+
+	drawRoom( 55, 0, 64, 9, { 'gmin': 1, 'gmax': 1, 'smin': 4, 'smax': 4 } );
+	drawRoom( 57, 10, 59, 10 );
+
+	drawRoom( 66, 0, 76, 9, { 'gmin': 1, 'gmax': 1, 'smin': 4, 'smax': 4 } );
+	drawRoom( 72, 10, 74, 10 );
+
+	drawRoom( 78, 0, 81, 10, { 'imin': 1, 'imax': 1, 'cmin': 2, 'cmax': 2, 'smin': 2, 'smax': 2 } );
+	drawRoom( 82, 0, 97, 4, { 'smin': 1, 'smax': 2, 'cmin': 1, 'cmax': 2 } );
+	drawRoom( 83, 5, 97, 9, { 'gmin': 1, 'gmax': 1, 'cmin': 1, 'cmax': 1 } );
+
+	drawRoom( 99, 0, 104, 4, { 'gmin': 1, 'gmax': 1, 'smin': 1, 'smax': 2, 'cmin': 2, 'cmax': 2 } );
+	drawRoom( 106, 0, 115, 4, { 'gmin': 1, 'gmax': 1, 'smin': 3, 'smax': 4 } );
+	drawRoom( 99, 5, 115, 6 );
+	drawRoom( 104, 7, 106, 7 );
+
+	drawRoom( 117, 0, 126, 6, { 'gmin': 1, 'gmax': 1, 'cmin': 3, 'cmax': 4 } );
+	drawRoom( 121, 7, 123, 7 );
+
+	// Row 2
+	drawRoom( 0, 6, 10, 13, { 'smin': 3, 'smax': 6 } );
+	drawRoom( 11, 9, 11, 10 );
+
+	drawRoom( 12, 8, 17, 14, { 'imin': 7, 'imax': 10 } );
+
+	drawRoom( 18, 8, 26, 11 );
+	drawRoom( 27, 8, 27, 10 );
+	drawRoom( 19, 12, 26, 14 );
+	drawRoom( 21, 15, 26, 15 );
+
+	drawRoom( 28, 8, 36, 18, { 'cmin': 3, 'cmax': 4, 'smin': 2, 'smax': 2 } );
+	drawRoom( 37, 10, 37, 12 );
+	drawRoom( 32, 19, 34, 19 );
+
+	drawRoom( 38, 8, 53, 13, { 'gmin': 1, 'gmax': 1, 'smin': 1, 'smax':2, 'cmin': 1, 'cmax': 1 } );
+
+	drawRoom( 54, 11, 81, 13, { 'imin': 2, 'imax': 2, 'smin': 2, 'smax': 3, 'cmin': 1, 'cmax': 1 } );
+	drawRoom( 57, 14, 59, 14 );
+	drawRoom( 78, 14, 81, 14 );
+
+	drawRoom( 98, 8, 126, 12, { 'gmin': 2, 'gmax': 3, 'smin': 2, 'smax': 3, 'cmin': 1, 'cmax': 1 } );
+	drawRoom( 104, 13, 106, 13 );
+	drawRoom( 120, 13, 122, 13 );
+	drawRoom( 127, 9, 127, 11 );
+
+	drawRoom( 128, 6, 138, 14, { 'cmin': 10, 'cmax': 12 } );
+
+	drawRoom( 95, 10, 97, 25 );
+
+	// Row 3
+	drawRoom( 12, 16, 28, 18, { 'gmin': 1, 'gmax': 1, 'imin': 1, 'imax': 1 } );
+	drawRoom( 12, 19, 21, 19 );
+
+	drawRoom( 38, 15, 42, 40, { 'gmin': 1, 'gmax': 1, 'imin': 1, 'imax': 1, 'smin': 3, 'smax': 4 } );
+	drawRoom( 43, 20, 43, 23 );
+
+	drawRoom( 44, 15, 48, 32, { 'gmin': 1, 'gmax': 1, 'imin': 1, 'imax': 1, 'cmin': 2, 'cmax': 3 } );
+	drawRoom( 49, 15, 49, 19 );
+
+	drawRoom( 50, 15, 54, 32, { 'gmin': 1, 'gmax': 1, 'smin': 2, 'smax': 2, 'cmin': 1, 'cmax': 1 } );
+	drawRoom( 55, 26, 61, 32, { 'cmin': 2, 'cmax': 2, 'smin': 1, 'smax': 1 } );
+	drawRoom( 62, 27, 65, 32 );
+
+	drawRoom( 56, 15, 67, 25, { 'gmin': 1, 'gmax': 1, 'smin': 3, 'smax': 4 } );
+
+	drawRoom( 69, 15, 75, 25, { 'imin': 1, 'imax': 2, 'smin': 1, 'smax': 1 } );
+	drawRoom( 76, 17, 76, 19 );
+	drawRoom( 72, 26, 75, 26 );
+
+	drawRoom( 77, 15, 81, 29, { 'imin': 1, 'imax': 2, 'smin': 2, 'smax': 3, 'gmin': 1, 'gmax': 1 } );
+	drawRoom( 82, 17, 82, 19 );
+	drawRoom( 78, 30, 80, 30 );
+
+	drawRoom( 83, 11, 86, 29, { 'gmin': 1, 'gmax': 1, 'smin': 2, 'smax': 2, 'cmin': 1, 'cmax': 1 } );
+	drawRoom( 87, 11, 88, 28, { 'gmin': 1, 'gmax': 1, 'smin': 2, 'smax': 2, 'cmin': 1, 'cmax': 1 } );
+	drawRoom( 89, 22, 93, 28, { 'gmin': 1, 'gmax': 1, 'smin': 1, 'smax': 1, 'imin': 1, 'imax': 2 } );
+	drawRoom( 90, 11, 93, 21 );
+	drawRoom( 94, 11, 94, 15 );
+
+	drawRoom( 99, 14, 104, 20, { 'gmin': 1, 'gmax': 1, 'smin': 1, 'smax': 2, 'cmin': 1, 'cmax': 2 } );
+	drawRoom( 105, 14, 105, 15 );
+
+	drawRoom( 106, 14, 115, 20, { 'gmin': 1, 'gmax': 1, 'smin': 3, 'smax': 4, 'cmin': 1, 'cmax': 1 } );
+
+	drawRoom( 117, 14, 126, 20, { 'gmin': 1, 'gmax': 1, 'cmin': 3, 'cmax': 5 } );
+
+	// Row 4
+	drawRoom( 12, 20, 36, 24, { 'imin': 2, 'imax': 3, 'gmin': 1, 'gmax': 1, 'cmin': 1, 'cmax': 1 } );
+	drawRoom( 37, 20, 37, 23 );
+
+	drawRoom( 98, 22, 100, 25, { 'gmin': 1, 'gmax': 1, 'cmin': 1, 'cmax': 2 } );
+	drawRoom( 124, 21, 126, 21 );
+
+	drawRoom( 101, 22, 126, 24, { 'gmin': 1, 'gmax': 1, 'cmin': 2, 'cmax': 3, 'smin': 2, 'smax': 4 } );
+
+	drawRoom( 43, 38, 51, 40, { 'gmin': 1, 'gmax': 1, 'cmin': 1, 'cmax': 2 } );
+
+	// Row 5
+	drawRoom( 44, 34, 65, 37, { 'cmin': 4, 'cmax': 5, 'smin': 3, 'smax': 4 } );
+
+	// Entry hallway
+	drawRoom( 70, 27, 75, 29, { 'imin':2, 'imax':2 } );
+	drawRoom( 67, 27, 69, 30, { 'cmin': 2, 'cmax': 2 } );
+	drawRoom( 67, 31, 69, 35 );
+	drawRoom( 67, 36, 69, 36, { 'smin': 1, 'smax': 1 } );
+	drawRoom( 67, 37, 69, 40 );
+	drawRoom( 67, 41, 69, 42, { 'gmin': 1, 'gmax': 1 } );
+	drawRoom( 67, 43, 69, 56 );
+
+	drawRoom( 71, 31, 81, 37, { 'smin': 2, 'smax': 2, 'imin': 3, 'imax':5 } );
+	
+	
+	for ( i1 = 0; i1 < map[0][l]; i1++ ) {
+		for ( i2 = 0; i2 < map[l]; i2++ ) {
+			// Floor
+			switch ( map[i2][i1] ) {
+				case 1:
+					
+					t1 = new Model( models['tile'], materials['floor_' + Math.floor( Math.random() * 3 ) ] );
+					t1.p.set( i1 * 10, 0, i2 * 10 );
+					scene_objects.push( t1 );
+					break;
+					
+			}
+
+			// Wall
+			if ( map[i2][i1] !== 0 ) {
+				if ( map[i2 - 1] === undefined || map[i2 - 1][i1] === 0 ) {
+					// Need a wall on top
+					t1 = new Model( models['wall'], materials['wall_' + Math.floor( Math.random() * 3 ) ] );
+					t1.p.set( i1 * 10, 0, i2 * 10 );
+					scene_objects.push( t1 );
+				}
+
+				if ( map[i2 + 1] === undefined || map[i2 + 1][i1] === 0 ) {
+					// Need a wall on bottom
+					t1 = new Model( models['wall'], materials['wall_' + Math.floor( Math.random() * 3 ) ] );
+					t1.p.set( i1 * 10, 0, i2 * 10 );
+					t1.r.set( 0, Math.PI, 0 );
+					scene_objects.push( t1 );
+				}
+				
+				if ( map[i2][i1 - 1] === undefined || map[i2][i1 - 1] === 0 ) {
+					// Need a wall on left
+					t1 = new Model( models['wall'], materials['wall_' + Math.floor( Math.random() * 3 ) ] );
+					t1.p.set( i1 * 10, 0, i2 * 10 );
+					t1.r.set( 0, Math.PI / 2, 0 );
+					scene_objects.push( t1 );
+				}
+				
+				if ( map[i2][i1 + 1] === undefined || map[i2][i1 + 1] === 0 ) {
+					// Need a wall on right
+					t1 = new Model( models['wall'], materials['wall_' + Math.floor( Math.random() * 3 ) ] );
+					t1.p.set( i1 * 10, 0, i2 * 10 );
+					t1.r.set( 0, Math.PI / -2, 0 );
+					scene_objects.push( t1 );
+				}
+			}
+		}
+	}
+
+	var terminal = new Model( models['terminal'], materials['terminal'] );
+	terminal.p.set( 1310, 0, 100 );
+	map[10][131] = 2; // block player from walking through the terminal
+	terminal.r.y = -Math.PI / 2;
+	scene_objects.push( terminal );
+
+	player = createPerson( 'player', true );
+	player['infected'] = true;
+	player.p.set( 680, .3, 550 );
+	player.t.copy( player.p );
+	players.push( player );
+	scene_objects.push( player );
+
+	c.font = '14pt Monospace';
+	c.fillText( 'Click to start', b / 2 - 100, 200 );
+	document.addEventListener(
+		'click',
+		function startGame() {
+			document.removeEventListener( 'click', startGame );
+
+			grad.addColorStop(0, 'rgba( 0, 0, 0, 0 )');
+			grad.addColorStop(0.7, 'rgba( 0, 0, 0, .3 )');
+			grad.addColorStop(1, 'rgba( 0, 0, 0, .8 )');
+
+			document.addEventListener( 'keydown', function( ev ) {
+				if ( prompt['status'] ) {
+					prompt['clear']();
+					return;
+				}
+
+				switch ( ev.keyCode ) {
+					case 32: //space
+						if ( !player.combat ) {
+							player.combat = .01;
+							player.is_attacking = true;
+						}
+						break;
+					case 88: // X
+						if ( player.p.x >= 1280 && player.p.x <= 1380 && player.p.z >= 60 && player.p.z <= 140 ) {
+							prompt['say']( "C:\> cd root<br>$[root] /RUN self_destruct.exe<br>-m'Humans Eliminated'<br><br>(Play Again)" );
+							player['health'] = 0;
+							setTimeout(
+								function() {
+									cam.position_target.set( 80, 150, 80 )
+								},
+								250
+							);
+							setInterval(
+								function() {
+									for ( i1 = 0; i1 < 10; i1++ ) {
+										scene_objects.splice( Math.floor( Math.random() * (scene_objects[l]-1) ), 1 );
+									}
+									if ( scene_objects[l] === 0 ) return;
+									for ( i1 = 0; i1 < 10; i1++ ) {
+										scene_objects[Math.floor( Math.random() * (scene_objects[l]-1) )].r.x += Math.random() * Math.PI - (Math.PI / 2);
+										scene_objects[Math.floor( Math.random() * (scene_objects[l]-1) )].r.y += Math.random() * Math.PI - (Math.PI / 2);
+										scene_objects[Math.floor( Math.random() * (scene_objects[l]-1) )].r.z += Math.random() * Math.PI - (Math.PI / 2);
+									}
+								},
+								5
+							);
+						}
+						break;
+				}
+			});
+
+			setTimeout(
+				function() {
+					cam.position_target.set( -40, 80, 80 );
+				},
+				1000
+			);
+
+			run();
+		}
+	);
+};
+ca.width = b;
+ca.height = e;
+title(); //start everything
 </script></body></html>
